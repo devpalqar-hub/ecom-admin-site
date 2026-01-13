@@ -1,0 +1,286 @@
+/* PAGE */
+.page {
+  padding: 32px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* BACK BUTTON */
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.backBtn:hover {
+  background: #f3f4f6;
+}
+
+/* CARD */
+.card {
+  background: #ffffff;
+  max-width: 1068px;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* FIELD */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.field input,
+.field textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* BUTTONS */
+.cancel {
+  background: #f3f4f6;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.cancel:hover {
+  background: #e5e7eb;
+}
+
+.primary {
+  background: #2563eb;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.primary:hover {
+  background: #1e40af;
+}
+
+.primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+.imageUpload {
+  margin-bottom: 20px;
+}
+
+.uploadBox {
+  height: 140px;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: border 0.2s ease;
+}
+
+.uploadBox:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.previewBox {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.previewBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeImage {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 24px;
+  }
+
+  .header {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .field input,
+  .field textarea {
+    font-size: 14px;
+  }
+
+  .uploadBox {
+    height: 130px;
+  }
+
+  .previewBox {
+    width: 140px;
+    height: 140px;
+  }
+
+  .actions {
+    margin-top: 24px;
+  }
+}
+@media (max-width: 767px) {
+  .page {
+    padding: 16px;
+  }
+
+  /* HEADER STACKED */
+  .header {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .header p {
+    font-size: 13px;
+  }
+
+  /* CARD FULL WIDTH */
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  /* FORM FIELDS */
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field input,
+  .field textarea {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  /* IMAGE UPLOAD */
+  .uploadBox {
+    height: 120px;
+    font-size: 13px;
+  }
+
+  .previewBox {
+    width: 120px;
+    height: 120px;
+  }
+
+  /* BUTTONS STACK */
+  .actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .cancel,
+  .primary {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* BACK BUTTON */
+  .backBtn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}

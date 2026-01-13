@@ -1,0 +1,147 @@
+.page {
+  padding: 32px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card {
+  background: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  max-width: 1068px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.field label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.field input,
+.field textarea,
+.field select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel {
+  background: #f3f4f6;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+
+.primary {
+  background:#6366f1;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 24px;
+  }
+
+  .header {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    padding: 24px;
+    max-width: 100%;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .actions {
+    margin-top: 24px;
+  }
+}
+@media (max-width: 767px) {
+  .page {
+    padding: 16px;
+  }
+
+  .header {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .backBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+    max-width: 100%;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    font-size: 13px;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* BUTTONS STACK */
+  .actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .cancel,
+  .primary {
+    width: 100%;
+    padding: 12px;
+  }
+}
+

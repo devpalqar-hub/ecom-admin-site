@@ -1,0 +1,159 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f5f7fb;
+}
+
+/* LEFT SIDE */
+.left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand {
+  max-width: 500px;
+  margin-left: 250px;
+}
+
+.logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6c63ff, #8b5cf6);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.brand h1 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+}
+
+.features li {
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+/* RIGHT SIDE */
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 495px;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  margin-right: 218px;
+}
+
+.card h2 {
+  margin-bottom: 6px;
+}
+
+.loginText {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.card label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.card input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0 18px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.card button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #6c63ff;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background: #5a54e6;
+}
+
+.secure {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .left {
+    display: none;
+  }
+
+  .right {
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    margin-right: 0;
+    max-width: 440px;
+    width: 100%;
+    padding: 32px;
+  }
+}
+@media (max-width: 767px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .left {
+    display: none;
+  }
+
+  .right {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .card {
+    margin-right: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 24px;
+  }
+}
