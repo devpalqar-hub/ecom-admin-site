@@ -1,0 +1,423 @@
+.page {
+  padding: 20px;
+}
+
+.productCard {
+  display: flex;
+  gap: 20px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.productCard img {
+  width: 240px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.productInfo {
+  flex: 1;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.badge {
+  background: #eef2ff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.inStock {
+  background: #dcfce7;
+  color: #166534;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.outStock {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.price span {
+  margin-left: 10px;
+  font-size: 14px;
+  text-decoration: line-through;
+  color: #888;
+}
+
+.desc {
+  margin-top: 8px;
+  color: #555;
+}
+
+.stock {
+  margin-top: 10px;
+}
+
+.extraInfo {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.reviewSummary {
+  margin-top: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.avgRating {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 5px 0;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.ratingRow progress {
+  flex: 1;
+}
+
+.reviewTitle {
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+/* ===== STYLISH REVIEW CARD ===== */
+
+.reviewCard {
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reviewCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.1);
+}
+
+.reviewTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  font-weight: 600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userBlock {
+  flex: 1;
+}
+
+.userBlock strong {
+  display: block;
+  font-size: 14px;
+}
+
+.date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.stars {
+  font-size: 16px;
+  color: #fbbf24;
+  white-space: nowrap;
+}
+
+.comment {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* ===== ADMIN ACTIONS ===== */
+
+/* Container under stars */
+.reviewActions {
+  display: flex;
+  justify-content: flex-end; /* right aligned */
+  align-items: center;       /* vertical alignment */
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Icon-only buttons */
+.reviewActions button {
+  width: 30px;
+  height: 30px;
+  padding: 0;               /* ❗ remove padding */
+  border-radius: 50%;       /* perfect circle */
+  border: none;
+  background: #f3f4f6;
+  display: flex;            /* center icon */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Icon size & color */
+.reviewActions button svg {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Hover effect */
+.reviewActions button:hover {
+  background: #e5e7eb;
+  transform: scale(1.05);
+}
+
+/* Delete button */
+.reviewActions .delete {
+  background: #fee2e2;
+}
+
+.reviewActions .delete svg {
+  color: #991b1b;
+}
+
+.reviewActions .delete:hover {
+  background: #fecaca;
+}
+/* ===== MODAL ===== */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px;
+  width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  margin-bottom: 12px;
+}
+
+.modal label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 10px;
+  display: block;
+}
+
+.modal select,
+.modal textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cancelBtn {
+  background: #e5e7eb;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.saveBtn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+@media (min-width: 1024px) {
+  .reviewCard {
+    width: 418%;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page {
+    padding: 16px;
+  }
+
+  /* Product card layout */
+  .productCard {
+    gap: 16px;
+  }
+
+  .productCard img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .productInfo {
+    flex: 1;
+  }
+
+  .meta {
+    gap: 8px;
+  }
+
+  .price {
+    font-size: 21px;
+  }
+
+  /* Reviews grid → 2 columns */
+  .reviewGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Review card reset width (important) */
+  .reviewCard {
+    width: auto;
+  }
+
+  /* Review header spacing */
+  .reviewTop {
+    gap: 10px;
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .stars {
+    font-size: 15px;
+  }
+
+  /* Modal */
+  .modal {
+    width: 420px;
+  }
+}
+@media (max-width: 767px) {
+  .page {
+    padding: 12px;
+  }
+
+  /* Stack product card */
+  .productCard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .productCard img {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+  }
+
+  .productInfo {
+    width: 100%;
+  }
+
+  .meta {
+    justify-content: center;
+  }
+
+  .price {
+    font-size: 20px;
+  }
+
+  .desc {
+    font-size: 14px;
+  }
+
+  /* Reviews → single column */
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Reset desktop width */
+  .reviewCard {
+    width: auto;
+  }
+
+  .reviewTop {
+    align-items: flex-start;
+  }
+
+  .stars {
+    margin-left: auto;
+    font-size: 14px;
+  }
+
+  .reviewActions {
+    justify-content: flex-end;
+  }
+
+  /* Modal full width */
+  .modal {
+    width: 90%;
+    max-width: 360px;
+  }
+}
