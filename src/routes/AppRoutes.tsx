@@ -11,7 +11,8 @@ import Categories from "../pages/Categories/Categories";
 import SubCategories from "../pages/SubCategories/SubCategories"; 
 import AddCategory from "../pages/Categories/AddCategory";
 import AddSubCategory from "../pages/SubCategories/AddSubCategory";
-
+import Customers from "../pages/customers/Customers";
+import Coupons from "../pages/coupons/Coupons";
 
 export default function AppRoutes() {
   return (
@@ -39,7 +40,8 @@ export default function AppRoutes() {
         <Route path="categories/add" element={<AddCategory />} />
         <Route path="subcategories" element={<SubCategories />} /> 
         <Route path="subcategories/add" element={<AddSubCategory />} />
-
+        <Route path="customers" element={<Customers />} />
+        <Route path="coupons" element={<Coupons />} />
       </Route>
 
       {/* FALLBACK */}

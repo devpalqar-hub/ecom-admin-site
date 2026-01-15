@@ -77,6 +77,27 @@ useEffect(() => {
   fetchCategories();
 }, []);
 
+function ProductImage({
+  src,
+  alt,
+}: {
+  src?: string;
+  alt: string;
+}) {
+  const [imgSrc, setImgSrc] = useState(
+    src || "/placeholder.png"
+  );
+
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => setImgSrc("/placeholder.png")}
+    />
+  );
+}
+
   return (
     <div className={styles.page}>
       {/* HEADER */}
@@ -159,17 +180,13 @@ useEffect(() => {
                     </td>
 
                     <td className={styles.productCell}>
-                        <img
-                            src={
-                                p.images?.find((img) => img.isMain)?.url ||
-                                p.images?.[0]?.url ||
-                                "/placeholder.png"
-                            }
-                            alt={p.name}
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.png";
-                            }}
-                         />
+                        <ProductImage
+                          src={
+                            p.images?.find((img) => img.isMain)?.url ||
+                            p.images?.[0]?.url
+                          }
+                          alt={p.name}
+                        />
                         <span>{p.name}</span>
                     </td>
 
@@ -222,16 +239,12 @@ useEffect(() => {
         {products.map((p) => (
             <div key={p.id} className={styles.mobileCard}>
             <div className={styles.cardTop}>
-                <img
-                    src={
-                        p.images?.find((img) => img.isMain)?.url ||
-                        p.images?.[0]?.url ||
-                        "/placeholder.png"
-                    }
-                    alt={p.name}
-                    onError={(e) => {
-                        e.currentTarget.src = "/placeholder.png";
-                    }}
+                <ProductImage
+                  src={
+                    p.images?.find((img) => img.isMain)?.url ||
+                    p.images?.[0]?.url
+                  }
+                  alt={p.name}
                 />
                 <div>
                 <h4>{p.name}</h4>

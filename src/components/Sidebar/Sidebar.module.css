@@ -14,7 +14,6 @@
   top: 0;
 }
 
-
 /* Brand */
 .brand {
   display: flex;
@@ -67,7 +66,7 @@
 
 .menu a.active {
   background: #eef2ff;
-  color: #4338ca;
+  color: #d18b5f;
   font-weight: 600;
 }
 /* Hamburger */
