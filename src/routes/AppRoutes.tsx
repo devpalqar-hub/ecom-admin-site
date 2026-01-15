@@ -15,6 +15,8 @@ import OrderDetails from "../pages/orders/OrderDetails";
 import EditProduct from "../pages/Products/EditProduct";
 import EditCategory from "../pages/Categories/EditCategory";
 import EditSubCategory from "../pages/SubCategories/EditSubCategory";
+import ProductDetails from "../pages/Products/ProductDetails";
+
 import Customers from "../pages/customers/Customers";
 import Coupons from "../pages/coupons/Coupons";
 
@@ -39,6 +41,7 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="products/add" element={<AddProduct />} />
+         <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="categories" element={<Categories />} />
         <Route path="categories/add" element={<AddCategory />} />
@@ -48,9 +51,9 @@ export default function AppRoutes() {
         <Route path="/products/edit/:id" element={<EditProduct />} />
         <Route path="/categories/edit/:id" element={<EditCategory/>} />
         <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
-
+      
         <Route path="customers" element={<Customers />} />
-        <Route path="coupons" element={<Coupons />} />
+        <Route path="coupons" element={<Coupons />} />        
       </Route>
 
       {/* FALLBACK */}

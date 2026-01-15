@@ -1,5 +1,5 @@
 import styles from "./Products.module.css";
-import { FiSearch,FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiSearch,FiEdit2, FiTrash2,FiEye } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api"; // adjust path if needed
 import { useNavigate } from "react-router-dom";
@@ -237,13 +237,23 @@ function ProductImage({
                     </td>
 
                     <td className={styles.actions}>
+                        
                         <button
-                            className={styles.editBtn}
-                            onClick={() => navigate(`/products/edit/${p.id}`)}
+                            className={styles.viewBtn}
+                            onClick={() => navigate(`/products/${p.id}`)}
+                            title="View product"
                           >
-                            <FiEdit2 />
+                            <FiEye />
                         </button>
 
+
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => navigate(`/products/edit/${p.id}`)}
+                          title="Edit"
+                        >
+                          <FiEdit2 />
+                        </button>
 
                         <button
                           className={styles.deleteBtn}
@@ -251,12 +261,11 @@ function ProductImage({
                             setDeleteProductId(p.id);
                             setShowDeleteConfirm(true);
                           }}
+                          title="Delete"
                         >
                           <FiTrash2 />
                         </button>
-
-                    </td>
-
+                      </td>
                     </tr>
                 ))}
                 </tbody>
@@ -321,23 +330,34 @@ function ProductImage({
                 </span>
             </div>
             <div className={styles.cardActionsRight}>
+                  <button
+                      className={styles.viewBtn}
+                      onClick={() => navigate(`/products/${p.id}`)}
+                      title="View product"
+                    >
+                      <FiEye />
+                  </button>
+
+
                 <button
                   className={styles.editBtn}
                   onClick={() => navigate(`/products/edit/${p.id}`)}
+                  title="Edit"
                 >
                   <FiEdit2 />
-              </button>
+                </button>
+
                 <button
                   className={styles.deleteBtn}
                   onClick={() => {
                     setDeleteProductId(p.id);
                     setShowDeleteConfirm(true);
                   }}
+                  title="Delete"
                 >
                   <FiTrash2 />
                 </button>
-
-            </div>
+              </div>
             </div>
         ))}
         </div>
