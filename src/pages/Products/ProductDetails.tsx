@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./ProductDetails.module.css";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiArrowLeft, FiEdit2, FiTrash2 } from "react-icons/fi";
 
 /* ================= TYPES ================= */
 
@@ -54,6 +54,7 @@ export default function ProductDetails() {
 const [editRating, setEditRating] = useState(0);
 const [editComment, setEditComment] = useState("");
 const [saving, setSaving] = useState(false);
+const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -142,6 +143,16 @@ const [saving, setSaving] = useState(false);
 
   return (
     <div className={styles.page}>
+      <div className={styles.backBtn}>
+           <button
+                type="button"
+                className={styles.backBtn}
+                onClick={() => navigate("/products")}
+               >
+               <FiArrowLeft /> Back
+          </button>
+      </div>
+         
       {/* ================= PRODUCT INFO ================= */}
       <div className={styles.productCard}>
         <img src={mainImage} alt={product.name} />

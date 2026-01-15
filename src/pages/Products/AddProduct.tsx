@@ -114,7 +114,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
 const handleCreateProduct = async () => {
   try {
     if (!mainImage) {
-      showToast("Main image is required", "success");
+      showToast("Main image is required", "error");
       return;
     }
 
@@ -411,23 +411,12 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
             </div>
             <p className={styles.muted}>Product is hidden from store</p>
           </div>
-
-          <div className={styles.card}>
-            <h3>Summary</h3>
-            <ul className={styles.summary}>
-              <li><span>Name:</span> Not set</li>
-              <li><span>SKU:</span> Not set</li>
-              <li><span>Category:</span> Not set</li>
-              <li><span>Price:</span> $0.00</li>
-              <li><span>Stock:</span> 0 units</li>
-            </ul>
-          </div>
         </div>
       </div>
 
 
       <div className={styles.actions}>
-        <button className={styles.cancel}>Cancel</button>
+        <button className={styles.cancel} onClick={() => navigate("/products")}>Cancel</button>
         <button className={styles.primary} onClick={handleCreateProduct}>
           Create Product
         </button>

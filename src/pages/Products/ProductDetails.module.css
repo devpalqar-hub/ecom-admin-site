@@ -1,7 +1,16 @@
 .page {
   padding: 20px;
 }
-
+.backBtn {
+  display: flex;
+  margin-bottom: 10px;
+  font-weight: 600;
+  background: none;
+  gap: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
 .productCard {
   display: flex;
   gap: 20px;
