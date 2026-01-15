@@ -15,7 +15,48 @@ export default function CreateProduct() {
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
 
-  
+  type VariationForm = {
+  variationName: string;
+  price: string;
+  stockCount: string;
+  isAvailable: boolean;
+};
+
+const [variationsEnabled, setVariationsEnabled] = useState(false);
+
+const [variations, setVariations] = useState<VariationForm[]>([
+  {
+    variationName: "",
+    price: "",
+    stockCount: "",
+    isAvailable: true,
+  },
+]);
+const addVariation = () => {
+  setVariations([
+    ...variations,
+    {
+      variationName: "",
+      price: "",
+      stockCount: "",
+      isAvailable: true,
+    },
+  ]);
+};
+
+const updateVariation = (
+  index: number,
+  key: keyof VariationForm,
+  value: any
+) => {
+  const updated = [...variations];
+  updated[index] = {
+    ...updated[index],
+    [key]: value,
+  };
+  setVariations(updated);
+};
+
 
   type SubCategory = {
   id: string;
@@ -67,32 +108,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
 
-  /* ---------------- VARIATIONS (UI ONLY) ---------------- */
-  const [variationsEnabled, setVariationsEnabled] = useState(false);
-
-  type Variation = {
-    name: string;
-    price: string;
-  };
-
-  const [variations, setVariations] = useState<Variation[]>([
-  { name: "", price: "" },
-]);
-
-const addVariation = () => {
-  setVariations(prev => [...prev, { name: "", price: "" }]);
-};
-
-  const updateVariation = (
-    index: number,
-    field: keyof Variation,
-    value: string
-  ) => {
-    setVariations(prev =>
-      prev.map((v, i) => (i === index ? { ...v, [field]: value } : v))
-    );
-  };
-
+  
   
 const handleCreateProduct = async () => {
   try {
@@ -103,21 +119,33 @@ const handleCreateProduct = async () => {
 
     const formData = new FormData();
 
-    // TEXT FIELDS
+    /* ---------------- TEXT FIELDS ---------------- */
     formData.append("name", name);
     formData.append("description", description);
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
     formData.append("discountedPrice", discountedPrice);
     formData.append("subCategoryId", selectedSubCategory);
-    
 
-    // IMAGES (IMPORTANT)
+    /* ---------------- VARIATIONS (ADD HERE ✅) ---------------- */
+    if (variationsEnabled) {
+      const payloadVariations = variations.map((v) => ({
+        variationName: v.variationName,
+        price: Number(v.price),
+        stockCount: Number(v.stockCount),
+        isAvailable: v.isAvailable,
+      }));
+
+      formData.append("variations", JSON.stringify(payloadVariations));
+    }
+
+    /* ---------------- IMAGES ---------------- */
     formData.append("images", mainImage); // main image
     images.forEach((img) => {
-      formData.append("images", img); // additional images
+      formData.append("images", img);
     });
 
+    /* ---------------- API CALL ---------------- */
     const res = await api.post("/products", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -131,6 +159,7 @@ const handleCreateProduct = async () => {
     alert("Failed to create product");
   }
 };
+
 const selectedCategoryObj = categories.find(
   (cat) => cat.id === selectedCategory
 );
@@ -278,61 +307,86 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
               <input type="file" hidden multiple accept="image/*" onChange={handleAdditionalImages} />
             </label>
           </div>
+<div className={styles.card}>
+  <div className={styles.variationHeader}>
+    <h3>Product Variations</h3>
 
-          {/* ================= PRODUCT VARIATIONS ================= */}
-            <div className={styles.card}>
-                <div className={styles.variationHeader}>
-                    <h3>Product Variations</h3>
+    <label className={styles.switch}>
+      <input
+        type="checkbox"
+        checked={variationsEnabled}
+        onChange={() => setVariationsEnabled((v) => !v)}
+      />
+      <span className={styles.slider}></span>
+    </label>
+  </div>
 
-                    <label className={styles.switch}>
-                    <input
-                        type="checkbox"
-                        checked={variationsEnabled}
-                        onChange={() => setVariationsEnabled((v) => !v)}
-                    />
-                    <span className={styles.slider}></span>
-                    </label>
-                </div>
+  <p className={styles.muted}>
+    Add variations like sizes, colors, or models with different prices
+  </p>
 
-                <p className={styles.muted}>
-                Add variations like sizes, colors, or models with different prices
-                </p>
-                {variationsEnabled && (
-            <div className={styles.variationList}>
-                {variations.map((v, index) => (
-                    <div key={index} className={styles.variationCard}>
-                    <h4>Variation {index + 1}</h4>
+  {variationsEnabled && (
+    <div className={styles.variationList}>
+      {variations.map((v, index) => (
+        <div key={index} className={styles.variationCard}>
+          <h4>Variation {index + 1}</h4>
 
-                    {/* NAME + PRICE */}
-                    <div className={styles.row}>
-                        <div className={styles.field}>
-                            <label>Variation Name *</label>
-                            <input
-                                placeholder="e.g. Small, Black, 128GB"
-                                value={v.name}
-                                onChange={(e) =>
-                                updateVariation(index, "name", e.target.value)
-                                }
-                            />
-                        </div>
-                    <div className={styles.field}>
-                        <label>Price *</label>
-                        <input
-                            placeholder="$ 0.00"
-                            value={v.price}
-                            onChange={(e) =>
-                            updateVariation(index, "price", e.target.value)
-                            }
-                        />
-                        </div>
-                    </div>
-                </div>
-            ))}
-        <button
-            type="button"
-            className={styles.addVariationBtn}
-            onClick={addVariation}
-        >
+          {/* ROW 1 */}
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <label>Variation Name</label>
+              <input
+                value={v.variationName}
+                onChange={(e) =>
+                  updateVariation(index, "variationName", e.target.value)
+                }
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label>Price</label>
+              <input
+                type="number"
+                value={v.price}
+                onChange={(e) =>
+                  updateVariation(index, "price", e.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          {/* ROW 2 */}
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <label>Stock Count</label>
+              <input
+                type="number"
+                value={v.stockCount}
+                onChange={(e) =>
+                  updateVariation(index, "stockCount", e.target.value)
+                }
+              />
+            </div>
+
+            <div className={styles.fieldCheckbox}>
+              <label>Available</label>
+              <input
+                type="checkbox"
+                checked={v.isAvailable}
+                onChange={(e) =>
+                  updateVariation(index, "isAvailable", e.target.checked)
+                }
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        className={styles.addVariationBtn}
+        onClick={addVariation}
+      >
         + Add Variation
       </button>
     </div>

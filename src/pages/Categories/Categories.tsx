@@ -1,5 +1,5 @@
 import styles from "./Categories.module.css";
-import { FiPlus, FiSearch, FiMoreVertical } from "react-icons/fi";
+import { FiPlus, FiSearch,FiEdit2, FiTrash2} from "react-icons/fi";
 import { FiBox, FiGrid } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
@@ -82,6 +82,27 @@ export default function Categories() {
       icon: <FiBox />,
     },
   ];
+  // delete api //
+  const handleDeleteCategory = async (id: string) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this category?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await api.delete(`/categories/${id}`);
+
+    // remove deleted category from UI immediately
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+
+    alert("Category deleted successfully");
+  } catch (error: any) {
+    console.error("Failed to delete category", error?.response?.data || error);
+    alert("Failed to delete category");
+  }
+};
+
 
   /* ================= UI ================= */
 
@@ -182,8 +203,23 @@ export default function Categories() {
                   </td>
 
                   <td className={styles.actions}>
-                    <FiMoreVertical />
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => navigate(`/categories/edit/${c.id}`)}
+                      title="Edit"
+                    >
+                      <FiEdit2 />
+                    </button>
+
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDeleteCategory(c.id)}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -226,7 +262,19 @@ export default function Categories() {
             </div>
 
             <div className={styles.cardActions}>
-              <FiMoreVertical />
+              <button
+                className={styles.editBtn}
+                onClick={() => navigate(`/categories/edit/${c.id}`)}
+              >
+                <FiEdit2 />
+              </button>
+
+              <button
+                className={styles.deleteBtn}
+                onClick={() => handleDeleteCategory(c.id)}
+              >
+                <FiTrash2 />
+              </button>
             </div>
           </div>
         ))}

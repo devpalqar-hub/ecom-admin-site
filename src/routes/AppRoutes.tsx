@@ -11,6 +11,10 @@ import Categories from "../pages/Categories/Categories";
 import SubCategories from "../pages/SubCategories/SubCategories"; 
 import AddCategory from "../pages/Categories/AddCategory";
 import AddSubCategory from "../pages/SubCategories/AddSubCategory";
+import OrderDetails from "../pages/orders/OrderDetails";
+import EditProduct from "../pages/Products/EditProduct";
+import EditCategory from "../pages/Categories/EditCategory";
+import EditSubCategory from "../pages/SubCategories/EditSubCategory";
 import Customers from "../pages/customers/Customers";
 import Coupons from "../pages/coupons/Coupons";
 
@@ -40,6 +44,11 @@ export default function AppRoutes() {
         <Route path="categories/add" element={<AddCategory />} />
         <Route path="subcategories" element={<SubCategories />} /> 
         <Route path="subcategories/add" element={<AddSubCategory />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/products/edit/:id" element={<EditProduct />} />
+        <Route path="/categories/edit/:id" element={<EditCategory/>} />
+        <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
+
         <Route path="customers" element={<Customers />} />
         <Route path="coupons" element={<Coupons />} />
       </Route>
