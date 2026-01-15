@@ -101,6 +101,58 @@ tbody tr {
 .loading {
   padding: 20px;
 }
+.actions,
+.cardActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editBtn {
+  color: #7c3aed;
+}
+
+.editBtn:hover {
+  background: #e0e7ff;
+}
+
+.deleteBtn {
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+}
+/* IMAGE (TABLE) */
+.imageCell {
+  width: 60px;
+}
+
+.subImage {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.noImage {
+  color: #9ca3af;
+}
+
+
 
 /* RESPONSIVE */
 @media (min-width: 1024px) {
@@ -187,4 +239,57 @@ tbody tr {
     max-width: 100%;
     width: 100%;
   }
+  .cardActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editBtn {
+  color: #7c3aed;
+}
+
+.editBtn:hover {
+  background: #e0e7ff;
+}
+
+.deleteBtn {
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+}
+/* MOBILE IMAGE */
+.cardLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobileImage {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+.mobileImagePlaceholder {
+  width: 42px;
+  height: 42px;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
 }

@@ -1,6 +1,6 @@
 import styles from "./AddSubCategory.module.css";
 import { useEffect, useState } from "react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
@@ -10,6 +10,7 @@ interface Category {
   id: string;
   name: string;
 }
+
 /* ================= COMPONENT ================= */
 
 export default function AddSubCategory() {
@@ -19,6 +20,8 @@ export default function AddSubCategory() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   /* ---------- slug helper ---------- */
@@ -43,6 +46,15 @@ export default function AddSubCategory() {
     fetchCategories();
   }, []);
 
+  /* ---------- image change ---------- */
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
   /* ---------- submit ---------- */
   const handleSubmit = async () => {
     if (!name.trim() || !categoryId) {
@@ -50,16 +62,22 @@ export default function AddSubCategory() {
       return;
     }
 
-    const payload = {
-      name,
-      slug: generateSlug(name),
-      description,
-      categoryId,
-    };
-
     try {
       setLoading(true);
-      await api.post("/subcategories", payload);
+
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("slug", generateSlug(name));
+      formData.append("description", description.trim());
+      formData.append("categoryId", categoryId);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      await api.post("/subcategories", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       alert("Subcategory created successfully");
       navigate("/subcategories");
@@ -92,6 +110,24 @@ export default function AddSubCategory() {
 
       {/* FORM */}
       <div className={styles.card}>
+        {/* IMAGE UPLOAD */}
+        <label className={styles.uploadBox}>
+          <FiUpload />
+          <span>Upload subcategory image</span>
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </label>
+
+        {preview && (
+          <div className={styles.preview}>
+            <img src={preview} alt="Preview" />
+          </div>
+        )}
+
         <div className={styles.field}>
           <label>SubCategory Name *</label>
           <input
@@ -129,6 +165,7 @@ export default function AddSubCategory() {
           <button
             className={styles.cancel}
             onClick={() => navigate("/subcategories")}
+            disabled={loading}
           >
             Cancel
           </button>

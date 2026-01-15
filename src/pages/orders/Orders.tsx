@@ -2,7 +2,7 @@ import styles from "./Orders.module.css";
 import { FiDownload, FiSearch } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
-
+import { useNavigate } from "react-router-dom";
 /* ---------------- TYPES ---------------- */
 interface Order {
   id: string;
@@ -25,6 +25,9 @@ interface OrderAggregates {
 
 /* ---------------- COMPONENT ---------------- */
 export default function Orders() {
+const navigate = useNavigate();
+
+
   /* UI STATES */
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,7 +164,7 @@ export default function Orders() {
             placeholder="Search orders..."
             value={search}
             onChange={(e) => {
-              setPage(1);
+              // setPage(1);
               setSearch(e.target.value);
             }}
           />
@@ -176,10 +179,12 @@ export default function Orders() {
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
           <option value="processing">Processing</option>
           <option value="shipped">Shipped</option>
-          <option value="completed">Completed</option>
+          <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
+          <option value="refunded">Refunded</option>
         </select>
 
         <select
@@ -244,14 +249,86 @@ export default function Orders() {
                   </td>
 
                   <td>
-                    <button className={styles.viewBtn}>View Details</button>
-                  </td>
+                   <button
+                        className={styles.viewBtn}
+                        onClick={() => navigate(`/orders/${o.id}`)}
+                        >
+                        View Details
+                   </button>
+                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
         {/* PAGINATION */}
+        {/* <div className={styles.pagination}>
+            <button
+                className={styles.pageBtn}
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+            >
+                Prev
+            </button>
+
+            <span className={styles.pageInfo}>
+                Page {page}
+            </span>
+
+            <button
+                className={styles.pageBtn}
+                onClick={() => setPage((p) => p + 1)}
+            >
+                Next
+            </button>
+        </div> */}
+      </div>
+      {/* MOBILE CARDS */}
+<div className={styles.mobileList}>
+  {orders.map((o) => (
+    <div key={o.id} className={styles.mobileCard}>
+      <div className={styles.cardHeader}>
+        <strong>{o.orderNumber}</strong>
+        <span
+          className={`${styles.status} ${styles[o.status]}`}
+        >
+          {o.status}
+        </span>
+      </div>
+
+      <div className={styles.cardRow}>
+        <span>Customer</span>
+        <p>{o.CustomerProfile?.name ?? "-"}</p>
+      </div>
+
+      <div className={styles.cardRow}>
+        <span>Date</span>
+        <p>
+          {new Date(o.createdAt).toLocaleDateString()} <br />
+          <small>{new Date(o.createdAt).toLocaleTimeString()}</small>
+        </p>
+      </div>
+
+      <div className={styles.cardRow}>
+        <span>Items</span>
+        <strong>{o.items.length}</strong>
+      </div>
+
+      <div className={styles.cardRow}>
+        <span>Total</span>
+        <strong>₹{o.totalAmount}</strong>
+      </div>
+
+      <button
+        className={styles.viewBtn}
+        onClick={() => navigate(`/orders/${o.id}`)}
+      >
+        View Details
+      </button>
+    </div>
+  ))}
+</div>
+{/* PAGINATION */}
         <div className={styles.pagination}>
             <button
                 className={styles.pageBtn}
@@ -272,7 +349,7 @@ export default function Orders() {
                 Next
             </button>
         </div>
-      </div>
+
     </div>
   );
 }

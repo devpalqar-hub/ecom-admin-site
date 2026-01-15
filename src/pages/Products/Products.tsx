@@ -1,5 +1,5 @@
 import styles from "./Products.module.css";
-import { FiSearch,FiMoreVertical } from "react-icons/fi";
+import { FiSearch,FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api"; // adjust path if needed
 import { useNavigate } from "react-router-dom";
@@ -44,13 +44,21 @@ const [categoryId, setCategoryId] = useState("");
 useEffect(() => {
   const fetchProducts = async () => {
     try {
+      setLoading(true);
+
       const res = await api.get("/products", {
         params: {
           page,
           limit,
           search: search || undefined,
-          status: status || undefined,
           categoryId: categoryId || undefined,
+          isStock:
+          status === "in"
+            ? true
+            : status === "out"
+            ? false
+            : undefined,
+
         },
       });
 
@@ -63,7 +71,8 @@ useEffect(() => {
   };
 
   fetchProducts();
-}, [search, status,page,categoryId]);
+}, [search, status, page, categoryId]);
+
  useEffect(() => {
   const fetchCategories = async () => {
     try {
@@ -76,6 +85,27 @@ useEffect(() => {
 
   fetchCategories();
 }, []);
+const handleDeleteProduct = async (productId: string) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this product?"
+  );
+  if (!confirmed) return;
+
+  try {
+    console.log(productId)
+    await api.delete(`/products/${productId}`);
+
+    // remove product from UI
+    setProducts((prev) =>
+      prev.filter((product) => product.id !== productId)
+    );
+
+    alert("Product deleted successfully");
+  } catch (error: any) {
+    console.error("Delete product failed", error?.response?.data || error);
+    alert("Failed to delete product");
+  }
+};
 
   return (
     <div className={styles.page}>
@@ -121,17 +151,19 @@ useEffect(() => {
                     </option>
                 ))}
             </select>
-
-
             <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
-            >
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
+              >
                 <option value="">All Status</option>
-                <option value="in-stock">In Stock</option>
-                <option value="low-stock">Low Stock</option>
-                <option value="out-of-stock">Out of Stock</option>
-            </select>
+                <option value="in">In Stock</option>
+                <option value="out">Out of Stock</option>
+              </select>
+
+
         </div>
 
       {/* TABLE */}
@@ -188,8 +220,23 @@ useEffect(() => {
                     </td>
 
                     <td className={styles.actions}>
-                        <FiMoreVertical />
+                        <button
+                            className={styles.editBtn}
+                            onClick={() => navigate(`/products/edit/${p.id}`)}
+                          >
+                            <FiEdit2 />
+                        </button>
+
+
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => handleDeleteProduct(p.id)}
+                        >
+                          <FiTrash2 />
+                        </button>
+
                     </td>
+
                     </tr>
                 ))}
                 </tbody>
@@ -257,9 +304,20 @@ useEffect(() => {
                 {p.isStock ? "In Stock" : "Out of Stock"}
                 </span>
             </div>
+            <div className={styles.cardActionsRight}>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => navigate(`/products/edit/${p.id}`)}
+                >
+                  <FiEdit2 />
+              </button>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDeleteProduct(p.id)}
+                >
+                  <FiTrash2 />
+                </button>
 
-            <div className={styles.cardActions}>
-                <FiMoreVertical />
             </div>
             </div>
         ))}

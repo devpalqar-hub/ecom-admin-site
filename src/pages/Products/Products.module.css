@@ -35,47 +35,47 @@
   cursor: pointer;
 }
 
-/* FILTERS */
+/* FILTER BAR */
 .filters {
   display: flex;
+  align-items: center;
   gap: 12px;
   margin-bottom: 20px;
-  
-
 }
 
-.filters input {
-  flex: 1;
-}
-/* SEARCH WITH ICON */
+/* SEARCH BOX — LARGE */
 .searchBox {
-  flex: 1;
   position: relative;
+  flex: 1;                 /* takes remaining space */
+  max-width: 520px;        /* adjust if you want wider */
 }
 
+/* SEARCH INPUT */
 .searchBox input {
   width: 100%;
-  padding: 10px 16px 10px 44px; /* left space for icon */
+  padding: 10px 14px 10px 40px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   font-size: 14px;
 }
 
+/* SEARCH ICON */
 .searchIcon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 18px;
   color: #9ca3af;
+  font-size: 16px;
 }
 
-
-.filters input,
+/* SMALL, SAME-WIDTH SELECTS */
 .filters select {
-  padding: 10px 42px;
+  width: 290px;            /* 👈 SAME WIDTH */
+  padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
+  background: #fff;
   font-size: 14px;
 }
 
@@ -142,9 +142,40 @@ tbody tr {
   color: #6b7280;
   cursor: pointer;
 }
-.actions:hover {
-  color: #111827;
+.actions {
+  display: flex;
+  gap: 10px;
 }
+
+.editBtn,
+.deleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editBtn {
+  color: #7c3aed;
+}
+
+.editBtn:hover {
+  background: #e0e7ff;
+}
+
+.deleteBtn {
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+}
+
+
 /* PAGINATION */
 .pagination {
   display: flex;
@@ -324,6 +355,40 @@ tbody tr {
     font-size: 11px;
     padding: 3px 8px;
   }
+ .cardActionsRight {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cardActionsRight button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* reuse same colors */
+.editBtn {
+  color: #7c3aed;
+}
+
+.editBtn:hover {
+  background: #e0e7ff;
+}
+
+.deleteBtn {
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #fee2e2;
+}
 
   /* PAGINATION */
   .pagination {

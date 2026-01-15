@@ -4,11 +4,11 @@ const api = axios.create({
   baseURL: "https://api.ecom.palqar.cloud/v1",
 });
 
-/* ✅ REQUEST INTERCEPTOR → ADD TOKEN */
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("adminToken");
-
+    console.log("TOKEN SENT:", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -18,7 +18,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/* ✅ RESPONSE INTERCEPTOR */
 api.interceptors.response.use(
   (response) => response,
   (error) => {

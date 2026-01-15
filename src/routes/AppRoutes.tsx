@@ -11,6 +11,10 @@ import Categories from "../pages/Categories/Categories";
 import SubCategories from "../pages/SubCategories/SubCategories"; 
 import AddCategory from "../pages/Categories/AddCategory";
 import AddSubCategory from "../pages/SubCategories/AddSubCategory";
+import OrderDetails from "../pages/orders/OrderDetails";
+import EditProduct from "../pages/Products/EditProduct";
+import EditCategory from "../pages/Categories/EditCategory";
+import EditSubCategory from "../pages/SubCategories/EditSubCategory";
 
 
 export default function AppRoutes() {
@@ -39,6 +43,11 @@ export default function AppRoutes() {
         <Route path="categories/add" element={<AddCategory />} />
         <Route path="subcategories" element={<SubCategories />} /> 
         <Route path="subcategories/add" element={<AddSubCategory />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/products/edit/:id" element={<EditProduct />} />
+        <Route path="/categories/edit/:id" element={<EditCategory/>} />
+        <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
+
 
       </Route>
 

@@ -382,7 +382,41 @@
 .addVariationBtn:hover {
   background: #dbeafe;
 }
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
 
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.field input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.fieldCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.fieldCheckbox label {
+  font-size: 13px;
+  color: #374151;
+}
 /* ===============================
    TOGGLE SWITCH (VARIATIONS)
 ================================ */

@@ -16,16 +16,16 @@ export default function Login() {
     try {
       const res = await api.post("/auth/login", {
         email,
-        password, // must match backend exactly
+        password,
       });
 
       const { access_token, user } = res.data.data;
 
-      // store auth data
+     
       localStorage.setItem("adminToken", access_token);
       localStorage.setItem("adminUser", JSON.stringify(user));
 
-      // ✅ go to dashboard ONLY after login
+
       navigate("/dashboard");
     } catch (error: any) {
       alert(
@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <div className={styles.page}>
-      {/* LEFT SECTION */}
+
     
       <div className={styles.left}>
         <div className={styles.brand}>
@@ -55,7 +55,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* RIGHT SECTION */}
+
       <div className={styles.right}>
         <form className={styles.card} onSubmit={handleSubmit}>
           <h2>Admin Login</h2>

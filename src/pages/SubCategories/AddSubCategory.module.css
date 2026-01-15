@@ -69,6 +69,38 @@
   padding: 10px 18px;
   border-radius: 10px;
 }
+.uploadBox {
+  border: 1px dashed #6366f1;
+  border-radius: 12px;
+  padding: 36px;
+  text-align: center;
+  cursor: pointer;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 400;
+  transition: background 0.2s ease;
+}
+
+.uploadBox:hover {
+  background: #eef2ff;
+}
+
+.preview {
+  margin-top: 10px;
+}
+
+.preview img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .page {
     padding: 24px;
