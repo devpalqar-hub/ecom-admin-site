@@ -62,7 +62,7 @@ export default function Dashboard() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+  const PIE_COLORS = ["#0F172A", "#c32c2c", "#f59e0b", "#5aee15", "#8b5cf6"];
   /* ---------------- FETCH ---------------- */
 
   const fetchDashboard = async () => {
@@ -159,7 +159,7 @@ export default function Dashboard() {
       <Line
         type="monotone"
         dataKey="revenue"
-        stroke="#3b82f6"
+        stroke="#0F172A"
         strokeWidth={3}
         dot={{ r: 4 }}
         activeDot={{ r: 6 }}

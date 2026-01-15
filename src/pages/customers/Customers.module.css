@@ -25,6 +25,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 28px;
+  
 }
 
 .statCard {
@@ -32,11 +33,13 @@
   border-radius: 14px;
   padding: 16px;
   border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #0F172A, #1E293B);
+  color: #ffff;
 }
 
 .statCard span {
   font-size: 12px;
-  color: #6b7280;
+  color: #ffffff;
 }
 
 .statCard h3 {
@@ -52,7 +55,7 @@
 }
 
 .searchBox {
-  flex: 1;
+  flex: 3;
   position: relative;
 }
 
@@ -70,9 +73,12 @@
   transform: translateY(-50%);
   color: #9ca3af;
 }
-
-.filters select {
-  padding: 10px 14px;
+.filterBox {
+  flex: 1;
+}
+.filterBox select {
+  width: 100%;
+  padding: 10px 16px 10px 10px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
 }

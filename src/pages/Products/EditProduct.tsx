@@ -3,6 +3,7 @@ import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./EditProduct.module.css";
+import { useToast } from "../../components/toast/ToastContext";
 
 export default function EditProduct() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function EditProduct() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const { showToast } = useToast();
   /* ---------------- FETCH PRODUCT ---------------- */
   useEffect(() => {
     const fetchProduct = async () => {
@@ -33,7 +34,7 @@ export default function EditProduct() {
         }
       } catch (error) {
         console.error("Failed to fetch product", error);
-        alert("Failed to load product");
+        showToast("Failed to load product", "error");
       } finally {
         setLoading(false);
       }
@@ -72,11 +73,11 @@ export default function EditProduct() {
         },
       });
 
-      alert("Product updated successfully");
+      showToast("Product updated successfully", "success");
       navigate(-1);
     } catch (error: any) {
       console.error("Update failed", error?.response?.data || error);
-      alert("Failed to update product");
+      showToast("Failed to update product", "error");
     }
   };
 

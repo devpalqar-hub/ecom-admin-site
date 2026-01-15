@@ -84,15 +84,6 @@ export default function Customers() {
     };
   }, [customers, totalCustomers]);
 
-  /* ---------------- LOADING ---------------- */
-  if (loading) {
-    return (
-      <div className={styles.page}>
-        <p style={{ padding: 20 }}>Loading customers...</p>
-      </div>
-    );
-  }
-
   /* ---------------- UI ---------------- */
   return (
     <div className={styles.page}>
@@ -125,7 +116,7 @@ export default function Customers() {
             }}
           />
         </div>
-
+      <div className={styles.filterBox}>
         <select
           value={status}
           onChange={(e) => {
@@ -137,6 +128,8 @@ export default function Customers() {
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
+      </div>
+
       </div>
 
       {/* TABLE WRAPPER */}
@@ -158,31 +151,46 @@ export default function Customers() {
             </thead>
 
             <tbody>
-              {customers.map((c) => (
-                <tr key={c.id}>
-                  <td><strong>{c.customerName || "—"}</strong></td>
-                  <td>{c.email}</td>
-                  <td>{c.phoneNumber || "—"}</td>
-                  <td>{c.numberOfOrders}</td>
-                  <td>₹{c.totalAmountSpent.toLocaleString("en-IN")}</td>
-                  <td>{new Date(c.joinedDate).toLocaleDateString()}</td>
-                  <td>
-                    <span
-                      className={
-                        c.status === "active"
-                          ? styles.active
-                          : styles.inactive
-                      }
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className={styles.actions}>
-                    <FiMoreVertical />
+              {loading ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: "center", padding: 20 }}>
+                    Loading customers...
                   </td>
                 </tr>
-              ))}
+              ) : customers.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: "center", padding: 20 }}>
+                    No customers found
+                  </td>
+                </tr>
+              ) : (
+                customers.map((c) => (
+                  <tr key={c.id}>
+                    <td><strong>{c.customerName || "—"}</strong></td>
+                    <td>{c.email}</td>
+                    <td>{c.phoneNumber || "—"}</td>
+                    <td>{c.numberOfOrders}</td>
+                    <td>₹{c.totalAmountSpent.toLocaleString("en-IN")}</td>
+                    <td>{new Date(c.joinedDate).toLocaleDateString()}</td>
+                    <td>
+                      <span
+                        className={
+                          c.status === "active"
+                            ? styles.active
+                            : styles.inactive
+                        }
+                      >
+                        {c.status}
+                      </span>
+                    </td>
+                    <td className={styles.actions}>
+                      <FiMoreVertical />
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
+
           </table>
         </div>
 

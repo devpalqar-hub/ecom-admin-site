@@ -1,6 +1,7 @@
 import styles from "./CouponFormModal.module.css";
 import { useEffect, useState } from "react";
 import api from "../../../services/api";
+import { useToast } from "../../../components/toast/ToastContext";
 
 interface CouponFormData {
   couponName: string;
@@ -36,8 +37,8 @@ export default function CouponFormModal({
   });
 
   const [loading, setLoading] = useState(false);
-
-  /* ---------------- FETCH COUPON (EDIT) ---------------- */
+  const { showToast } = useToast();
+  
   useEffect(() => {
     if (!couponId) return;
 
@@ -86,9 +87,10 @@ export default function CouponFormModal({
       }
 
       onSuccess();
+      showToast("Coupon created successfully", "success");
       onClose();
     } catch (err) {
-      console.error("Coupon submit failed", err);
+      showToast("Failed to create coupon", "error");
     } finally {
       setLoading(false);
     }
@@ -100,74 +102,93 @@ export default function CouponFormModal({
         <h3>{couponId ? "Edit Coupon" : "Create Coupon"}</h3>
 
         <div className={styles.form}>
-          <input
-            placeholder="Coupon Name"
-            value={form.couponName}
-            onChange={(e) =>
-              setForm({ ...form, couponName: e.target.value })
-            }
-          />
-
-          <select
-            value={form.ValueType}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                ValueType: e.target.value as "percentage" | "amount",
-              })
-            }
-          >
-            <option value="percentage">Percentage</option>
-            <option value="amount">Amount</option>
-          </select>
-
-          <input
-            type="number"
-            placeholder="Value"
-            value={form.Value}
-            onChange={(e) =>
-              setForm({ ...form, Value: e.target.value })
-            }
-          />
-
-          <input
-            type="number"
-            placeholder="Minimum Spent"
-            value={form.minimumSpent}
-            onChange={(e) =>
-              setForm({ ...form, minimumSpent: e.target.value })
-            }
-          />
-
-          <input
-            type="number"
-            placeholder="Usage Limit Per Person"
-            value={form.usageLimitPerPerson}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                usageLimitPerPerson: e.target.value,
-              })
-            }
-          />
-
-          <div className={styles.dateRow}>
+          <div className={styles.field}>
+            <label>Coupon Name</label>
             <input
-              type="date"
-              value={form.validFrom}
+              value={form.couponName}
+              placeholder="SUMMER2026"
               onChange={(e) =>
-                setForm({ ...form, validFrom: e.target.value })
-              }
-            />
-            <input
-              type="date"
-              value={form.ValidTill}
-              onChange={(e) =>
-                setForm({ ...form, ValidTill: e.target.value })
+                setForm({ ...form, couponName: e.target.value })
               }
             />
           </div>
+
+          <div className={styles.field}>
+            <label>Discount Type</label>
+            <select
+              value={form.ValueType}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  ValueType: e.target.value as "percentage" | "amount",
+                })
+              }
+            >
+              <option value="percentage">Percentage</option>
+              <option value="amount">Amount</option>
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label>Discount Value</label>
+            <input
+              type="number"
+              placeholder="20"
+              value={form.Value}
+              onChange={(e) =>
+                setForm({ ...form, Value: e.target.value })
+              }
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Minimum Spend</label>
+            <input
+              type="number"
+              placeholder="100"
+              value={form.minimumSpent}
+              onChange={(e) =>
+                setForm({ ...form, minimumSpent: e.target.value })
+              }
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Usage Limit Per Person</label>
+            <input
+              type="number"
+              placeholder="1"
+              value={form.usageLimitPerPerson}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  usageLimitPerPerson: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Validity Period</label>
+            <div className={styles.dateRow}>
+              <input
+                type="date"
+                value={form.validFrom}
+                onChange={(e) =>
+                  setForm({ ...form, validFrom: e.target.value })
+                }
+              />
+              <input
+                type="date"
+                value={form.ValidTill}
+                onChange={(e) =>
+                  setForm({ ...form, ValidTill: e.target.value })
+                }
+              />
+            </div>
+          </div>
         </div>
+
 
         <div className={styles.actions}>
           <button onClick={onClose} className={styles.cancel}>

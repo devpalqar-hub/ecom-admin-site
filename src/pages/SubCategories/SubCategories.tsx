@@ -3,7 +3,7 @@ import { FiPlus, FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-
+import { useToast } from "../../components/toast/ToastContext";
 /* ================= TYPES ================= */
 
 interface Category {
@@ -27,7 +27,7 @@ export default function SubCategories() {
   const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
-
+  const { showToast } = useToast(); 
   /* ================= FETCH API ================= */
   useEffect(() => {
     const fetchSubCategories = async () => {
@@ -56,15 +56,16 @@ export default function SubCategories() {
     const confirmed = window.confirm(
       "Are you sure you want to delete this subcategory?"
     );
-    if (!confirmed) return;
+    if (!confirmed) 
+      return;
 
     try {
       await api.delete(`/subcategories/${id}`);
       setSubCategories((prev) => prev.filter((s) => s.id !== id));
-      alert("Subcategory deleted successfully");
+      showToast("Subcategory deleted successfully", "success");
     } catch (error: any) {
       console.error("Delete failed", error?.response?.data || error);
-      alert("Failed to delete subcategory");
+      showToast("Failed to delete subcategory", "error");
     }
   };
 

@@ -8,7 +8,8 @@ import {
   FiUsers,
   FiDollarSign,
   FiTag,
-  FiLayers
+  FiLayers,
+  FiGift
 } from "react-icons/fi";
 
 
@@ -72,7 +73,7 @@ export default function Sidebar() {
             `${styles.item} ${isActive ? styles.active : " "}`
           }          
           onClick={() => setOpen(false)}>
-            <FiTag /> Coupons
+            <FiGift /> Coupons
           </NavLink>
 
           <NavLink to="/Orders" 

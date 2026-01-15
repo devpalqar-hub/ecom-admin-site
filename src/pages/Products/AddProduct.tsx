@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../components/toast/ToastContext";
 
 export default function CreateProduct() {
  
@@ -14,7 +15,7 @@ export default function CreateProduct() {
   const [actualPrice, setActualPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
-
+  const { showToast } = useToast();
   type VariationForm = {
   variationName: string;
   price: string;
@@ -113,7 +114,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
 const handleCreateProduct = async () => {
   try {
     if (!mainImage) {
-      alert("Main image is required");
+      showToast("Main image is required", "success");
       return;
     }
 
@@ -127,7 +128,7 @@ const handleCreateProduct = async () => {
     formData.append("discountedPrice", discountedPrice);
     formData.append("subCategoryId", selectedSubCategory);
 
-    /* ---------------- VARIATIONS (ADD HERE ✅) ---------------- */
+    /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
     if (variationsEnabled) {
       const payloadVariations = variations.map((v) => ({
         variationName: v.variationName,
@@ -153,10 +154,11 @@ const handleCreateProduct = async () => {
     });
 
     console.log("Product created:", res.data);
-    alert("Product created successfully!");
+    
+    showToast("Product created successfully", "success")
   } catch (error: any) {
     console.error("Create product failed", error?.response?.data || error);
-    alert("Failed to create product");
+    showToast("Failed to create product", "error");
   }
 };
 

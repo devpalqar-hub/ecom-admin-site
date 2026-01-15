@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./Login.module.css";
+import { FiLock } from "react-icons/fi";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ export default function Login() {
       <div className={styles.left}>
         <div className={styles.brand}>
           <div className={styles.logo}>R</div>
-          <h1>Raheeb Admin Panel</h1>
+          <h1 className={styles.head}><span>RAHEEB</span> Admin Panel</h1>
           <p className={styles.subtitle}>
             Secure administrative access for system management.
           </p>
@@ -86,7 +87,7 @@ export default function Login() {
           </button>
 
           <div className={styles.secure}>
-            🔒 Admin access is securely encrypted
+            <FiLock /> Admin access is securely encrypted
           </div>
         </form>
       </div>

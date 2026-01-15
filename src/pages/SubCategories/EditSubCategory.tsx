@@ -3,7 +3,7 @@ import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./EditSubCategory.module.css";
-
+import { useToast } from "../../components/toast/ToastContext";
 /* ================= TYPES ================= */
 
 interface Category {
@@ -14,7 +14,7 @@ interface Category {
 export default function EditSubCategory() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-
+  const { showToast } = useToast();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -44,7 +44,7 @@ export default function EditSubCategory() {
         setCategories(catRes.data.data.data);
       } catch (error) {
         console.error("Failed to load subcategory", error);
-        alert("Failed to load subcategory");
+        showToast("Failed to load subcategory", "error");
       } finally {
         setLoading(false);
       }
@@ -83,11 +83,11 @@ export default function EditSubCategory() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Subcategory updated successfully");
+      showToast("Subcategory updated successfully", "success");
       navigate(-1);
     } catch (error: any) {
       console.error("Update failed", error?.response?.data || error);
-      alert("Failed to update subcategory");
+      showToast("Failed to update subcategory", "error");
     } finally {
       setSaving(false);
     }

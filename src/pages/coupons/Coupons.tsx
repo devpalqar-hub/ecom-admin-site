@@ -139,55 +139,63 @@ export default function Coupons() {
             </thead>
 
             <tbody>
-              {coupons.map((c) => {
-                const expired = isExpired(c.ValidTill);
+              {loading ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: "center", padding: 20 }}>
+                    Loading coupons...
+                  </td>
+                </tr>
+              ) : coupons.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: "center", padding: 20 }}>
+                    No coupons found
+                  </td>
+                </tr>
+              ) : (
+                coupons.map((c) => {
+                  const expired = isExpired(c.ValidTill);
 
-                return (
-                  <tr key={c.id}>
-                    <td><strong>{c.couponName}</strong></td>
-                    <td>{c.ValueType}</td>
-                    <td>
-                      {c.ValueType === "percentage"
-                        ? `${c.Value}%`
-                        : `₹${c.Value}`}
-                    </td>
-                    <td>₹{c.minimumSpent}</td>
-                    <td>{c.usedByCount}</td>
-                    <td>
-                      {c.validFrom} → {c.ValidTill}
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          expired
-                            ? styles.expired
-                            : styles.active
-                        }
-                      >
-                        {expired ? "Expired" : "Valid"}
-                      </span>
-                    </td>
-                    <td className={styles.actions}>
+                  return (
+                    <tr key={c.id}>
+                      <td><strong>{c.couponName}</strong></td>
+                      <td>{c.ValueType}</td>
+                      <td>
+                        {c.ValueType === "percentage"
+                          ? `${c.Value}%`
+                          : `₹${c.Value}`}
+                      </td>
+                      <td>₹{c.minimumSpent}</td>
+                      <td>{c.usedByCount}</td>
+                      <td>
+                        {c.validFrom} → {c.ValidTill}
+                      </td>
+                      <td>
+                        <span
+                          className={expired ? styles.expired : styles.active}
+                        >
+                          {expired ? "Expired" : "Valid"}
+                        </span>
+                      </td>
+                      <td className={styles.actions}>
                         <FiEdit
-                            className={styles.actionIcon}
-                            title="Edit Coupon"
-                            onClick={() => {
+                          className={styles.actionIcon}
+                          onClick={() => {
                             setEditId(c.id);
                             setShowModal(true);
-                            }}
+                          }}
                         />
-
-                        <FiTrash color="red"
-                            className={styles.actionIcon}
-                            title="Delete Coupon"
-                            onClick={() => handleDelete(c.id)}
+                        <FiTrash
+                          className={styles.actionIcon}
+                          color="red"
+                          onClick={() => handleDelete(c.id)}
                         />
-                        </td>
-
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
+
           </table>
         </div>
 

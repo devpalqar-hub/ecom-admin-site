@@ -20,18 +20,34 @@
   margin-bottom: 16px;
 }
 
-.form {
+.field {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 
-.form input,
-.form select {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+.field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
 }
+
+.field input,
+.field select {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
 
 .dateRow {
   display: flex;
@@ -53,7 +69,7 @@
 }
 
 .save {
-  background: #7c3aed;
+  background: #0F172A;
   color: #fff;
   border: none;
   padding: 8px 14px;
