@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import api from "../../services/api";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../components/toast/ToastContext";
 
 export default function CreateProduct() {
  
@@ -14,7 +15,7 @@ export default function CreateProduct() {
   const [actualPrice, setActualPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
-  const [isFeatured, setIsFeatured] = useState(false);
+  const { showToast } = useToast();  const [isFeatured, setIsFeatured] = useState(false);
 
 
   type VariationForm = {
@@ -115,7 +116,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
 const handleCreateProduct = async () => {
   try {
     if (!mainImage) {
-      alert("Main image is required");
+      showToast("Main image is required", "error");
       return;
     }
 
@@ -133,7 +134,7 @@ const handleCreateProduct = async () => {
 
 
 
-    /* ---------------- VARIATIONS (ADD HERE ✅) ---------------- */
+    /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
     if (variationsEnabled) {
       const payloadVariations = variations.map((v) => ({
         variationName: v.variationName,
@@ -159,11 +160,12 @@ const handleCreateProduct = async () => {
     });
 
     console.log("Product created:", res.data);
-    alert("Product created successfully!");
+    
+    showToast("Product created successfully", "success")
     navigate("/products");
   } catch (error: any) {
     console.error("Create product failed", error?.response?.data || error);
-    alert("Failed to create product");
+    showToast("Failed to create product", "error");
   }
 };
 
@@ -440,7 +442,7 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
 
 
       <div className={styles.actions}>
-        <button className={styles.cancel}>Cancel</button>
+        <button className={styles.cancel} onClick={() => navigate("/products")}>Cancel</button>
         <button className={styles.primary} onClick={handleCreateProduct}>
           Create Product
         </button>

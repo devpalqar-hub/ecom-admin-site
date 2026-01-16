@@ -8,11 +8,13 @@ import {
   FiUsers,
   FiDollarSign,
   FiTag,
-  FiLayers
+  FiLayers,
+  FiGift
 } from "react-icons/fi";
 
 
 export default function Sidebar() {
+  
   const [open, setOpen] = useState(false);
 
   return (
@@ -50,30 +52,66 @@ export default function Sidebar() {
 
         {/* Menu */}
         <nav className={styles.menu}>
-          <NavLink to="/dashboard" onClick={() => setOpen(false)}>
+          <NavLink to="/dashboard" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }
+          onClick={() => setOpen(false)}>
             <FiGrid /> Dashboard
           </NavLink>
 
-          <NavLink to="/Products" onClick={() => setOpen(false)}>
+          <NavLink to="/Products" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }
+          onClick={() => setOpen(false)}>
             <FiBox /> Products
           </NavLink>
 
-          <NavLink to="/Orders" onClick={() => setOpen(false)}>
+          <NavLink to="/coupons" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <FiGift /> Coupons
+          </NavLink>
+
+          <NavLink to="/Orders" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
             <FiShoppingCart /> Orders
           </NavLink>
 
-          <NavLink to="/customers" onClick={() => setOpen(false)}>
+          <NavLink to="/customers" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
             <FiUsers /> Customers
           </NavLink>
 
-          <NavLink to="/financial" onClick={() => setOpen(false)}>
+          <NavLink to="/financial" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
             <FiDollarSign /> Financial
           </NavLink>
 
-          <NavLink to="/Categories" onClick={() => setOpen(false)}>
+          <NavLink to="/Categories" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
             <FiTag /> Categories
           </NavLink>
-          <NavLink to="/subcategories" onClick={() => setOpen(false)}>
+          <NavLink to="/subcategories" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
             <FiLayers />Subcategories    
           </NavLink>
 

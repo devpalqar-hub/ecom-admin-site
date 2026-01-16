@@ -29,8 +29,7 @@
   gap: 6px;
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #7c3aed;
-  background: #7c3aed;
+  background: #0F172A;
   cursor: pointer;
   color:#fff
 }
@@ -47,6 +46,7 @@
   padding: 18px;
   color: #fff;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -66,19 +66,19 @@
   font-weight: 700;
 }
 .total {
-  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
 }
 
 .processing {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
 }
 
 .shipped {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
 }
 
 .completed {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
 }
 
 /* FILTER BAR */
@@ -125,7 +125,7 @@
 
 /* SMALL, SAME-WIDTH SELECTS */
 .filters select {
-  width: 275px;            /* 👈 SAME WIDTH */
+  width: 275px;           
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
@@ -181,18 +181,18 @@ tbody tr {
 }
 
 .completed {
-  background: #dcfce7;
-  color: #166534;
+  background: linear-gradient(135deg, #0F172A, #1E293B);
+  color: #ffff;
 }
 
 .processing {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: linear-gradient(135deg, #0F172A, #1E293B);
+  color: #ffff;
 }
 
 .shipped {
-  background: #fef3c7;
-  color: #92400e;
+  background: linear-gradient(135deg, #0F172A, #1E293B);
+  color: #ffff;
 }
 
 /* ACTION */

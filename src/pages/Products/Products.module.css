@@ -26,7 +26,7 @@
 }
 
 .addBtn {
-  background: #7c3aed;
+  background: #0F172A;
   color: #fff;
   border: none;
   padding: 10px 16px;
@@ -71,7 +71,7 @@
 
 /* SMALL, SAME-WIDTH SELECTS */
 .filters select {
-  width: 290px;            /* 👈 SAME WIDTH */
+  width: 290px;          
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
@@ -98,14 +98,17 @@ thead {
 th,
 td {
   padding: 18px 15px;
-  text-align: left;
   font-size: 14px;
+}
+table th,
+table td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 tbody tr {
   border-top: 1px solid #e5e7eb;
 }
-
 /* PRODUCT CELL */
 .productCell {
   display: flex;
@@ -138,13 +141,12 @@ tbody tr {
 
 /* ACTIONS */
 .actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
   font-size: 20px;
   color: #6b7280;
   cursor: pointer;
-}
-.actions {
-  display: flex;
-  gap: 10px;
 }
 
 .editBtn,
@@ -160,7 +162,7 @@ tbody tr {
 }
 
 .editBtn {
-  color: #7c3aed;
+  color: #0F172A;
 }
 
 .editBtn:hover {
@@ -387,23 +389,6 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* reuse same colors */
-.editBtn {
-  color: #7c3aed;
-}
-
-.editBtn:hover {
-  background: #e0e7ff;
-}
-
-.deleteBtn {
-  color: #dc2626;
-}
-
-.deleteBtn:hover {
-  background: #fee2e2;
 }
 
   /* PAGINATION */

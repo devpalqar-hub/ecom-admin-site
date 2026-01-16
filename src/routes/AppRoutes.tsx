@@ -17,7 +17,8 @@ import EditCategory from "../pages/Categories/EditCategory";
 import EditSubCategory from "../pages/SubCategories/EditSubCategory";
 import ProductDetails from "../pages/Products/ProductDetails";
 
-
+import Customers from "../pages/customers/Customers";
+import Coupons from "../pages/coupons/Coupons";
 
 export default function AppRoutes() {
   return (
@@ -51,7 +52,8 @@ export default function AppRoutes() {
         <Route path="/categories/edit/:id" element={<EditCategory/>} />
         <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
       
-        
+        <Route path="customers" element={<Customers />} />
+        <Route path="coupons" element={<Coupons />} />        
       </Route>
 
       {/* FALLBACK */}

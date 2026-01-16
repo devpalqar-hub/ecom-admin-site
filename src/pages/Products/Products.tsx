@@ -3,7 +3,8 @@ import { FiSearch,FiEdit2, FiTrash2,FiEye } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api"; // adjust path if needed
 import { useNavigate } from "react-router-dom";
- 
+import ConfirmModal from "../../components/confirmModal/ConfirmModal";
+import { useToast } from "../../components/toast/ToastContext";
 
 interface Product {
   id: string;
@@ -30,9 +31,9 @@ interface Category {
 }
 
 export default function Products() {
-    const [categories, setCategories] = useState<Category[]>([]);
-const [categoryId, setCategoryId] = useState("");
-
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryId, setCategoryId] = useState("");
+  const { showToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
@@ -41,6 +42,8 @@ const [categoryId, setCategoryId] = useState("");
   const limit = 10;
 
   const navigate = useNavigate();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 
 useEffect(() => {
   const fetchProducts = async () => {
@@ -86,27 +89,45 @@ useEffect(() => {
 
   fetchCategories();
 }, []);
-const handleDeleteProduct = async (productId: string) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this product?"
-  );
-  if (!confirmed) return;
+const handleDeleteProduct = async () => {
+  if (!deleteProductId) return;
 
   try {
-    console.log(productId)
-    await api.delete(`/products/${productId}`);
+    await api.delete(`/products/${deleteProductId}`);
 
     // remove product from UI
     setProducts((prev) =>
-      prev.filter((product) => product.id !== productId)
+      prev.filter((product) => product.id !== deleteProductId)
     );
-
-    alert("Product deleted successfully");
+    setShowDeleteConfirm(false);
+    setDeleteProductId(null);
+    showToast("Product deleted successfully", "success");
   } catch (error: any) {
     console.error("Delete product failed", error?.response?.data || error);
-    alert("Failed to delete product");
+    showToast("Failed to delete product", "error");
   }
 };
+
+function ProductImage({
+  src,
+  alt,
+}: {
+  src?: string;
+  alt: string;
+}) {
+  const [imgSrc, setImgSrc] = useState(
+    src || "/placeholder.png"
+  );
+
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => setImgSrc("/placeholder.png")}
+    />
+  );
+}
 
   return (
     <div className={styles.page}>
@@ -133,7 +154,6 @@ const handleDeleteProduct = async (productId: string) => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             />
-
                 
             </div>
 
@@ -188,30 +208,27 @@ const handleDeleteProduct = async (productId: string) => {
                 {products.map((p) => (
                     <tr key={p.id}>
                     <td>
-                        <input type="checkbox" />
+                        <span></span>
                     </td>
-
-                    <td className={styles.productCell}>
-                        <img
-                            src={
-                                p.images?.find((img) => img.isMain)?.url ||
-                                p.images?.[0]?.url ||
-                                "/placeholder.png"
-                            }
-                            alt={p.name}
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.png";
-                            }}
-                         />
+                  <td className={styles.productId}>
+                    <div className={styles.productCell}>
+                        <ProductImage
+                          src={
+                            p.images?.find((img) => img.isMain)?.url ||
+                            p.images?.[0]?.url
+                          }
+                          alt={p.name}
+                        />
                         
                         <div className={styles.productNameWrap}>
-                          <span>{p.name}</span>
+                          <span className={styles.productName}>{p.name}</span>
+                    </div>
 
                           {p.isFeatured && (
                             <span className={styles.featuredBadge}>FEATURED</span>
                           )}
                         </div>
-                    </td>
+                  </td>
 
                     <td>{p.id.slice(0, 8)}</td>
 
@@ -248,7 +265,10 @@ const handleDeleteProduct = async (productId: string) => {
 
                         <button
                           className={styles.deleteBtn}
-                          onClick={() => handleDeleteProduct(p.id)}
+                          onClick={() => {
+                            setDeleteProductId(p.id);
+                            setShowDeleteConfirm(true);
+                          }}
                           title="Delete"
                         >
                           <FiTrash2 />
@@ -286,16 +306,12 @@ const handleDeleteProduct = async (productId: string) => {
         {products.map((p) => (
             <div key={p.id} className={styles.mobileCard}>
             <div className={styles.cardTop}>
-                <img
-                    src={
-                        p.images?.find((img) => img.isMain)?.url ||
-                        p.images?.[0]?.url ||
-                        "/placeholder.png"
-                    }
-                    alt={p.name}
-                    onError={(e) => {
-                        e.currentTarget.src = "/placeholder.png";
-                    }}
+                <ProductImage
+                  src={
+                    p.images?.find((img) => img.isMain)?.url ||
+                    p.images?.[0]?.url
+                  }
+                  alt={p.name}
                 />
                 <div>
                 <div className={styles.mobileTitle}>
@@ -347,7 +363,10 @@ const handleDeleteProduct = async (productId: string) => {
 
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => handleDeleteProduct(p.id)}
+                  onClick={() => {
+                    setDeleteProductId(p.id);
+                    setShowDeleteConfirm(true);
+                  }}
                   title="Delete"
                 >
                   <FiTrash2 />
@@ -356,6 +375,17 @@ const handleDeleteProduct = async (productId: string) => {
             </div>
         ))}
         </div>
+            <ConfirmModal 
+              open={showDeleteConfirm}
+              title="Delete Product"
+              message="Are you sure you want to delete this product? This action cannot be undone."
+              confirmText="Delete"
+              onCancel={() => {
+                setShowDeleteConfirm(false);
+                setDeleteProductId(null);
+              }}
+              onConfirm={handleDeleteProduct}
+            />
     </div>
   );
 }

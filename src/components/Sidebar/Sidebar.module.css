@@ -14,7 +14,6 @@
   top: 0;
 }
 
-
 /* Brand */
 .brand {
   display: flex;
@@ -28,7 +27,7 @@
 .avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #0F172A, #1E293B);
   color: #fff;
   font-weight: 700;
   border-radius: 10px;
@@ -67,7 +66,7 @@
 
 .menu a.active {
   background: #eef2ff;
-  color: #4338ca;
+  color: #0F172A;
   font-weight: 600;
 }
 /* Hamburger */

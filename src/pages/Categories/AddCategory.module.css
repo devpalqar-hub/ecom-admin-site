@@ -85,7 +85,7 @@
 
 .field input:focus,
 .field textarea:focus {
-  border-color: #2563eb;
+  border-color: #0F172A;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
@@ -113,7 +113,7 @@
 }
 
 .primary {
-  background: #2563eb;
+  background: #0F172A;
   border: none;
   padding: 10px 20px;
   border-radius: 10px;
@@ -124,7 +124,7 @@
 }
 
 .primary:hover {
-  background: #1e40af;
+  background: #01040a;
 }
 
 .primary:disabled {
@@ -150,8 +150,8 @@
 }
 
 .uploadBox:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+  border-color: #0F172A;
+  color: #0F172A;
 }
 
 .previewBox {
