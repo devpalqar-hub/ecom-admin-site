@@ -179,24 +179,23 @@
 
 /* ===== ADMIN ACTIONS ===== */
 
-/* Container under stars */
+
 .reviewActions {
   display: flex;
-  justify-content: flex-end; /* right aligned */
-  align-items: center;       /* vertical alignment */
+  justify-content: flex-end; 
+  align-items: center;       
   gap: 8px;
   margin-top: 6px;
 }
 
-/* Icon-only buttons */
 .reviewActions button {
   width: 30px;
   height: 30px;
-  padding: 0;               /* ❗ remove padding */
-  border-radius: 50%;       /* perfect circle */
+  padding: 0;              
+  border-radius: 50%;       
   border: none;
   background: #f3f4f6;
-  display: flex;            /* center icon */
+  display: flex;            
   align-items: center;
   justify-content: center;
   cursor: pointer;

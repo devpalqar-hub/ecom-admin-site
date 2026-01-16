@@ -14,6 +14,8 @@ export default function CreateProduct() {
   const [actualPrice, setActualPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
+  const [isFeatured, setIsFeatured] = useState(false);
+
 
   type VariationForm = {
   variationName: string;
@@ -126,6 +128,10 @@ const handleCreateProduct = async () => {
     formData.append("actualPrice", actualPrice);
     formData.append("discountedPrice", discountedPrice);
     formData.append("subCategoryId", selectedSubCategory);
+    formData.append("isFeatured", String(isFeatured));
+    formData.append("isStock", String(isStock));
+
+
 
     /* ---------------- VARIATIONS (ADD HERE ✅) ---------------- */
     if (variationsEnabled) {
@@ -154,6 +160,7 @@ const handleCreateProduct = async () => {
 
     console.log("Product created:", res.data);
     alert("Product created successfully!");
+    navigate("/products");
   } catch (error: any) {
     console.error("Create product failed", error?.response?.data || error);
     alert("Failed to create product");
@@ -200,8 +207,11 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
               <label>Stock Quantity *</label>
               <input
                 type="number"
-                value={stockCount}
-                onChange={e => setStockCount(Number(e.target.value))}
+                value={stockCount === 0 ? "" : stockCount}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setStockCount(value === "" ? 0 : parseInt(value, 10));
+                }}
               />
             </div>
 
@@ -396,31 +406,36 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className={styles.right}>
-          <div className={styles.card}>
-            <h3>Product Status</h3>
-            <div className={styles.toggle}>
-              <span>Active Status</span>
-                <input
-                    type="checkbox"
-                    checked={isStock}
-                    onChange={() => setIsStock((v) => !v)}
-                />
-            </div>
-            <p className={styles.muted}>Product is hidden from store</p>
-          </div>
+<div className={styles.right}>
+  <div className={styles.card}>
+    <h3>Product Status</h3>
 
-          <div className={styles.card}>
-            <h3>Summary</h3>
-            <ul className={styles.summary}>
-              <li><span>Name:</span> Not set</li>
-              <li><span>SKU:</span> Not set</li>
-              <li><span>Category:</span> Not set</li>
-              <li><span>Price:</span> $0.00</li>
-              <li><span>Stock:</span> 0 units</li>
-            </ul>
-          </div>
-        </div>
+    {/* ACTIVE STATUS */}
+    <div className={styles.toggle}>
+      <span>Active Status</span>
+      <input
+        type="checkbox"
+        checked={isStock}
+        onChange={() => setIsStock((v) => !v)}
+      />
+    </div>
+
+    {/* FEATURED STATUS ✅ */}
+    <div className={styles.toggle}>
+      <span>Featured Product</span>
+      <input
+        type="checkbox"
+        checked={isFeatured}
+        onChange={() => setIsFeatured((v) => !v)}
+      />
+    </div>
+
+    <p className={styles.muted}>
+      Featured products appear on homepage & promotions
+    </p>
+  </div>
+</div>
+
       </div>
 
 

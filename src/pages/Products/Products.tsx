@@ -12,6 +12,7 @@ interface Product {
   actualPrice: string;
   stockCount: number;
   isStock: boolean;
+  isFeatured?: boolean;
   images: {
     url: string;
     isMain?: boolean;
@@ -202,7 +203,14 @@ const handleDeleteProduct = async (productId: string) => {
                                 e.currentTarget.src = "/placeholder.png";
                             }}
                          />
-                        <span>{p.name}</span>
+                        
+                        <div className={styles.productNameWrap}>
+                          <span>{p.name}</span>
+
+                          {p.isFeatured && (
+                            <span className={styles.featuredBadge}>FEATURED</span>
+                          )}
+                        </div>
                     </td>
 
                     <td>{p.id.slice(0, 8)}</td>
@@ -290,7 +298,13 @@ const handleDeleteProduct = async (productId: string) => {
                     }}
                 />
                 <div>
-                <h4>{p.name}</h4>
+                <div className={styles.mobileTitle}>
+                  <h4>{p.name}</h4>
+
+                  {p.isFeatured && (
+                    <span className={styles.featuredBadge}>FEATURED</span>
+                  )}
+                </div>
                 <p className={styles.category}>
                     {p.subCategory?.category?.name || "-"}
                 </p>
