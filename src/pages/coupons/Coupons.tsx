@@ -3,7 +3,8 @@ import { FiSearch, FiPlus, FiEdit, FiTrash } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import CouponFormModal from "./couponFormModal/CouponFormModal";
-
+import ConfirmModal from "../../components/confirmModal/ConfirmModal";
+import { useToast } from "../../components/toast/ToastContext";
 /* ---------------- TYPES ---------------- */
 interface Coupon {
   id: string;
@@ -33,7 +34,7 @@ interface CouponsResponse {
 export default function Coupons() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -41,7 +42,8 @@ export default function Coupons() {
 
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | undefined>();
-
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteCouponId, setDeleteCouponId] = useState<string | null>(null);
   const fetchCoupons = async () => {
     setLoading(true);
     try {
@@ -69,17 +71,6 @@ export default function Coupons() {
 
   const isExpired = (date: string) => new Date(date) < new Date();
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this coupon?")) return;
-
-    try {
-      await api.delete(`/coupons/${id}`);
-      fetchCoupons();
-    } catch (err) {
-      console.error("Failed to delete coupon", err);
-    }
-  };
-
   const handleEdit = (id: string) => {
     setEditId(id);
     setShowModal(true);
@@ -88,6 +79,32 @@ export default function Coupons() {
   const handleCreate = () => {
     setEditId(undefined);
     setShowModal(true);
+  };
+   const handleDeleteCoupon = async () => {
+    if (!deleteCouponId) return;
+
+    try {
+      await api.delete(`/coupons/${deleteCouponId}`);
+
+      setCoupons((prev) =>
+        prev.filter((coupon) => coupon.id !== deleteCouponId)
+      );
+
+      setShowDeleteConfirm(false);
+      setDeleteCouponId(null);
+
+      showToast("Coupon deleted successfully", "success");
+    } catch (error: any) {
+      showToast(
+        error?.response?.data?.message || "Failed to delete coupon",
+        "error"
+      );
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteCouponId(id);
+    setShowDeleteConfirm(true);
   };
 
   return (
@@ -165,10 +182,10 @@ export default function Coupons() {
                       <td>
                         {c.ValueType === "percentage"
                           ? `${c.Value}%`
-                          : `₹${c.Value}`}
+                          : `QAR ${c.Value}`}
                       </td>
 
-                      <td>₹{c.minimumSpent}</td>
+                      <td>QAR {c.minimumSpent}</td>
 
                       <td>{c.usedByCount}</td>
 
@@ -192,7 +209,7 @@ export default function Coupons() {
                         <FiTrash
                           className={styles.actionIcon}
                           color="red"
-                          onClick={() => handleDelete(c.id)}
+                          onClick={() => handleDeleteClick(c.id)}
                         />
                       </td>
                     </tr>
@@ -226,7 +243,7 @@ export default function Coupons() {
                       <FiTrash
                         className={styles.actionIcon}
                         style={{ color: "red" }}
-                        onClick={() => handleDelete(c.id)}
+                        onClick={() => handleDeleteClick(c.id)}
                       />
                     </div>
                   </div>
@@ -241,13 +258,13 @@ export default function Coupons() {
                     <span className={styles.cardValue}>
                       {c.ValueType === "percentage"
                         ? `${c.Value}%`
-                        : `₹${c.Value}`}
+                        : `QAR ${c.Value}`}
                     </span>
                   </div>
 
                   <div className={styles.cardRow}>
                     <span className={styles.cardLabel}>Min Spend</span>
-                    <span className={styles.cardValue}>₹{c.minimumSpent}</span>
+                    <span className={styles.cardValue}>QAR {c.minimumSpent}</span>
                   </div>
 
                   <div className={styles.cardRow}>
@@ -308,6 +325,17 @@ export default function Coupons() {
         couponId={editId}
         onClose={() => setShowModal(false)}
         onSuccess={fetchCoupons}
+      />
+      <ConfirmModal 
+        open={showDeleteConfirm}
+        title="Delete coupon?"
+        message="Are you sure you want to delete this coupon? This action cannot be undone."
+        confirmText="Delete"
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setDeleteCouponId(null);
+        }}
+        onConfirm={handleDeleteCoupon}
       />
     </div>
   );

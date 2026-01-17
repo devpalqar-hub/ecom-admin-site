@@ -170,7 +170,7 @@ export default function Customers() {
                     <td>{c.email}</td>
                     <td>{c.phoneNumber || "—"}</td>
                     <td>{c.numberOfOrders}</td>
-                    <td>₹{c.totalAmountSpent.toLocaleString("en-IN")}</td>
+                    <td>QAR {c.totalAmountSpent.toLocaleString("en-IN")}</td>
                     <td>{new Date(c.joinedDate).toLocaleDateString()}</td>
                     <td>
                       <span
@@ -222,7 +222,7 @@ export default function Customers() {
                 <div className={styles.cardRow}>
                   <span className={styles.cardLabel}>Spent:</span>
                   <span className={styles.cardValue}>
-                    ₹{c.totalAmountSpent.toLocaleString("en-IN")}
+                    QAR {c.totalAmountSpent.toLocaleString("en-IN")}
                   </span>
                 </div>
                 <div className={styles.cardRow}>

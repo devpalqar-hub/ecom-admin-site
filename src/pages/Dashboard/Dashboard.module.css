@@ -66,6 +66,14 @@
   justify-content: center;
   font-size: 22px;
 }
+.orderItem {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.orderItem:hover {
+  background: #f9fafb;
+}
 
 /* VARIANTS */
 .revenue .icon {

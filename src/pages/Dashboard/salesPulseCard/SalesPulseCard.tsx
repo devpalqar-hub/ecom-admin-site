@@ -43,7 +43,7 @@ export default function SalesPulseCard() {
       </div>
 
       <div className={styles.value}>
-        ₹{total.toLocaleString("en-IN")}
+        QAR {total.toLocaleString("en-IN")}
       </div>
 
       {total === 0 && (

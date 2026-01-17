@@ -180,7 +180,7 @@ tbody tr {
 .actions {
   font-size: 18px;
   cursor: pointer;
-  color: #6b7280;
+  color: #0F172A;
   justify-content: center;
 }
 
@@ -208,11 +208,12 @@ tbody tr {
 .actions {
   display: flex;
   align-items: center;
-  gap: 8px; /* space between edit & delete */
+  justify-content: center;
+  margin-top: 10px;
+  gap: 8px; 
 }
 
-.editBtn,
-.deleteBtn {
+.editBtn {
   background: transparent;
   border: none;
   cursor: pointer;
@@ -221,10 +222,7 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.editBtn {
-  color: #7c3aed;
+  color: #0F172A;
 }
 
 .editBtn:hover {
@@ -408,19 +406,6 @@ tbody tr {
   justify-content: center;
 }
 
-/* reuse same colors */
-.editBtn {
-  color: #7c3aed;
-}
-
 .editBtn:hover {
   background: #e0e7ff;
-}
-
-.deleteBtn {
-  color: #dc2626;
-}
-
-.deleteBtn:hover {
-  background: #fee2e2;
 }

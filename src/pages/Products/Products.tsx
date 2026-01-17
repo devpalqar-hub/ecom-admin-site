@@ -236,7 +236,7 @@ function ProductImage({
 
                     <td>{p.stockCount}</td>
 
-                    <td>${p.discountedPrice}</td>
+                    <td>QAR {p.discountedPrice}</td>
 
                     <td>
                         <span className={p.isStock ? styles.inStock : styles.lowStock}>
@@ -334,7 +334,7 @@ function ProductImage({
 
             <div className={styles.cardRow}>
                 <span>Price</span>
-                <strong>${p.discountedPrice}</strong>
+                <strong>QAR {p.discountedPrice}</strong>
             </div>
 
             <div className={styles.cardRow}>

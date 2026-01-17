@@ -20,6 +20,7 @@ import {
   Cell,
 } from "recharts";
 import SalesPulseCard from "./salesPulseCard/SalesPulseCard";
+import { useNavigate } from "react-router-dom";
 
 /* ---------------- TYPES ---------------- */
 
@@ -59,6 +60,7 @@ interface TopProduct {
 /* ---------------- COMPONENT ---------------- */
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -110,7 +112,7 @@ export default function Dashboard() {
       <div className={styles.stats}>
         <StatCard
           title="Total Revenue"
-          value={`₹${stats?.totalRevenue.toFixed(2)}`}
+          value={`QR ${stats?.totalRevenue.toFixed(2)}` || "0"}
           icon={<FiDollarSign />}
           variant="revenue"
         />
@@ -206,7 +208,13 @@ export default function Dashboard() {
 
           <div className={styles.list}>
             {recentOrders.map((o) => (
-              <div key={o.id} className={styles.orderItem}>
+              <div
+                key={o.id}
+                className={styles.orderItem}
+                onClick={() => navigate(`/orders/${o.id}`)}
+                style={{ cursor: "pointer" }}
+              >
+
                 <div>
                   <strong>{o.orderNumber}</strong>
                   <p>

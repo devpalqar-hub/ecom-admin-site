@@ -6,10 +6,10 @@ import {
   FiBox,
   FiShoppingCart,
   FiUsers,
-  FiDollarSign,
   FiTag,
   FiLayers,
-  FiGift
+  FiGift,
+  FiImage
 } from "react-icons/fi";
 
 
@@ -92,12 +92,12 @@ export default function Sidebar() {
             <FiUsers /> Customers
           </NavLink>
 
-          <NavLink to="/financial" 
+          <NavLink to="/banners" 
           className={({ isActive }) => 
             `${styles.item} ${isActive ? styles.active : " "}`
           }          
           onClick={() => setOpen(false)}>
-            <FiDollarSign /> Financial
+            <FiImage /> Banners
           </NavLink>
 
           <NavLink to="/Categories" 

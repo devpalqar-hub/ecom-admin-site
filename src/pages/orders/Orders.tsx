@@ -236,7 +236,7 @@ const navigate = useNavigate();
 
                   <td>{o.items.length}</td>
 
-                  <td>₹{o.totalAmount}</td>
+                  <td>QAR {o.totalAmount}</td>
 
                   <td>
                     <span

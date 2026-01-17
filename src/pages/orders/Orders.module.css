@@ -100,8 +100,8 @@
 /* SEARCH BOX — LARGE */
 .searchBox {
   position: relative;
-  flex: 1;                 /* takes remaining space */
-  max-width: 520px;        /* adjust if you want wider */
+  flex: 1;             
+  max-width: 520px;        
 }
 
 /* SEARCH INPUT */
@@ -180,21 +180,35 @@ tbody tr {
   font-weight: 500;
 }
 
-.completed {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
+.status.delivered {
+  background: green;
   color: #ffff;
 }
 
-.processing {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
+.status.processing {
+  background: rgb(127, 127, 229);
   color: #ffff;
 }
 
-.shipped {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
+.status.shipped {
+  background: rgb(169, 255, 160);
+  color: #545353;
+}
+.status.pending {
+  background: gray;
   color: #ffff;
 }
-
+.status.confirmed {
+  background: yellow;
+}
+.status.cancelled {
+  background: red;
+  color: #ffff;
+}
+.status.refunded {
+  background: purple;
+  color: #ffff;
+}
 /* ACTION */
 .viewBtn {
   padding: 6px 12px;

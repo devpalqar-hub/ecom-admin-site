@@ -1,5 +1,5 @@
 import styles from "./OrderDetails.module.css";
-import { FiArrowLeft, FiDownload, FiPrinter, FiTrash } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiPrinter } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "../../components/toast/ToastContext";
@@ -61,8 +61,7 @@ const updateTrackingStatus = async (
     { status, notes }
   );
   return res.data.data.tracking;
-};
-
+}
 /* ================= COMPONENT ================= */
 
 export default function OrderDetails() {
@@ -201,12 +200,12 @@ export default function OrderDetails() {
             <h4>{product.name}</h4>
             <p className={styles.sku}>SKU: {product.sku ?? "—"}</p>
             <p className={styles.qtyPrice}>
-              ₹{product.discountedPrice} × {item.quantity}
+              QAR {product.discountedPrice} × {item.quantity}
             </p>
           </div>
 
           <div className={styles.itemPrice}>
-            ₹{(
+            QAR {(
               Number(product.discountedPrice) * item.quantity
             ).toFixed(2)}
           </div>
@@ -218,20 +217,20 @@ export default function OrderDetails() {
   <div className={styles.summary}>
     <div>
       <span>Subtotal</span>
-      <span>₹{order.totalAmount}</span>
+      <span>QAR {order.totalAmount}</span>
     </div>
     <div>
       <span>Shipping</span>
-      <span>₹{order.shippingCost}</span>
+      <span>QAR {order.shippingCost}</span>
     </div>
     <div>
       <span>Tax</span>
-      <span>₹{order.taxAmount}</span>
+      <span>QAR {order.taxAmount}</span>
     </div>
 
     <div className={styles.totalRow}>
       <span>Total</span>
-      <span>₹{order.totalAmount}</span>
+      <span>QAR {order.totalAmount}</span>
     </div>
   </div>
 </div>
@@ -256,7 +255,7 @@ export default function OrderDetails() {
 
   {/* Shipping Address */}
   <div className={styles.addressBlock}>
-    <h4>📍 Shipping Address</h4>
+    <h4>Shipping Address</h4>
     <p>{order.shippingAddress?.address}</p>
     <p>{order.shippingAddress?.city}</p>
     <p>{order.shippingAddress?.state}</p>
@@ -271,7 +270,6 @@ export default function OrderDetails() {
     {/* ORDER TRACKING */}
     <div className={styles.card}>
       <h3>Order Tracking</h3>
-      <FiTrash className={styles.deleteBtn}/>
       {!tracking ? (
         <>
           <p className={styles.muted}>

@@ -205,8 +205,8 @@ export default function ProductDetails() {
       </div>
 
       <p className={styles.price}>
-        ₹{product.discountedPrice}
-        <span>₹{product.actualPrice}</span>
+        QAR {product.discountedPrice}
+        <span>QAR {product.actualPrice}</span>
       </p>
 
       <p className={styles.desc}>{product.description}</p>

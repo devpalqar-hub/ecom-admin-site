@@ -66,7 +66,7 @@ export default function Login() {
 
           <ul className={styles.features}>
             <li className={styles.globe}><FaGlobe size={20}/> Centralized Control</li>
-            <li className={styles.eye}><FaRegEye/> Real-time Monitoring</li>
+            <li className={styles.eye}><FaRegEye size={20}/> Real-time Monitoring</li>
           </ul>
         </div>
       </div>
