@@ -1,9 +1,10 @@
 import styles from "./Categories.module.css";
-import { FiPlus, FiSearch,FiEdit2, FiTrash2} from "react-icons/fi";
+import { FiPlus, FiSearch,FiEdit2} from "react-icons/fi";
 import { FiBox, FiGrid } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
 
 /* ================= TYPES ================= */
 
@@ -82,27 +83,26 @@ export default function Categories() {
       icon: <FiBox />,
     },
   ];
-  // delete api //
-  const handleDeleteCategory = async (id: string) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this category?"
-  );
-
-  if (!confirmed) return;
-
+ const handleToggleCategoryStatus = async (
+  id: string,
+  isActive: boolean
+) => {
   try {
-    await api.delete(`/categories/${id}`);
+    await api.patch(`/categories/${id}`, {
+      isActive: !isActive,
+    });
 
-    // remove deleted category from UI immediately
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-
-    alert("Category deleted successfully");
-  } catch (error: any) {
-    console.error("Failed to delete category", error?.response?.data || error);
-    alert("Failed to delete category");
+    // update UI instantly
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, isActive: !isActive } : c
+      )
+    );
+  } catch (error) {
+    console.error("Failed to update category status", error);
+    alert("Failed to update category status");
   }
 };
-
 
   /* ================= UI ================= */
 
@@ -212,12 +212,20 @@ export default function Categories() {
                     </button>
 
                     <button
-                      className={styles.deleteBtn}
-                      onClick={() => handleDeleteCategory(c.id)}
-                      title="Delete"
+                      className={styles.toggleIconBtn}
+                      onClick={() =>
+                        handleToggleCategoryStatus(c.id, c.isActive ?? true)
+                      }
+                      title={(c.isActive ?? true) ? "Deactivate" : "Activate"}
                     >
-                      <FiTrash2 />
+                      {(c.isActive ?? true) ? (
+                        <FiToggleRight className={styles.toggleOn} />
+                      ) : (
+                        <FiToggleLeft className={styles.toggleOff} />
+                      )}
                     </button>
+
+
                   </td>
 
                 </tr>
@@ -270,11 +278,18 @@ export default function Categories() {
               </button>
 
               <button
-                className={styles.deleteBtn}
-                onClick={() => handleDeleteCategory(c.id)}
-              >
-                <FiTrash2 />
+                  className={styles.toggleIconBtn}
+                  onClick={() =>
+                    handleToggleCategoryStatus(c.id, c.isActive ?? true)
+                  }
+                >
+                  {(c.isActive ?? true) ? (
+                    <FiToggleRight className={styles.toggleOn} />
+                  ) : (
+                    <FiToggleLeft className={styles.toggleOff} />
+                  )}
               </button>
+
             </div>
           </div>
         ))}

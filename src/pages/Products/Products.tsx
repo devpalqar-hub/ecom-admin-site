@@ -13,6 +13,7 @@ interface Product {
   actualPrice: string;
   stockCount: number;
   isStock: boolean;
+  isFeatured?: boolean;
   images: {
     url: string;
     isMain?: boolean;
@@ -218,8 +219,15 @@ function ProductImage({
                           }
                           alt={p.name}
                         />
-                        <span className={styles.productName}>{p.name}</span>
+                        
+                        <div className={styles.productNameWrap}>
+                          <span className={styles.productName}>{p.name}</span>
                     </div>
+
+                          {p.isFeatured && (
+                            <span className={styles.featuredBadge}>FEATURED</span>
+                          )}
+                        </div>
                   </td>
 
                     <td>{p.id.slice(0, 8)}</td>
@@ -306,7 +314,13 @@ function ProductImage({
                   alt={p.name}
                 />
                 <div>
-                <h4>{p.name}</h4>
+                <div className={styles.mobileTitle}>
+                  <h4>{p.name}</h4>
+
+                  {p.isFeatured && (
+                    <span className={styles.featuredBadge}>FEATURED</span>
+                  )}
+                </div>
                 <p className={styles.category}>
                     {p.subCategory?.category?.name || "-"}
                 </p>

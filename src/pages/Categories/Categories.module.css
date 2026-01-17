@@ -231,13 +231,39 @@ tbody tr {
   background: #e0e7ff;
 }
 
-.deleteBtn {
-  color: #dc2626;
+/* =================================
+   ICON TOGGLE (SMALL SIZE)
+   ================================= */
+
+.toggleIconBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.deleteBtn:hover {
-  background: #fee2e2;
+/* Active (ON) */
+.toggleOn {
+  font-size: 26px;
+  color: #22c55e; /* green */
 }
+
+/* Inactive (OFF) */
+.toggleOff {
+  font-size: 26px;
+  color: #9ca3af; /* gray */
+}
+.toggleOn,
+.toggleOff {
+  font-size: 22px;
+}
+.toggleIconBtn:hover {
+  transform: scale(1.1);
+}
+
 
 
 @media (min-width: 768px) and (max-width: 1023px) {

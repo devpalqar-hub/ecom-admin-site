@@ -410,3 +410,33 @@ tbody tr {
   background: #dbeafe;
 }
 }
+/* ==================================================
+   FEATURED PRODUCT BADGE (DESKTOP + MOBILE)
+   ================================================== */
+
+/* Desktop table: product name + badge */
+.productNameWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Mobile card: title + badge */
+.mobileTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Shared badge style */
+.featuredBadge {
+  background: linear-gradient(135deg, #ffb703, #ffb703);
+  color: #fafafa;
+  font-size: 8px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

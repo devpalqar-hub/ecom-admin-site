@@ -382,11 +382,11 @@
 .addVariationBtn:hover {
   background: #dbeafe;
 }
-.row {
+/* .row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-}
+} */
 
 .field {
   display: flex;
@@ -416,6 +416,19 @@
 .fieldCheckbox label {
   font-size: 13px;
   color: #374151;
+}
+.variationRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Last row (checkbox only) */
+.variationRowSingle {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
 }
 /* ===============================
    TOGGLE SWITCH (VARIATIONS)
@@ -557,5 +570,8 @@
   .cancel,
   .primary {
     width: 100%;
+  }
+   .variationRow {
+    grid-template-columns: 1fr;
   }
 }

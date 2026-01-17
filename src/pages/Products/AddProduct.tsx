@@ -15,12 +15,15 @@ export default function CreateProduct() {
   const [actualPrice, setActualPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
-  const { showToast } = useToast();
+  const { showToast } = useToast();  const [isFeatured, setIsFeatured] = useState(false);
+
+
   type VariationForm = {
   variationName: string;
   price: string;
   stockCount: string;
   isAvailable: boolean;
+  discountedPrice: string; 
 };
 
 const [variationsEnabled, setVariationsEnabled] = useState(false);
@@ -29,6 +32,7 @@ const [variations, setVariations] = useState<VariationForm[]>([
   {
     variationName: "",
     price: "",
+    discountedPrice: "",
     stockCount: "",
     isAvailable: true,
   },
@@ -39,6 +43,7 @@ const addVariation = () => {
     {
       variationName: "",
       price: "",
+       discountedPrice: "",
       stockCount: "",
       isAvailable: true,
     },
@@ -127,12 +132,17 @@ const handleCreateProduct = async () => {
     formData.append("actualPrice", actualPrice);
     formData.append("discountedPrice", discountedPrice);
     formData.append("subCategoryId", selectedSubCategory);
+    formData.append("isFeatured", String(isFeatured));
+    formData.append("isStock", String(isStock));
+
+
 
     /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
     if (variationsEnabled) {
       const payloadVariations = variations.map((v) => ({
         variationName: v.variationName,
         price: Number(v.price),
+        discountedPrice: Number(v.discountedPrice) || null,
         stockCount: Number(v.stockCount),
         isAvailable: v.isAvailable,
       }));
@@ -156,9 +166,13 @@ const handleCreateProduct = async () => {
     console.log("Product created:", res.data);
     
     showToast("Product created successfully", "success")
+    navigate("/products");
   } catch (error: any) {
     console.error("Create product failed", error?.response?.data || error);
-    showToast("Failed to create product", "error");
+   showToast(
+  error?.response?.data?.message || "Failed to create product",
+  "error"
+);
   }
 };
 
@@ -171,256 +185,321 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
 
   /* ---------------- UI ---------------- */
   return (
-    <div className={styles.page}>
-        <div className={styles.header}>
-            <div className={styles.headerLeft}>
-              <button
-                type="button"
-                className={styles.backBtn}
-                onClick={() => navigate("/products")}
-               >
-               <FiArrowLeft />
-               </button>
-            <div className={styles.headerText}>
-                <h1>Create New Product</h1>
-                <p>Add a new product to your catalog</p>
-            </div>
+  <div className={styles.page}>
+    {/* HEADER */}
+    <div className={styles.header}>
+      <div className={styles.headerLeft}>
+        <button
+          type="button"
+          className={styles.backBtn}
+          onClick={() => navigate("/products")}
+        >
+          <FiArrowLeft />
+        </button>
+
+        <div className={styles.headerText}>
+          <h1>Create New Product</h1>
+          <p>Add a new product to your catalog</p>
         </div>
+      </div>
     </div>
 
-      <div className={styles.layout}>
-        <div className={styles.left}>
-          <div className={styles.card}>
-            <h3>Product Information</h3>
+    {/* LAYOUT */}
+    <div className={styles.layout}>
+      {/* LEFT COLUMN */}
+      <div className={styles.left}>
+        {/* PRODUCT INFO */}
+        <div className={styles.card}>
+          <h3>Product Information</h3>
 
-            <div className={styles.field}>
-              <label>Product Name *</label>
-              <input value={name} onChange={e => setName(e.target.value)} />
-            </div>
-
-            <div className={styles.field}>
-              <label>Stock Quantity *</label>
-              <input
-                type="number"
-                value={stockCount}
-                onChange={e => setStockCount(Number(e.target.value))}
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label>Description</label>
-              <textarea
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div className={styles.row}>
-  {/* CATEGORY */}
-  <div className={styles.field}>
-    <label>Category *</label>
-    <select
-      value={selectedCategory}
-      onChange={(e) => {
-        setSelectedCategory(e.target.value);
-        setSelectedSubCategory("");
-      }}
-    >
-      <option value="">Select category</option>
-      {categories.map((cat) => (
-        <option key={cat.id} value={cat.id}>
-          {cat.name}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  {/* SUBCATEGORY */}
-  <div className={styles.field}>
-    <label>Subcategory *</label>
-    <select
-      value={selectedSubCategory}
-      onChange={(e) => setSelectedSubCategory(e.target.value)}
-      disabled={!selectedCategory}
-    >
-      <option value="">
-        {selectedCategory
-          ? "Select subcategory"
-          : "Select category first"}
-      </option>
-
-      {filteredSubCategories.map((sub) => (
-        <option key={sub.id} value={sub.id}>
-          {sub.name}
-        </option>
-      ))}
-    </select>
-  </div>
-</div>
-
+          <div className={styles.field}>
+            <label>Product Name *</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
-          <div className={styles.card}>
-            <h3>Pricing</h3>
-            <div className={styles.row}>
-              <div className={styles.field}>
-                <label>Regular Price *</label>
-                <input
-                  value={actualPrice}
-                  onChange={e => setActualPrice(e.target.value)}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Discounted Price</label>
-                <input
-                  value={discountedPrice}
-                  onChange={e => setDiscountedPrice(e.target.value)}
-                />
-              </div>
-            </div>
+          <div className={styles.field}>
+            <label>Stock Quantity *</label>
+            <input
+              type="number"
+              value={stockCount === 0 ? "" : stockCount}
+              onChange={(e) =>
+                setStockCount(e.target.value === "" ? 0 : Number(e.target.value))
+              }
+            />
           </div>
 
-          <div className={styles.card}>
-            <h3>Product Images</h3>
+          <div className={styles.field}>
+            <label>Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
-            <label className={styles.uploadBox}>
-              {mainImage ? (
-                <img src={URL.createObjectURL(mainImage)} alt="Main product" />
-              ) : (
-                <>+ Click to upload main image</>
-              )}
-              <input type="file" hidden accept="image/*" onChange={handleMainImageUpload} />
-            </label>
-
-            <div className={styles.additionalGrid}>
-                {images.map((img, i) => (
-                <div key={i} className={styles.thumb}>
-                    {img && (
-                    <img src={URL.createObjectURL(img)} alt={`product-${i}`} />
-                    )}
-                    <button type="button" onClick={() => removeImage(i)}>×</button>
-                </div>
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <label>Category *</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setSelectedSubCategory("");
+                }}
+              >
+                <option value="">Select category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
-
+              </select>
             </div>
 
-            <label className={styles.addMoreBox}>
-              + Add more images
-              <input type="file" hidden multiple accept="image/*" onChange={handleAdditionalImages} />
-            </label>
+            <div className={styles.field}>
+              <label>Subcategory *</label>
+              <select
+                value={selectedSubCategory}
+                disabled={!selectedCategory}
+                onChange={(e) => setSelectedSubCategory(e.target.value)}
+              >
+                <option value="">
+                  {selectedCategory
+                    ? "Select subcategory"
+                    : "Select category first"}
+                </option>
+                {filteredSubCategories.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-<div className={styles.card}>
-  <div className={styles.variationHeader}>
-    <h3>Product Variations</h3>
+        </div>
 
-    <label className={styles.switch}>
-      <input
-        type="checkbox"
-        checked={variationsEnabled}
-        onChange={() => setVariationsEnabled((v) => !v)}
-      />
-      <span className={styles.slider}></span>
-    </label>
-  </div>
-
-  <p className={styles.muted}>
-    Add variations like sizes, colors, or models with different prices
-  </p>
-
-  {variationsEnabled && (
-    <div className={styles.variationList}>
-      {variations.map((v, index) => (
-        <div key={index} className={styles.variationCard}>
-          <h4>Variation {index + 1}</h4>
-
-          {/* ROW 1 */}
+        {/* PRICING */}
+        <div className={styles.card}>
+          <h3>Pricing</h3>
           <div className={styles.row}>
             <div className={styles.field}>
-              <label>Variation Name</label>
+              <label>Regular Price *</label>
               <input
-                value={v.variationName}
-                onChange={(e) =>
-                  updateVariation(index, "variationName", e.target.value)
-                }
+                value={actualPrice}
+                onChange={(e) => setActualPrice(e.target.value)}
               />
             </div>
-
             <div className={styles.field}>
-              <label>Price</label>
+              <label>Discounted Price</label>
               <input
-                type="number"
-                value={v.price}
-                onChange={(e) =>
-                  updateVariation(index, "price", e.target.value)
-                }
+                value={discountedPrice}
+                onChange={(e) => setDiscountedPrice(e.target.value)}
               />
             </div>
           </div>
+        </div>
 
-          {/* ROW 2 */}
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label>Stock Count</label>
-              <input
-                type="number"
-                value={v.stockCount}
-                onChange={(e) =>
-                  updateVariation(index, "stockCount", e.target.value)
-                }
+        {/* IMAGES */}
+        <div className={styles.card}>
+          <h3>Product Images</h3>
+
+          {/* MAIN IMAGE */}
+          <label className={styles.uploadBox}>
+            {mainImage ? (
+              <img
+                src={URL.createObjectURL(mainImage)}
+                alt="Main product"
               />
-            </div>
+            ) : (
+              <span>+ Click to upload main image (JPG, PNG, GIF, WebP)</span>
+            )}
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleMainImageUpload}
+            />
+          </label>
 
-            <div className={styles.fieldCheckbox}>
-              <label>Available</label>
+          {/* ADD MORE */}
+          <label className={styles.addMoreBox}>
+            + Add more images
+            <input
+              type="file"
+              hidden
+              multiple
+              accept="image/*"
+              onChange={handleAdditionalImages}
+            />
+          </label>
+
+          {/* EXTRA IMAGES */}
+          {images.length > 0 && (
+            <div className={styles.additionalGrid}>
+              {images.map((img, i) => (
+                <div key={i} className={styles.thumb}>
+                  <img
+                    src={URL.createObjectURL(img)}
+                    alt={`extra-${i}`}
+                  />
+                  <button
+                    type="button"
+                    className={styles.removeBtn}
+                    onClick={() => removeImage(i)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* VARIATIONS */}
+        <div className={styles.card}>
+          <div className={styles.variationHeader}>
+            <h3>Product Variations</h3>
+
+            <label className={styles.switch}>
               <input
                 type="checkbox"
-                checked={v.isAvailable}
-                onChange={(e) =>
-                  updateVariation(index, "isAvailable", e.target.checked)
-                }
+                checked={variationsEnabled}
+                onChange={() => setVariationsEnabled((v) => !v)}
               />
-            </div>
+              <span className={styles.slider}></span>
+            </label>
           </div>
-        </div>
-      ))}
 
+          <p className={styles.muted}>
+            Add variations like sizes, colors, or models
+          </p>
+
+          {variationsEnabled && (
+            <div className={styles.variationList}>
+              {variations.map((v, index) => (
+                <div key={index} className={styles.variationCard}>
+                  <h4>Variation {index + 1}</h4>
+
+                  <div className={styles.variationRow}>
+                    <div className={styles.field}>
+                      <label>Variation Name</label>
+                      <input
+                        value={v.variationName}
+                        onChange={(e) =>
+                          updateVariation(index, "variationName", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Stock Count</label>
+                      <input
+                        type="number"
+                        value={v.stockCount}
+                        onChange={(e) =>
+                          updateVariation(index, "stockCount", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.variationRow}>
+                    <div className={styles.field}>
+                      <label>Price</label>
+                      <input
+                        type="number"
+                        value={v.price}
+                        onChange={(e) =>
+                          updateVariation(index, "price", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className={styles.field}>
+                      <label>Discounted Price</label>
+                      <input
+                        type="number"
+                        value={v.discountedPrice}
+                        onChange={(e) =>
+                          updateVariation(
+                            index,
+                            "discountedPrice",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.fieldCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={v.isAvailable}
+                      onChange={(e) =>
+                        updateVariation(index, "isAvailable", e.target.checked)
+                      }
+                    />
+                    <label>Available</label>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                className={styles.addVariationBtn}
+                onClick={addVariation}
+              >
+                + Add Variation
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* RIGHT COLUMN */}
+      <div className={styles.right}>
+        <div className={styles.card}>
+          <h3>Product Status</h3>
+
+          <div className={styles.toggle}>
+            <span>Active Status</span>
+            <input
+              type="checkbox"
+              checked={isStock}
+              onChange={() => setIsStock((v) => !v)}
+            />
+          </div>
+
+          <div className={styles.toggle}>
+            <span>Featured Product</span>
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={() => setIsFeatured((v) => !v)}
+            />
+          </div>
+
+          <p className={styles.muted}>
+            Featured products appear on homepage & promotions
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* ACTIONS */}
+    <div className={styles.actions}>
       <button
-        type="button"
-        className={styles.addVariationBtn}
-        onClick={addVariation}
+        className={styles.cancel}
+        onClick={() => navigate("/products")}
       >
-        + Add Variation
+        Cancel
+      </button>
+      <button
+        className={styles.primary}
+        onClick={handleCreateProduct}
+      >
+        Create Product
       </button>
     </div>
-  )}
-</div>
-
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className={styles.right}>
-          <div className={styles.card}>
-            <h3>Product Status</h3>
-            <div className={styles.toggle}>
-              <span>Active Status</span>
-                <input
-                    type="checkbox"
-                    checked={isStock}
-                    onChange={() => setIsStock((v) => !v)}
-                />
-            </div>
-            <p className={styles.muted}>Product is hidden from store</p>
-          </div>
-        </div>
-      </div>
-
-
-      <div className={styles.actions}>
-        <button className={styles.cancel} onClick={() => navigate("/products")}>Cancel</button>
-        <button className={styles.primary} onClick={handleCreateProduct}>
-          Create Product
-        </button>
-      </div>
-    </div>
-  );
+  </div>
+);
 }
