@@ -1,69 +1,72 @@
+/* PAGE */
 .page {
   padding: 24px;
+  max-width: 1100px;
+  margin: auto;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
+/* BACK BUTTON */
 .backBtn {
-  background: #f3f4f6;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.header h1 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.header p {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.card {
-  background: white;
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* Upload box */
-.uploadBox {
-  border: 1px dashed #0F172A;
-  border-radius: 12px;
-  padding: 40px;
-  text-align: center;
-  color: #0F172A;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-weight: 500;
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* UPLOAD */
+.uploadBox {
+  border: 2px dashed #d0d5dd;
+  border-radius: 14px;
+  padding: 36px;
+  text-align: center;
+  cursor: pointer;
+  color: #667085;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.uploadBox:hover {
+  border-color:#f9fafb;
+  background: #f8f9ff;
+}
+
+.preview {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
 }
 
 .preview img {
-  width: 140px;
-  height: 140px;
+  max-width: 200px;
+  border-radius: 12px;
   object-fit: cover;
-  border-radius: 10px;
-  margin-top: 10px;
+  border: 1px solid #eee;
 }
 
-/* Inputs */
+/* FORM GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -71,38 +74,193 @@
 }
 
 .field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475467;
+}
+
+.field input,
+.field textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d0d5dd;
   font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #0F172A;
+}
+
+/* TOGGLES */
+.switchRow {
+  display: flex;
+  gap: 40px;
+  margin: 28px 0;
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggleLabel {
+  font-weight: 600;
+  font-size: 14px;
+  color: #344054;
+}
+
+/* TOGGLE SWITCH */
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+}
+
+.toggleSwitch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #d0d5dd;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggleSwitch input:checked + .slider {
+  background: #0F172A;
+}
+
+.toggleSwitch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* VARIATIONS */
+.variationHeader {
+  margin-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.variationHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.variationHint {
+  font-size: 13px;
+  color: #667085;
+}
+
+.variationList {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.variationCard {
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.variationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.variationGrid input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d0d5dd;
+}
+
+.variationActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.variationActions label {
+  font-size: 13px;
   font-weight: 500;
 }
 
-.field input {
-  padding: 12px;
+.delete {
+  background: #fee4e2;
+  color: #b42318;
+  border: none;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
+  padding: 6px 8px;
+  cursor: pointer;
 }
 
-/* Buttons */
+/* ADD VARIATION */
+.addBtn {
+  margin-top: 8px;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px dashed #0F172A;
+  background: #f4f5ff;
+  color: #0F172A;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ACTIONS */
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 14px;
+  margin-top: 32px;
 }
 
-.cancel {
-  background: #f3f4f6;
-  border: none;
+.actions button {
   padding: 10px 18px;
-  border-radius: 8px;
+  border-radius: 10px;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.save {
+.primary {
   background: #0F172A;
-  color: white;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-color: #0F172A;
+  color: #fff;
+}
+
+.primary:hover {
+  background: #0F172A;
+}
+.field textarea {
+  min-height: 140px;   /* increase height */
+  resize: vertical;   /* user can resize if needed */
+  line-height: 1.6;
 }
