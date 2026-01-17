@@ -77,6 +77,13 @@ td {
   font-size: 14px;
   text-align: left;
 }
+.descriptionCell {
+  max-width: 420px;          /* controls column width */
+  white-space: normal;       /* allow wrapping */
+  word-wrap: break-word;     /* break long words */
+  overflow-wrap: break-word; /* modern support */
+  line-height: 1.5;
+}
 
 tbody tr {
   border-top: 1px solid #e5e7eb;
@@ -153,6 +160,64 @@ tbody tr {
   color: #9ca3af;
 }
 
+/* TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #d1d5db;
+  border-radius: 999px;
+  transition: 0.3s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+  background-color: #16a34a;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+.toggleBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.active svg {
+  color: #16a34a;
+}
+
+.inactive svg {
+  color: #dc2626;
+}
 
 
 /* RESPONSIVE */

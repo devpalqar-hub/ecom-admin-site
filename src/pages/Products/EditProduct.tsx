@@ -5,7 +5,7 @@ import api from "../../services/api";
 import styles from "./EditProduct.module.css";
 import { useToast } from "../../components/toast/ToastContext";
 
-
+/* ================= TYPES ================= */
 
 type VariationForm = {
   id?: string;
@@ -16,32 +16,41 @@ type VariationForm = {
   isAvailable: boolean;
 };
 
+type ProductImage = {
+  id?: string;
+  url: string;
+  isMain?: boolean;
+};
+
 export default function EditProduct() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();
 
- 
+  /* ================= PRODUCT ================= */
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [stockCount, setStockCount] = useState<number>(0);
+  const [stockCount, setStockCount] = useState(0);
   const [actualPrice, setActualPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [subCategoryId, setSubCategoryId] = useState("");
 
+  /* ================= IMAGES ================= */
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [images, setImages] = useState<ProductImage[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
 
- 
+  /* ================= VARIATIONS ================= */
+
   const [variationsEnabled, setVariationsEnabled] = useState(false);
   const [variations, setVariations] = useState<VariationForm[]>([]);
 
   const [loading, setLoading] = useState(true);
 
- 
+  /* ================= LOAD PRODUCT ================= */
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -59,9 +68,7 @@ export default function EditProduct() {
         setSubCategoryId(p.subCategoryId);
 
         if (p.images?.length) {
-          setPreview(
-            p.images.find((i: any) => i.isMain)?.url || p.images[0].url
-          );
+          setImages(p.images);
         }
 
         if (p.variations?.length) {
@@ -85,16 +92,44 @@ export default function EditProduct() {
     };
 
     if (id) fetchProduct();
-  }, [id]);
+  }, [id, showToast]);
 
-  /* ================= HANDLERS ================= */
+  /* ================= IMAGE HANDLERS ================= */
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    setNewImages((prev) => [...prev, ...files]);
   };
+
+const deleteImage = async (imageId?: string, index?: number) => {
+  // New image
+  if (!imageId && index !== undefined) {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+    return;
+  }
+
+  if (!imageId || !id) {
+    showToast("Invalid product or image", "error");
+    return;
+  }
+
+  try {
+    await api.delete(`/products/${id}/gallery/images/${imageId}`);
+
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
+    showToast("Image deleted successfully", "success");
+  } catch (err: any) {
+    console.error(err);
+    showToast(
+      err?.response?.data?.message || "Failed to delete image",
+      "error"
+    );
+  }
+};
+
+  /* ================= VARIATIONS ================= */
 
   const addVariation = () => {
     setVariations((v) => [
@@ -118,24 +153,22 @@ export default function EditProduct() {
     copy[index] = { ...copy[index], [key]: value };
     setVariations(copy);
   };
-const deleteVariation = async (index: number) => {
-  const variation = variations[index];
 
-  // If variation already exists in backend
-  if (variation.id) {
-    try {
-      await api.delete(`/product-variations/${variation.id}`);
-      showToast("Variation deleted successfully", "success");
-    } catch (error) {
-      console.error("Delete variation failed", error);
-      showToast("Failed to delete variation", "error");
-      return; // stop UI update if API fails
+  const deleteVariation = async (index: number) => {
+    const variation = variations[index];
+
+    if (variation.id) {
+      try {
+        await api.delete(`/product-variations/${variation.id}`);
+        showToast("Variation deleted", "success");
+      } catch {
+        showToast("Failed to delete variation", "error");
+        return;
+      }
     }
-  }
 
-  // Remove from UI state
-  setVariations((prev) => prev.filter((_, i) => i !== index));
-};
+    setVariations((prev) => prev.filter((_, i) => i !== index));
+  };
 
   /* ================= SUBMIT ================= */
 
@@ -144,7 +177,7 @@ const deleteVariation = async (index: number) => {
 
     try {
       const formData = new FormData();
-       
+
       formData.append("name", name);
       formData.append("description", description);
       formData.append("stockCount", String(stockCount));
@@ -154,27 +187,32 @@ const deleteVariation = async (index: number) => {
       formData.append("isStock", String(isStock));
       formData.append("isFeatured", String(isFeatured));
 
-      if (imageFile) {
-        formData.append("images", imageFile);
-      }
-
-      if (variationsEnabled) {
+      if (images.length > 0) {
         formData.append(
-          "variations",
-          JSON.stringify(
-            variations.map((v) => ({
-              id: v.id,
-              variationName: v.variationName,
-              discountedPrice: Number(v.discountedPrice),
-              actualPrice: Number(v.actualPrice),
-              stockCount: Number(v.stockCount),
-              isAvailable: v.isAvailable,
-            }))
-          )
+          "existingImages",
+          JSON.stringify(images.map((img) => img.id))
         );
       }
-      console.log(variations)
-       console.log(formData,"")
+
+      // new images
+      newImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      if (variationsEnabled) {
+  const cleanedVariations = variations.map((v) => ({
+    id: v.id,
+    variationName: v.variationName,
+    discountedPrice: Number(v.discountedPrice),
+    actualPrice: Number(v.actualPrice),
+    stockCount: Number(v.stockCount),
+    isAvailable: v.isAvailable,
+  }));
+
+  formData.append("variations", JSON.stringify(cleanedVariations));
+}
+
+
       await api.patch(`/products/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -197,18 +235,68 @@ const deleteVariation = async (index: number) => {
       </button>
 
       <form className={styles.card} onSubmit={handleSubmit}>
-        {/* IMAGE */}
-        <label className={styles.uploadBox}>
-          <FiUpload />
-          <span>Upload product image</span>
-          <input hidden type="file" accept="image/*" onChange={handleImageChange} />
-        </label>
+        {/* IMAGE UPLOAD */}
+<label className={styles.uploadBox}>
+  <FiUpload size={22} />
+  <span>Upload product images</span>
+  <input
+  hidden
+  type="file"
+  accept="image/*"
+  multiple
+  onChange={handleImageChange}
+/>
+</label>
 
-        {preview && (
-          <div className={styles.preview}>
-            <img src={preview} alt="preview" />
-          </div>
-        )}
+<div className={styles.imageSection}>
+  <h4 className={styles.imageTitle}>Product Images</h4>
+
+  <div className={styles.imageGrid}>
+    {/* EXISTING IMAGES (API DELETE) */}
+    {images.map((img) => (
+  <div
+    key={img.id}
+    className={`${styles.imageCard} ${
+      img.isMain ? styles.mainImage : ""
+    }`}
+  >
+    <img src={img.url} alt="product" />
+
+    {/* MAIN BADGE */}
+    {img.isMain && (
+      <span className={styles.mainBadge}>Main</span>
+    )}
+
+    {/* DELETE (allowed for ALL images) */}
+    <button
+      type="button"
+      className={styles.deleteIcon}
+      onClick={() => deleteImage(img.id)}
+      title="Delete image"
+    >
+      ×
+    </button>
+  </div>
+))}
+
+
+    {/* NEW IMAGE PREVIEWS (LOCAL DELETE) */}
+    {newImages.map((file, i) => (
+      <div key={`${file.name}-${i}`} className={styles.imageCard}>
+        <img src={URL.createObjectURL(file)} alt="preview" />
+
+        <button
+          type="button"
+          className={styles.deleteIcon}
+          onClick={() => deleteImage(undefined, i)}
+          title="Remove image"
+        >
+          ×
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
 
         {/* BASIC FIELDS */}
         <div className={styles.grid}>
@@ -279,7 +367,7 @@ const deleteVariation = async (index: number) => {
 </div>
 
         {/* VARIATIONS */}
-                  <div className={styles.variationHeader}>
+          <div className={styles.variationHeader}>
             <div>
               <h3>Product Variations</h3>
               <p className={styles.variationHint}>
@@ -302,36 +390,47 @@ const deleteVariation = async (index: number) => {
             {variations.map((v, i) => (
               <div key={i} className={styles.variationCard}>
                 <div className={styles.variationGrid}>
-                  <input
-                    placeholder="Variation Name"
-                    value={v.variationName}
-                    onChange={(e) =>
-                      updateVariation(i, "variationName", e.target.value)
-                    }
-                  />
-                  <input
-                    placeholder="Discounted Price"
-                    value={v.discountedPrice}
-                    onChange={(e) =>
-                      updateVariation(i, "discountedPrice", e.target.value)
-                    }
-                  />
-                  <input
-                    placeholder="Actual Price"
-                    value={v.actualPrice}
-                    onChange={(e) =>
-                      updateVariation(i, "actualPrice", e.target.value)
-                    }
-                  />
-                  <input
-                    placeholder="Stock"
-                    value={v.stockCount}
-                    onChange={(e) =>
-                      updateVariation(i, "stockCount", e.target.value)
-                    }
-                  />
-                </div>
+  <div className={styles.field}>
+    <label>Variation Name</label>
+    <input
+      value={v.variationName}
+      onChange={(e) =>
+        updateVariation(i, "variationName", e.target.value)
+      }
+    />
+  </div>
 
+  <div className={styles.field}>
+    <label>Discounted Price</label>
+    <input
+      value={v.discountedPrice}
+      onChange={(e) =>
+        updateVariation(i, "discountedPrice", e.target.value)
+      }
+    />
+  </div>
+
+  <div className={styles.field}>
+    <label>Actual Price</label>
+    <input
+      value={v.actualPrice}
+      onChange={(e) =>
+        updateVariation(i, "actualPrice", e.target.value)
+      }
+    />
+  </div>
+
+  <div className={styles.field}>
+    <label>Stock</label>
+    <input
+      type="number"
+      value={v.stockCount}
+      onChange={(e) =>
+        updateVariation(i, "stockCount", e.target.value)
+      }
+    />
+  </div>
+</div>
                 <div className={styles.variationActions}>
                   <label>
                     <input
@@ -361,14 +460,15 @@ const deleteVariation = async (index: number) => {
         )}
 
         {/* ACTIONS */}
-        <div className={styles.actions}>
-          <button type="button" onClick={() => navigate(-1)}>
-            Cancel
-          </button>
-          <button type="submit" className={styles.primary}>
-            Update Product
-          </button>
-        </div>
+          <div className={styles.actions}>
+            <button type="button" onClick={() => navigate(-1)}>
+              Cancel
+            </button>
+
+            <button type="submit" className={styles.gradientBtn}>
+              Update Product
+            </button>
+          </div>
       </form>
     </div>
   );

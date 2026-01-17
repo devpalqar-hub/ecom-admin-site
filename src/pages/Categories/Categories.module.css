@@ -234,34 +234,39 @@ tbody tr {
 /* =================================
    ICON TOGGLE (SMALL SIZE)
    ================================= */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
+/* Edit icon */
+.editBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+/* Toggle button wrapper */
 .toggleIconBtn {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  font-size: 28px;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-/* Active (ON) */
+/* Toggle ON (green) */
 .toggleOn {
-  font-size: 26px;
-  color: #22c55e; /* green */
+  color: #22c55e;
 }
 
-/* Inactive (OFF) */
+/* Toggle OFF (gray) */
 .toggleOff {
-  font-size: 26px;
-  color: #9ca3af; /* gray */
-}
-.toggleOn,
-.toggleOff {
-  font-size: 22px;
-}
-.toggleIconBtn:hover {
-  transform: scale(1.1);
+  color: #94a3b8;
 }
 
 

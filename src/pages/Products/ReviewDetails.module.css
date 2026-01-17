@@ -1,0 +1,62 @@
+.page {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.row {
+  margin-bottom: 16px;
+}
+
+.row span {
+  display: block;
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 4px;
+}
+
+.comment {
+  line-height: 1.6;
+}
+
+.rating {
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  color: #ddd;
+}
+
+.activeStar {
+  color: #f5a623;
+}
+
+.loading,
+.error {
+  padding: 40px;
+  text-align: center;
+}
