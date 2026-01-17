@@ -67,27 +67,28 @@ export default function Coupons() {
     fetchCoupons();
   }, [page, search]);
 
-  if (loading) {
-    return (
-      <div className={styles.page}>
-        <p style={{ padding: 20 }}>Loading coupons...</p>
-      </div>
-    );
-  }
-
-  const isExpired = (date: string) =>
-    new Date(date) < new Date();
+  const isExpired = (date: string) => new Date(date) < new Date();
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this coupon?")) return;
 
     try {
-        await api.delete(`/coupons/${id}`);
-        fetchCoupons();
+      await api.delete(`/coupons/${id}`);
+      fetchCoupons();
     } catch (err) {
-        console.error("Failed to delete coupon", err);
+      console.error("Failed to delete coupon", err);
     }
-    };
+  };
+
+  const handleEdit = (id: string) => {
+    setEditId(id);
+    setShowModal(true);
+  };
+
+  const handleCreate = () => {
+    setEditId(undefined);
+    setShowModal(true);
+  };
 
   return (
     <div className={styles.page}>
@@ -98,10 +99,7 @@ export default function Coupons() {
           <p>Create and manage discount coupons</p>
         </div>
 
-        <button className={styles.addBtn} onClick={() => {
-            setEditId(undefined);
-            setShowModal(true);
-        }}>
+        <button className={styles.addBtn} onClick={handleCreate}>
           <FiPlus /> Create Coupon
         </button>
       </div>
@@ -121,8 +119,9 @@ export default function Coupons() {
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* TABLE WRAPPER */}
       <div className={styles.tableWrapper}>
+        {/* DESKTOP TABLE */}
         <div className={styles.tableScroll}>
           <table>
             <thead>
@@ -157,18 +156,26 @@ export default function Coupons() {
 
                   return (
                     <tr key={c.id}>
-                      <td><strong>{c.couponName}</strong></td>
+                      <td>
+                        <strong>{c.couponName}</strong>
+                      </td>
+
                       <td>{c.ValueType}</td>
+
                       <td>
                         {c.ValueType === "percentage"
                           ? `${c.Value}%`
                           : `₹${c.Value}`}
                       </td>
+
                       <td>₹{c.minimumSpent}</td>
+
                       <td>{c.usedByCount}</td>
+
                       <td>
                         {c.validFrom} → {c.ValidTill}
                       </td>
+
                       <td>
                         <span
                           className={expired ? styles.expired : styles.active}
@@ -176,13 +183,11 @@ export default function Coupons() {
                           {expired ? "Expired" : "Valid"}
                         </span>
                       </td>
+
                       <td className={styles.actions}>
                         <FiEdit
                           className={styles.actionIcon}
-                          onClick={() => {
-                            setEditId(c.id);
-                            setShowModal(true);
-                          }}
+                          onClick={() => handleEdit(c.id)}
                         />
                         <FiTrash
                           className={styles.actionIcon}
@@ -197,6 +202,78 @@ export default function Coupons() {
             </tbody>
 
           </table>
+        </div>
+
+        {/* MOBILE CARDS */}
+        <div className={styles.mobileCards}>
+          {coupons.length === 0 ? (
+            <p style={{ textAlign: "center", padding: 20, color: "#6b7280" }}>
+              No coupons found
+            </p>
+          ) : (
+            coupons.map((c) => {
+              const expired = isExpired(c.ValidTill);
+
+              return (
+                <div key={c.id} className={styles.couponCard}>
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.cardTitle}>{c.couponName}</h3>
+                    <div className={styles.cardActions}>
+                      <FiEdit
+                        className={styles.actionIcon}
+                        onClick={() => handleEdit(c.id)}
+                      />
+                      <FiTrash
+                        className={styles.actionIcon}
+                        style={{ color: "red" }}
+                        onClick={() => handleDelete(c.id)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Type</span>
+                    <span className={styles.cardValue}>{c.ValueType}</span>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Value</span>
+                    <span className={styles.cardValue}>
+                      {c.ValueType === "percentage"
+                        ? `${c.Value}%`
+                        : `₹${c.Value}`}
+                    </span>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Min Spend</span>
+                    <span className={styles.cardValue}>₹{c.minimumSpent}</span>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Used</span>
+                    <span className={styles.cardValue}>{c.usedByCount}</span>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Validity</span>
+                    <span className={styles.cardValue}>
+                      {c.validFrom} → {c.ValidTill}
+                    </span>
+                  </div>
+
+                  <div className={styles.cardRow}>
+                    <span className={styles.cardLabel}>Status</span>
+                    <span
+                      className={expired ? styles.expired : styles.active}
+                    >
+                      {expired ? "Expired" : "Valid"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* PAGINATION */}
@@ -223,13 +300,15 @@ export default function Coupons() {
             </button>
           </div>
         )}
-        <CouponFormModal
-            open={showModal}
-            couponId={editId}
-            onClose={() => setShowModal(false)}
-            onSuccess={fetchCoupons}
-        />
       </div>
+
+      {/* MODAL */}
+      <CouponFormModal
+        open={showModal}
+        couponId={editId}
+        onClose={() => setShowModal(false)}
+        onSuccess={fetchCoupons}
+      />
     </div>
   );
 }

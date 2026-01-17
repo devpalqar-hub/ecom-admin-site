@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./Login.module.css";
 import { FiLock } from "react-icons/fi";
+import { useToast } from "../../components/toast/ToastContext";
+import { FaGlobe, FaRegEye } from "react-icons/fa6";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorShake, setErrorShake] = useState(false);
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,16 +29,22 @@ export default function Login() {
      
       localStorage.setItem("adminToken", access_token);
       localStorage.setItem("adminUser", JSON.stringify(user));
-
+      showToast("Login successfull", "success")
 
       navigate("/dashboard");
-    } catch (error: any) {
-      alert(
-        error?.response?.data?.message || "Login failed. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
+    }  catch (error: any) {
+  setErrorShake(true);
+
+  setTimeout(() => {
+    setErrorShake(false);
+  }, 600);
+
+  showToast(
+    error?.response?.data?.message ||
+    "Invalid credentials. Please try again.", "error"
+  );
+}
+
   };
 
   return (
@@ -42,6 +52,11 @@ export default function Login() {
 
     
       <div className={styles.left}>
+        <div className={styles.particles}>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span key={i} />
+          ))}
+        </div>
         <div className={styles.brand}>
           <div className={styles.logo}>R</div>
           <h1 className={styles.head}><span>RAHEEB</span> Admin Panel</h1>
@@ -50,15 +65,20 @@ export default function Login() {
           </p>
 
           <ul className={styles.features}>
-            <li>✔ Centralized Control</li>
-            <li>✔ Real-time Monitoring</li>
+            <li className={styles.globe}><FaGlobe size={20}/> Centralized Control</li>
+            <li className={styles.eye}><FaRegEye/> Real-time Monitoring</li>
           </ul>
         </div>
       </div>
 
 
       <div className={styles.right}>
-        <form className={styles.card} onSubmit={handleSubmit}>
+        <form
+          className={`${styles.card} ${
+            errorShake ? styles.shake : ""
+          }`}
+          onSubmit={handleSubmit}
+        >
           <h2>Admin Login</h2>
           <p className={styles.loginText}>
             Enter your admin credentials to continue
@@ -86,9 +106,15 @@ export default function Login() {
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          <div className={styles.secure}>
-            <FiLock /> Admin access is securely encrypted
+          <div
+            className={`${styles.secure} ${
+              loading ? styles.secureLoading : ""
+            }`}
+          >
+            <FiLock className={styles.lockIcon} />
+            <span>Secure admin access</span>
           </div>
+
         </form>
       </div>
     </div>

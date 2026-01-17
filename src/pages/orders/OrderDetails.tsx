@@ -1,8 +1,26 @@
 import styles from "./OrderDetails.module.css";
-import { FiArrowLeft, FiDownload, FiPrinter } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiPrinter, FiTrash } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
+
+interface TrackingHistory {
+  status: string;
+  notes: string;
+  timestamp: string;
+}
+
+interface TrackingDetails {
+  id: string;
+  orderId: string;
+  carrier: string;
+  trackingNumber: string;
+  trackingUrl?: string | null;
+  status: string;
+  statusHistory: TrackingHistory[];
+  lastUpdatedAt: string;
+}
 
 /* ================= API HELPERS ================= */
 
@@ -18,6 +36,33 @@ const updateOrderStatus = async (orderId: string, status: string) => {
   return res.data.data;
 };
 
+const getTrackingByOrderId = async (orderId: string) => {
+  const res = await api.get(`/tracking/order/${orderId}`);
+  return res.data.data;
+};
+
+const createTracking = async (payload: {
+  orderId: string;
+  carrier: string;
+  trackingNumber: string;
+  trackingUrl?: string;
+}) => {
+  const res = await api.post("/tracking-details", payload);
+  return res.data.data;
+};
+
+const updateTrackingStatus = async (
+  orderId: string,
+  status: string,
+  notes?: string
+) => {
+  const res = await api.patch(
+    `/tracking/order/${orderId}/status`,
+    { status, notes }
+  );
+  return res.data.data.tracking;
+};
+
 /* ================= COMPONENT ================= */
 
 export default function OrderDetails() {
@@ -27,7 +72,16 @@ export default function OrderDetails() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [updatingStatus, setUpdatingStatus] = useState(false); // ✅ FIXED
+  const [updatingStatus, setUpdatingStatus] = useState(false); 
+  const [tracking, setTracking] = useState<TrackingDetails | null>(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [showCreateTracking, setShowCreateTracking] = useState(false);
+  const { showToast } = useToast();
+  const [trackingForm, setTrackingForm] = useState({
+    carrier: "",
+    trackingNumber: "",
+    trackingUrl: "",
+  });
 
   /* ================= FETCH ORDER ================= */
 
@@ -44,6 +98,13 @@ export default function OrderDetails() {
       } finally {
         setLoading(false);
       }
+      try {
+        const trackingData = await getTrackingByOrderId(orderId);
+        setTracking(trackingData);
+      } catch {
+        setTracking(null); 
+      }
+
     };
 
     fetchOrder();
@@ -207,6 +268,148 @@ export default function OrderDetails() {
 
 </div>
 
+    {/* ORDER TRACKING */}
+    <div className={styles.card}>
+      <h3>Order Tracking</h3>
+      <FiTrash className={styles.deleteBtn}/>
+      {!tracking ? (
+        <>
+          <p className={styles.muted}>
+            Tracking not created for this order
+          </p>
+
+          {showCreateTracking && (
+            <div className={styles.createTrackingForm}>
+              <input
+                placeholder="Carrier (FedEx, Delhivery, Internal)"
+                value={trackingForm.carrier}
+                onChange={(e) =>
+                  setTrackingForm({
+                    ...trackingForm,
+                    carrier: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                placeholder="Tracking Number"
+                value={trackingForm.trackingNumber}
+                onChange={(e) =>
+                  setTrackingForm({
+                    ...trackingForm,
+                    trackingNumber: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                placeholder="Tracking URL (optional)"
+                value={trackingForm.trackingUrl}
+                onChange={(e) =>
+                  setTrackingForm({
+                    ...trackingForm,
+                    trackingUrl: e.target.value,
+                  })
+                }
+              />
+
+              <button
+                className={styles.primaryBtn}
+                disabled={trackingLoading}
+                onClick={async () => {
+                  try {
+                    setTrackingLoading(true);
+
+                    const created = await createTracking({
+                      orderId: order.id,
+                      carrier: trackingForm.carrier,
+                      trackingNumber: trackingForm.trackingNumber,
+                      trackingUrl: trackingForm.trackingUrl || undefined,
+                    });
+
+                    setTracking(created);
+                    setShowCreateTracking(false);
+                  } catch (err) {
+                    showToast("Failed to create tracking");
+                  } finally {
+                    setTrackingLoading(false);
+                  }
+                }}
+              >
+                {trackingLoading ? "Creating..." : "Save Tracking"}
+              </button>
+            </div>
+          )}
+
+        </>
+      ) : (
+        <>
+          {/* BASIC INFO */}
+          <div className={styles.trackingHeader}>
+            <div>
+              <strong>{tracking.carrier}</strong>
+              <p className={styles.trackingNo}>
+                {tracking.trackingNumber}
+              </p>
+            </div>
+
+            <span className={styles.statusBadge}>
+              {tracking.status.replace("_", " ")}
+            </span>
+          </div>
+
+          {tracking.trackingUrl && (
+            <a
+              href={tracking.trackingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.trackLink}
+            >
+              View on carrier site →
+            </a>
+          )}
+
+          {/* UPDATE STATUS */}
+          <select
+            value={tracking.status}
+            onChange={async (e) => {
+              const updated = await updateTrackingStatus(
+                order.id,
+                e.target.value,
+                "Status updated by admin"
+              );
+              setTracking(updated);
+            }}
+          >
+            <option value="order_placed">Order Placed</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="out_for_delivery">Out for Delivery</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+
+          {/* TIMELINE */}
+          <div className={styles.timeline}>
+            {tracking.statusHistory.map((h, i) => (
+              <div key={i} className={styles.timelineItem}>
+                <div className={styles.dot} />
+                <div className={styles.statusStrong}>
+                  <strong>
+                    {h.status.replace("_", " ")}
+                  </strong>
+                  <p>{h.notes}</p>
+                  <span>
+                    {new Date(h.timestamp).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+
 
         </div>
 
@@ -225,10 +428,8 @@ export default function OrderDetails() {
           <div className={styles.card}>
             <h3>Payment Information</h3>
             <p className={styles.paymentMethod}>
-  {order.paymentMethod.split("_").join(" ")}
-</p>
-
-
+              {order.paymentMethod.split("_").join(" ")}
+            </p>
             <span
               className={`${styles.paid} ${
                 order.paymentStatus !== "paid" ? styles.pending : ""

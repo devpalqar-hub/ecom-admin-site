@@ -19,6 +19,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import SalesPulseCard from "./salesPulseCard/SalesPulseCard";
 
 /* ---------------- TYPES ---------------- */
 
@@ -132,6 +133,7 @@ export default function Dashboard() {
           variant="products"
         />
       </div>
+      <SalesPulseCard />
       {/* CHARTS */}
       <div className={styles.charts}>
         {/* SALES TREND */}

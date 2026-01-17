@@ -315,10 +315,18 @@ select {
 /* ================= RIGHT SIDE CARDS ================= */
 
 .card {
+  position: relative;
   padding: 18px;
   border-radius: 14px;
   background: #fff;
   border: 1px solid #e5e7eb;
+}
+.deleteBtn {
+  position: absolute;
+  cursor: pointer;
+  top: 18px;
+  right: 18px;
+  color: red;
 }
 
 /* Customer name */
@@ -377,7 +385,81 @@ select {
   color: #6b7280;
 }
 
+.muted {
+  color: #64748b;
+  font-size: 14px;
+}
 
+.primaryBtn {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.trackingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trackingNo {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.statusBadge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.trackLink {
+  display: inline-block;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #2563eb;
+}
+
+.timeline {
+  margin-top: 16px;
+  border-left: 2px solid #e5e7eb;
+  padding-left: 16px;
+}
+.timelineItem {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.dot {
+  position: absolute;
+  left: -9px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  background: #0f172a;
+  border-radius: 50%;
+}
+.createTrackingForm {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.createTrackingForm input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+.statusStrong {
+  margin-left: 10px;
+}
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1024px) {

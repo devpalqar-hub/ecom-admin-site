@@ -13,6 +13,17 @@
   flex-wrap: wrap;
 }
 
+.header h1 {
+  font-size: 24px;
+  margin: 0 0 4px 0;
+}
+
+.header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
 .addBtn {
   background: #0F172A;
   color: #fff;
@@ -21,6 +32,15 @@
   border-radius: 10px;
   cursor: pointer;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.addBtn:hover {
+  background: #1e293b;
 }
 
 /* ================= FILTERS ================= */
@@ -39,6 +59,12 @@
   padding: 10px 16px 10px 44px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
+  font-size: 14px;
+  outline: none;
+}
+
+.searchBox input:focus {
+  border-color: #0F172A;
 }
 
 .searchIcon {
@@ -54,10 +80,9 @@
   background: #fff;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  overflow: hidden; /* IMPORTANT */
+  overflow: hidden;
 }
 
-/* ONLY table scrolls */
 .tableScroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -65,7 +90,7 @@
 
 table {
   width: 100%;
-  min-width: 900px; /* forces horizontal scroll */
+  min-width: 900px;
   border-collapse: collapse;
 }
 
@@ -74,14 +99,25 @@ td {
   padding: 16px;
   font-size: 14px;
   white-space: nowrap;
+  text-align: left;
 }
 
 thead {
   background: #f3f4f6;
 }
 
+thead th {
+  font-weight: 600;
+  color: #374151;
+}
+
 tbody tr {
   border-top: 1px solid #e5e7eb;
+  transition: background 0.2s;
+}
+
+tbody tr:hover {
+  background: #f9fafb;
 }
 
 /* ================= STATUS ================= */
@@ -91,6 +127,8 @@ tbody tr {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
 }
 
 .expired {
@@ -99,6 +137,8 @@ tbody tr {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
 }
 
 /* ================= ACTIONS ================= */
@@ -106,18 +146,19 @@ tbody tr {
   display: flex;
   gap: 12px;
   align-items: center;
-  justify-content: center;
-  margin-top: 10px;
+  justify-content: flex-start;
 }
 
 .actionIcon {
   cursor: pointer;
   font-size: 18px;
   color: #6b7280;
+  transition: all 0.2s;
 }
 
 .actionIcon:hover {
   color: #111827;
+  transform: scale(1.1);
 }
 
 /* ================= PAGINATION ================= */
@@ -137,4 +178,220 @@ tbody tr {
   border: 1px solid #e5e7eb;
   background: #fff;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ================= MOBILE CARD VIEW ================= */
+.mobileCards {
+  display: none;
+}
+
+.couponCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-weight: 600;
+  font-size: 16px;
+  color: #111827;
+  margin: 0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 12px;
+}
+
+.cardRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.cardRow:last-child {
+  border-bottom: none;
+}
+
+.cardLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.cardValue {
+  color: #111827;
+  font-weight: 400;
+}
+
+/* ================= RESPONSIVE BREAKPOINTS ================= */
+
+/* Tablets (landscape) */
+@media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+
+  table {
+    min-width: 800px;
+  }
+
+  th,
+  td {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
+
+/* Tablets (portrait) and larger phones */
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .addBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  .searchBox {
+    max-width: 100%;
+  }
+
+  /* Hide desktop table, show mobile cards */
+  .tableScroll {
+    display: none;
+  }
+
+  .mobileCards {
+    display: block;
+    padding: 12px;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  .tableWrapper {
+    padding: 0;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .page {
+    padding: 8px;
+  }
+
+  .header {
+    gap: 12px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
+
+  .header p {
+    font-size: 13px;
+  }
+
+  .addBtn {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .searchBox input {
+    padding: 9px 14px 9px 40px;
+    font-size: 13px;
+  }
+
+  .couponCard {
+    padding: 14px;
+  }
+
+  .cardTitle {
+    font-size: 15px;
+  }
+
+  .cardRow {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  .actionIcon {
+    font-size: 16px;
+  }
+
+  .pagination {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .pageBtn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .pageInfo {
+    font-size: 13px;
+  }
+
+  .active,
+  .expired {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .header h1 {
+    font-size: 16px;
+  }
+
+  .cardActions {
+    gap: 8px;
+  }
+
+  .actionIcon {
+    font-size: 15px;
+  }
 }

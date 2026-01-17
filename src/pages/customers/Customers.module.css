@@ -35,16 +35,25 @@
   border: 1px solid #e5e7eb;
   background: linear-gradient(135deg, #0F172A, #1E293B);
   color: #ffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+.statCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+}
+
+
 .statCard span {
-  font-size: 12px;
-  color: #ffffff;
+  font-size: 14px;
+  opacity: 0.95;
 }
 
 .statCard h3 {
-  margin-top: 6px;
-  font-size: 20px;
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 /* FILTERS */
