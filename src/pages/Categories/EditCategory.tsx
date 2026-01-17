@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
@@ -7,15 +7,19 @@ import styles from "./EditCategory.module.css";
 export default function EditCategory() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   /* ================= FETCH CATEGORY ================= */
+
   useEffect(() => {
     if (!id) return;
 
@@ -40,15 +44,30 @@ export default function EditCategory() {
   }, [id]);
 
   /* ================= IMAGE CHANGE ================= */
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
+    setRemoveImage(false);
+  };
+
+  /* ================= IMAGE REMOVE ================= */
+
+  const handleRemoveImage = () => {
+    setPreview(null);
+    setImageFile(null);
+    setRemoveImage(true);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   /* ================= UPDATE CATEGORY ================= */
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !name.trim()) return;
@@ -64,14 +83,18 @@ export default function EditCategory() {
         formData.append("image", imageFile);
       }
 
+      if (removeImage) {
+        formData.append("removeImage", "true");
+      }
+
       await api.patch(`/categories/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       alert("Category updated successfully");
       navigate(-1);
-    } catch (error: any) {
-      console.error("Update failed", error?.response?.data || error);
+    } catch (error) {
+      console.error("Update failed", error);
       alert("Failed to update category");
     } finally {
       setSaving(false);
@@ -81,6 +104,8 @@ export default function EditCategory() {
   if (loading) {
     return <p style={{ padding: 20 }}>Loading category...</p>;
   }
+
+  /* ================= UI ================= */
 
   return (
     <div className={styles.page}>
@@ -108,6 +133,7 @@ export default function EditCategory() {
             <FiUpload />
             <span>Upload category image</span>
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               hidden
@@ -115,11 +141,21 @@ export default function EditCategory() {
             />
           </label>
 
+          {/* IMAGE PREVIEW */}
           {preview && (
-            <div className={styles.preview}>
-              <img src={preview} alt="Category preview" />
-            </div>
-          )}
+  <div className={styles.imageCard}>
+    <img src={preview} alt="Subcategory preview" />
+
+    <button
+      type="button"
+      className={styles.imageRemove}
+      onClick={handleRemoveImage}
+      title="Remove image"
+    >
+      ×
+    </button>
+  </div>
+)}
 
           {/* NAME */}
           <div className={styles.field}>
@@ -128,7 +164,6 @@ export default function EditCategory() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Accessories"
               required
             />
           </div>
@@ -139,7 +174,6 @@ export default function EditCategory() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Category description"
             />
           </div>
 

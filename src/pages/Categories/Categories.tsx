@@ -210,22 +210,21 @@ export default function Categories() {
                     >
                       <FiEdit2 />
                     </button>
-
-                    <button
-                      className={styles.toggleIconBtn}
-                      onClick={() =>
-                        handleToggleCategoryStatus(c.id, c.isActive ?? true)
-                      }
-                      title={(c.isActive ?? true) ? "Deactivate" : "Activate"}
-                    >
-                      {(c.isActive ?? true) ? (
-                        <FiToggleRight className={styles.toggleOn} />
-                      ) : (
-                        <FiToggleLeft className={styles.toggleOff} />
-                      )}
-                    </button>
-
-
+                      {/* Toggle Button */}
+  <button
+    className={styles.toggleIconBtn}
+    onClick={() =>
+      handleToggleCategoryStatus(c.id, c.isActive ?? true)
+    }
+    title={c.isActive ? "Disable" : "Enable"}
+  >
+    {(c.isActive ?? true) ? (
+      <FiToggleRight className={styles.toggleOn} />
+    ) : (
+      <FiToggleLeft className={styles.toggleOff} />
+    )}
+  </button>
+                    
                   </td>
 
                 </tr>
