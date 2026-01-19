@@ -100,7 +100,7 @@ export default function Customers() {
         <StatCard title="Total Customers" value={stats.total.toString()} />
         <StatCard title="Active Customers" value={stats.active.toString()} />
         <StatCard title="Inactive Customers" value={stats.inactive.toString()} />
-        <StatCard title="Total Revenue" value={`₹${stats.revenue}`} />
+        <StatCard title="Total Revenue" value={`QAR ${stats.revenue}`} />
       </div>
 
       {/* FILTERS */}

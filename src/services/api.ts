@@ -1,18 +1,15 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.ecom.palqar.cloud/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
-
 
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("adminToken");
-    console.log("TOKEN SENT:", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
