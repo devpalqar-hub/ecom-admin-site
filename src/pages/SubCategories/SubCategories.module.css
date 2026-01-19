@@ -136,14 +136,6 @@ tbody tr {
 .editBtn:hover {
   background: #e0e7ff;
 }
-
-.deleteBtn {
-  color: #dc2626;
-}
-
-.deleteBtn:hover {
-  background: #fee2e2;
-}
 /* IMAGE (TABLE) */
 .imageCell {
   width: 60px;
@@ -164,7 +156,6 @@ tbody tr {
 /* TOGGLE SWITCH */
 .switch {
   position: relative;
-  display: inline-block;
   width: 42px;
   height: 22px;
 }
@@ -210,6 +201,7 @@ tbody tr {
   padding: 4px;
   display: flex;
   align-items: center;
+  margin-top: 10px;
 }
 
 .active svg {

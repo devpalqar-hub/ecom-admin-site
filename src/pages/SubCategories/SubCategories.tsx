@@ -48,7 +48,6 @@ export default function SubCategories() {
 
       setSubCategories(res.data.data.data ?? []);
     } catch (err) {
-      console.error("Failed to load subcategories", err);
       showToast("Failed to load subcategories", "error");
     } finally {
       setLoading(false);
@@ -61,30 +60,37 @@ export default function SubCategories() {
 
   /* ================= TOGGLE STATUS ================= */
 
-  const handleToggleStatus = async (id: string) => {
-  // optimistic UI update
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+  const newStatus = !currentStatus;
+
+  // optimistic update
   setSubCategories((prev) =>
     prev.map((s) =>
-      s.id === id ? { ...s, isActive: !s.isActive } : s
+      s.id === id ? { ...s, isActive: newStatus } : s
     )
   );
 
   try {
-    await api.patch(`/subcategories/${id}`);
+    await api.patch(`/subcategories/${id}`, {
+      isActive: newStatus,
+    });
+
     showToast("Subcategory status updated", "success");
   } catch (error) {
     console.error("Status update failed", error);
 
-    // rollback on failure
+    // rollback
     setSubCategories((prev) =>
       prev.map((s) =>
-        s.id === id ? { ...s, isActive: !s.isActive } : s
+        s.id === id ? { ...s, isActive: currentStatus } : s
       )
     );
 
     showToast("Failed to update status", "error");
   }
 };
+
+
 
   /* ================= UI ================= */
 
@@ -170,7 +176,7 @@ export default function SubCategories() {
                       className={`${styles.toggleBtn} ${
                         sub.isActive ? styles.active : styles.inactive
                       }`}
-                      onClick={() => handleToggleStatus(sub.id)}
+                      onClick={() => handleToggleStatus(sub.id, sub.isActive)}
                       title={
                         sub.isActive ? "Deactivate" : "Activate"
                       }
@@ -229,7 +235,7 @@ export default function SubCategories() {
                   className={`${styles.toggleBtn} ${
                     sub.isActive ? styles.active : styles.inactive
                   }`}
-                  onClick={() => handleToggleStatus(sub.id)}
+                  onClick={() => handleToggleStatus(sub.id, sub.isActive)}
                 >
                   {sub.isActive ? (
                     <FiToggleRight size={22} />

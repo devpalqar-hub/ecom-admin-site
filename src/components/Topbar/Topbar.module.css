@@ -5,13 +5,15 @@
   padding: 0 32px;
   display: flex;
   align-items: center; 
-  position: sticky;       /* vertical centering */
+  position: sticky; 
+  top: 0;
+  z-index: 1000;      
 }
 
 .topbarContent {
   width: 100%;
   display: flex;
-  align-items: center;        /* aligns search + bell */
+  align-items: center;        
 }
 
 .logout {

@@ -66,7 +66,6 @@ export default function Dashboard() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const PIE_COLORS = ["#0F172A", "#c32c2c", "#f59e0b", "#5aee15", "#8b5cf6"];
-  /* ---------------- FETCH ---------------- */
 
   const fetchDashboard = async () => {
     try {
@@ -112,7 +111,7 @@ export default function Dashboard() {
       <div className={styles.stats}>
         <StatCard
           title="Total Revenue"
-          value={`QR ${stats?.totalRevenue.toFixed(2)}` || "0"}
+          value={`QAR ${stats?.totalRevenue.toFixed(2)}` || "0"}
           icon={<FiDollarSign />}
           variant="revenue"
         />
@@ -140,37 +139,37 @@ export default function Dashboard() {
       <div className={styles.charts}>
         {/* SALES TREND */}
 
-<div className={styles.chartCard}>
-  <h3>Sales Trend</h3>
+        <div className={styles.chartCard}>
+          <h3>Sales Trend</h3>
 
-  <ResponsiveContainer width="100%" height={260}>
-    <LineChart data={salesTrendData}>
-      <XAxis dataKey="name" />
-      <YAxis
-        tickFormatter={(value) =>
-          value !== undefined
-            ? `₹${Number(value).toLocaleString("en-IN")}`
-            : ""
-        }
-      />
-      <Tooltip
-        formatter={(value) => 
-          value!==undefined
-          ? `₹${Number(value).toLocaleString("en-IN")}`
-          : ""
-        }
-      />
-      <Line
-        type="monotone"
-        dataKey="revenue"
-        stroke="#0F172A"
-        strokeWidth={3}
-        dot={{ r: 4 }}
-        activeDot={{ r: 6 }}
-      />
-    </LineChart>
-  </ResponsiveContainer>
-</div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={salesTrendData}>
+              <XAxis dataKey="name" />
+              <YAxis
+                tickFormatter={(value) =>
+                  value !== undefined
+                    ? `₹${Number(value).toLocaleString("en-IN")}`
+                    : ""
+                }
+              />
+              <Tooltip
+                formatter={(value) => 
+                  value!==undefined
+                  ? `₹${Number(value).toLocaleString("en-IN")}`
+                  : ""
+                }
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#0F172A"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
 
         {/* SALES BY CATEGORY */}
