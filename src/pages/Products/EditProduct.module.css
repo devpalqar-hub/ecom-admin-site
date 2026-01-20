@@ -320,17 +320,23 @@
   padding: 10px 18px;
   border-radius: 8px;
   border: 1px solid #d0d5dd;
-  background-color: #ffffff;
-  color: #9c9ea1;
+  background-color: #0F172A;
+  color: #ffff;
   font-weight: 500;
   cursor: pointer;
 }
+.actions button[type="button"] {
+  background: transparent;
+  color: #020617;
+  border: 1px solid #d1d5db;
+}
+
 /* Gradient / pill button */
 .gradientBtn {
   padding: 12px 28px;
   border-radius: 9999px; /* pill shape */
   border: none;
-  background: linear-gradient(135deg, #0F172A, #020617);
+  background: red;
   color: #ffffff;
   font-size: 16px;
   font-weight: 600;

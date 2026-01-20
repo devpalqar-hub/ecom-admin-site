@@ -111,10 +111,18 @@ export default function Dashboard() {
       <div className={styles.stats}>
         <StatCard
           title="Total Revenue"
-          value={`QAR ${stats?.totalRevenue.toFixed(2)}` || "0"}
+          value={
+            stats?.totalRevenue !== undefined
+              ? `QAR ${stats.totalRevenue.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "QAR 0.00"
+          }
           icon={<FiDollarSign />}
           variant="revenue"
         />
+
         <StatCard
           title="Customers"
           value={stats ? stats.totalCustomers.toString() : "-"}
@@ -223,7 +231,7 @@ export default function Dashboard() {
 
                 <div className={styles.orderRight}>
                   <span className={styles.amount}>
-                    ₹{o.totalAmount}
+                    QAR {o.totalAmount}
                   </span>
                   <span
                     className={`${styles.status} ${styles[o.status]}`}
@@ -253,7 +261,7 @@ export default function Dashboard() {
                 </div>
 
                 <span className={styles.amount}>
-                  ₹{p.totalRevenue.toLocaleString("en-IN")}
+                  QAR {p.totalRevenue.toLocaleString("en-IN")}
                 </span>
               </div>
             ))}

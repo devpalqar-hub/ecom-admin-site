@@ -56,12 +56,12 @@
 /* ================= UPLOAD ================= */
 
 .uploadBox {
-  border: 2px dashed #6366f1;
+  border: 2px dashed #0F172A;
   border-radius: 12px;
   padding: 36px;
   text-align: center;
   cursor: pointer;
-  color: #4f46e5;
+  color: #0F172A;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,7 +110,7 @@
 
 .field input:focus,
 .field textarea:focus {
-  border-color: #6366f1;
+  border-color: #0F172A;
 }
 
 .field textarea {
@@ -141,7 +141,7 @@
 }
 
 .save {
-  background: #4f46e5;
+  background: #0F172A;
   color: white;
   border: none;
   padding: 10px 22px;
@@ -151,7 +151,7 @@
 }
 
 .save:hover {
-  background: #4338ca;
+  background: #08142e;
 }
 
 .save:disabled,
