@@ -96,12 +96,40 @@ export default function EditProduct() {
 
   /* ================= IMAGE HANDLERS ================= */
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+ const handleImageChange = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length || !id) return;
 
-    setNewImages((prev) => [...prev, ...files]);
-  };
+  try {
+    const formData = new FormData();
+
+    // Append multiple images
+    files.forEach((file) => {
+      formData.append("image", file); 
+    });
+
+    await api.post(
+      `/products/${id}/gallery/images/`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    showToast("Images uploaded successfully", "success");
+    e.target.value = "";
+  } catch (error: any) {
+    console.error("Image upload failed", error);
+    showToast(
+      error?.response?.data?.message || "Image upload failed",
+      "error"
+    );
+  }
+};
 
 const deleteImage = async (imageId?: string, index?: number) => {
   // New image
@@ -173,56 +201,45 @@ const deleteImage = async (imageId?: string, index?: number) => {
   /* ================= SUBMIT ================= */
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const formData = new FormData();
+  try {
+    const payload: any = {
+      name,
+      description,
+      stockCount,
+      actualPrice: Number(actualPrice),
+      discountedPrice: Number(discountedPrice),
+      subCategoryId,
+      isStock,
+      isFeatured,
+    };
 
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("stockCount", String(stockCount));
-      formData.append("actualPrice", actualPrice);
-      formData.append("discountedPrice", discountedPrice);
-      formData.append("subCategoryId", subCategoryId);
-      formData.append("isStock", String(isStock));
-      formData.append("isFeatured", String(isFeatured));
-
-      if (images.length > 0) {
-        formData.append(
-          "existingImages",
-          JSON.stringify(images.map((img) => img.id))
-        );
-      }
-
-      // new images
-      newImages.forEach((file) => {
-        formData.append("images", file);
-      });
-
-      if (variationsEnabled) {
-  const cleanedVariations = variations.map((v) => ({
-    id: v.id,
-    variationName: v.variationName,
-    discountedPrice: Number(v.discountedPrice),
-    actualPrice: Number(v.actualPrice),
-    stockCount: Number(v.stockCount),
-    isAvailable: v.isAvailable,
-  }));
-
-  formData.append("variations", JSON.stringify(cleanedVariations));
-}
-
-
-      await api.patch(`/products/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      showToast("Product updated successfully", "success");
-      navigate(-1);
-    } catch {
-      showToast("Update failed", "error");
+    if (variationsEnabled) {
+      payload.variations = variations.map((v) => ({
+        id: v.id,
+        variationName: v.variationName,
+        discountedPrice: Number(v.discountedPrice),
+        actualPrice: Number(v.actualPrice),
+        stockCount: Number(v.stockCount),
+        isAvailable: v.isAvailable,
+      }));
     }
-  };
+
+    await api.patch(`/products/${id}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    showToast("Product updated successfully", "success");
+    navigate(-1);
+  } catch (err) {
+    console.error(err);
+    showToast("Update failed", "error");
+  }
+};
+
 
   if (loading) return <p>Loading...</p>;
 
