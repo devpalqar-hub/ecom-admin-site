@@ -27,7 +27,15 @@ export default function SalesPulseCard() {
     
     <div className={styles.card}>
       <div className={styles.header}>
-        <h3>Sales Pulse</h3>
+         <h3 className={styles.title}>
+          Sales Pulse
+          <span
+            className={styles.info}
+            title="Total sales amount for the selected period. The bars show relative daily performance."
+          >
+            ℹ️
+          </span>
+        </h3>
 
         <div className={styles.toggle}>
           {["last_day", "last_week", "last_month", "last_year"].map((p) => (

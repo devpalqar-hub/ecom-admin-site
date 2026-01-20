@@ -18,7 +18,7 @@ interface TrackingDetails {
   trackingNumber: string;
   trackingUrl?: string | null;
   status: string;
-  statusHistory: TrackingHistory[];
+  statusHistory?: TrackingHistory[] | null;
   lastUpdatedAt: string;
 }
 
@@ -91,6 +91,7 @@ export default function OrderDetails() {
       try {
         const data = await getOrderById(orderId);
         setOrder(data);
+        setTracking(data.tracking ?? null);
       } catch (err) {
         console.error(err);
         setError("Failed to load order");
@@ -242,13 +243,13 @@ export default function OrderDetails() {
     <div>
       <p className={styles.trackingLabel}>Tracking Number</p>
       <a href="#" className={styles.trackingNumber}>
-        {order.trackingNumber ?? "Not Assigned"}
+        {tracking?.trackingNumber ?? "Not Assigned"}
       </a>
     </div>
 
-    {order.courier && (
+    {tracking?.carrier && (
       <span className={styles.courierBadge}>
-        {order.courier}
+        {tracking?.carrier}
       </span>
     )}
   </div>
@@ -389,21 +390,26 @@ export default function OrderDetails() {
 
           {/* TIMELINE */}
           <div className={styles.timeline}>
-            {tracking.statusHistory.map((h, i) => (
-              <div key={i} className={styles.timelineItem}>
-                <div className={styles.dot} />
-                <div className={styles.statusStrong}>
-                  <strong>
-                    {h.status.replace("_", " ")}
-                  </strong>
-                  <p>{h.notes}</p>
-                  <span>
-                    {new Date(h.timestamp).toLocaleString()}
-                  </span>
+            {tracking.statusHistory && tracking.statusHistory.length > 0 ? (
+              tracking.statusHistory.map((h, i) => (
+                <div key={i} className={styles.timelineItem}>
+                  <div className={styles.dot} />
+                  <div className={styles.statusStrong}>
+                    <strong>{h.status.replace("_", " ")}</strong>
+                    <p>{h.notes}</p>
+                    <span>
+                      {new Date(h.timestamp).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className={styles.muted}>
+                No tracking history available
+              </p>
+            )}
           </div>
+
         </>
       )}
     </div>
