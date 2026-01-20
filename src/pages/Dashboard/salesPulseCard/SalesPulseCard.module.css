@@ -11,6 +11,17 @@
   justify-content: space-between;
   align-items: center;
 }
+.title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info {
+  font-size: 14px;
+  cursor: pointer;
+  color: #6b7280;
+}
 
 .toggle button {
   background: transparent;
@@ -45,11 +56,65 @@
 .heatStrip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
-  gap: 4px;
+  gap: 6px;
+  align-items: center;
 }
 
 .heatStrip span {
   height: 22px;
   background: #22c55e;
   border-radius: 4px;
+}
+.bar {
+  position: relative;
+  border-radius: 4px;
+  background: #0f172a;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.bar:hover {
+  transform: scaleY(1.15);
+}
+
+/* TOOLTIP */
+.bar::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+
+  background: #111827;
+  color: #fff;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateX(-50%) translateY(6px);
+  z-index: 10;
+}
+
+/* TOOLTIP ARROW */
+.bar::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #111827 transparent transparent transparent;
+
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* SHOW ON HOVER */
+.bar:hover::after,
+.bar:hover::before {
+  opacity: 1;
 }

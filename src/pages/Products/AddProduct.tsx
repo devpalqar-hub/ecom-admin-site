@@ -113,16 +113,127 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-
-  
-  
-const handleCreateProduct = async () => {
-  try {
-    if (!mainImage) {
-      showToast("Main image is required", "error");
-      return;
+  const validateForm = () => {
+    /* ---------- BASIC PRODUCT ---------- */
+    if (!name.trim()) {
+      showToast("Product name is required", "error");
+      return false;
     }
 
+    if (!selectedCategory) {
+      showToast("Category is required", "error");
+      return false;
+    }
+
+    if (!selectedSubCategory) {
+      showToast("Subcategory is required", "error");
+      return false;
+    }
+
+    if (stockCount < 0) {
+      showToast("Stock quantity cannot be negative", "error");
+      return false;
+    }
+
+    if (!actualPrice || Number(actualPrice) <= 0) {
+      showToast("Regular price must be greater than 0", "error");
+      return false;
+    }
+
+    if (Number(discountedPrice) < 0) {
+      showToast("Discounted price cannot be negative", "error");
+      return false;
+    }
+
+    if (
+      discountedPrice &&
+      Number(discountedPrice) > Number(actualPrice)
+    ) {
+      showToast(
+        "Discounted price cannot be greater than regular price",
+        "error"
+      );
+      return false;
+    }
+
+    if (!mainImage) {
+      showToast("Main product image is required", "error");
+      return false;
+    }
+
+    /* ---------- VARIATIONS ---------- */
+    if (variationsEnabled) {
+      if (variations.length === 0) {
+        showToast("Add at least one variation", "error");
+        return false;
+      }
+
+      const totalVariationStock = variations.reduce(
+        (sum, v) => sum + Number(v.stockCount || 0),
+        0
+      );
+
+      if (totalVariationStock > stockCount) {
+        showToast(
+          `Total variation stock (${totalVariationStock}) cannot exceed product stock (${stockCount})`,
+          "error"
+        );
+        return false;
+      }
+
+      for (let i = 0; i < variations.length; i++) {
+        const v = variations[i];
+
+        if (!v.variationName.trim()) {
+          showToast(`Variation ${i + 1}: Name is required`, "error");
+          return false;
+        }
+
+        if (Number(v.stockCount) < 0) {
+          showToast(
+            `Variation ${i + 1}: Stock cannot be negative`,
+            "error"
+          );
+          return false;
+        }
+
+        if (!v.price || Number(v.price) <= 0) {
+          showToast(
+            `Variation ${i + 1}: Price must be greater than 0`,
+            "error"
+          );
+          return false;
+        }
+
+        if (Number(v.discountedPrice) < 0) {
+          showToast(
+            `Variation ${i + 1}: Discounted price cannot be negative`,
+            "error"
+          );
+          return false;
+        }
+
+        if (
+          v.discountedPrice &&
+          Number(v.discountedPrice) > Number(v.price)
+        ) {
+          showToast(
+            `Variation ${i + 1}: Discounted price cannot exceed price`,
+            "error"
+          );
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  
+const handleCreateProduct = async () => {
+  if(!validateForm()) return;
+
+  try {
     const formData = new FormData();
 
     /* ---------------- TEXT FIELDS ---------------- */
@@ -151,7 +262,11 @@ const handleCreateProduct = async () => {
     }
 
     /* ---------------- IMAGES ---------------- */
-    formData.append("images", mainImage); // main image
+    if (!mainImage) {
+      showToast("Main image is required", "error");
+        return;
+    }
+    formData.append("images", mainImage); 
     images.forEach((img) => {
       formData.append("images", img);
     });
@@ -496,6 +611,7 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
       <button
         className={styles.primary}
         onClick={handleCreateProduct}
+        disabled={!name || !selectedSubCategory}
       >
         Create Product
       </button>

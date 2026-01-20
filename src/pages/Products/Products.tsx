@@ -1,7 +1,7 @@
 import styles from "./Products.module.css";
 import { FiSearch,FiEdit2, FiTrash2,FiEye } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import api from "../../services/api"; // adjust path if needed
+import api from "../../services/api"; 
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
@@ -81,7 +81,7 @@ useEffect(() => {
   const fetchCategories = async () => {
     try {
       const res = await api.get("/categories");
-      setCategories(res.data.data.data); // based on your API response
+      setCategories(res.data.data.data); 
     } catch (error) {
       console.error("Failed to fetch categories", error);
     }
@@ -222,7 +222,7 @@ function ProductImage({
                         
                         <div className={styles.productNameWrap}>
                           <span className={styles.productName}>{p.name}</span>
-                    </div>
+                        </div>
 
                           {p.isFeatured && (
                             <span className={styles.featuredBadge}>FEATURED</span>
