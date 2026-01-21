@@ -204,6 +204,11 @@
 .draft {
   background: #e5e7eb;
 }
+.errorText {
+  color: #dc2626; /* red */
+  font-size: 13px;
+  margin-top: 6px;
+}
 
 .primary {
   background: #0F172A;

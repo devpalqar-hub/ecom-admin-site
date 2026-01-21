@@ -95,7 +95,6 @@ export default function SalesPulseCard() {
       {/* EMPTY STATE */}
       {!loading && total === 0 && (
         <div className={styles.noDataBox}>
-          <span>📉</span>
           <p>No sales recorded for this period</p>
         </div>
       )}

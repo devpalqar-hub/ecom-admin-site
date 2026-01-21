@@ -3,6 +3,7 @@ import { FiEdit, FiTrash } from "react-icons/fi";
 import styles from "./Banner.module.css";
 import api from "../../services/api";
 import { useToast } from "../../components/toast/ToastContext";
+import ConfirmModal from "../../components/confirmModal/ConfirmModal";
 
 interface Banner {
   id: string;
@@ -29,7 +30,8 @@ const Banners = () => {
   const [editTitle, setEditTitle] = useState("");
   const [editLink, setEditLink] = useState("");
   const [editImage, setEditImage] = useState<File | null>(null);
-
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteBannerId, setDeleteBannerId] = useState<string | null>(null);
   /* ================= FETCH ================= */
   const fetchBanners = async () => {
     try {
@@ -102,17 +104,21 @@ const Banners = () => {
   };
 
   /* ================= DELETE ================= */
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this banner?")) return;
+  const handleDeleteBanner = async () => {
+    if (!deleteBannerId) return;
 
     try {
-      await api.delete(`/banners/admin/${id}`);
+      await api.delete(`/banners/admin/${deleteBannerId}`);
       showToast("Banner deleted", "success");
       fetchBanners();
     } catch {
       showToast("Failed to delete banner", "error");
+    } finally {
+      setShowDeleteConfirm(false);
+      setDeleteBannerId(null);
     }
   };
+
 
   /* ================= CLOSE EDIT ================= */
   const closeEditModal = () => {
@@ -123,6 +129,10 @@ const Banners = () => {
     setEditImage(null);
   };
 
+ const handleDeleteClick = (id: string) => {
+    setDeleteBannerId(id);
+    setShowDeleteConfirm(true);
+  };
   /* ================= UI ================= */
   return (
     <div className={styles.page}>
@@ -182,7 +192,7 @@ const Banners = () => {
                 </button>
                 <button
                   className={`${styles.cardButton} ${styles.delete}`}
-                  onClick={() => handleDelete(b.id)}
+                  onClick={() => handleDeleteClick(b.id)}
                 >
                   <FiTrash size={16} />
                   Delete
@@ -222,7 +232,7 @@ const Banners = () => {
                   <td>{new Date(b.createdAt).toLocaleDateString()}</td>
                   <td className={styles.actions}>
                     <FiEdit onClick={() => openEditModal(b)} />
-                    <FiTrash onClick={() => handleDelete(b.id)} />
+                    <FiTrash onClick={() => handleDeleteClick(b.id)} />
                   </td>
                 </tr>
               ))}
@@ -284,6 +294,17 @@ const Banners = () => {
           </div>
         </div>
       )}
+            <ConfirmModal 
+              open={showDeleteConfirm}
+              title="Delete Banner?"
+              message="Are you sure you want to delete this banner? This action cannot be undone."
+              confirmText="Delete"
+              onCancel={() => {
+                setShowDeleteConfirm(false);
+                setDeleteBannerId(null);
+              }}
+              onConfirm={handleDeleteBanner}
+            />
     </div>
   );
 };

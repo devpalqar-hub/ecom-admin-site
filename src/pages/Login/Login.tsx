@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./Login.module.css";
-import { FiLock } from "react-icons/fi";
+import { FiLock, FiMail } from "react-icons/fi";
 import { useToast } from "../../components/toast/ToastContext";
-import { FaGlobe, FaRegEye } from "react-icons/fa6";
+import { BiShield } from "react-icons/bi";
+import { RiAdminLine } from "react-icons/ri";
+import axios from "axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +16,7 @@ export default function Login() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -26,98 +28,188 @@ export default function Login() {
 
       const { access_token, user } = res.data.data;
 
-     
       localStorage.setItem("adminToken", access_token);
       localStorage.setItem("adminUser", JSON.stringify(user));
-      showToast("Login successfull", "success")
+      showToast("Login successful", "success");
 
       navigate("/dashboard");
-    }  catch (error: any) {
-  setErrorShake(true);
+    } catch (error: unknown) {
+        setErrorShake(true);
+        setLoading(false);
 
-  setTimeout(() => {
-    setErrorShake(false);
-  }, 600);
+        setTimeout(() => {
+          setErrorShake(false);
+        }, 600);
 
-  showToast(
-    error?.response?.data?.message ||
-    "Invalid credentials. Please try again.", "error"
-  );
-}
+        if (axios.isAxiosError(error)) {
+          showToast(
+            error.response?.data?.message ||
+              "Invalid credentials. Please try again.",
+            "error"
+          );
+        } else {
+          showToast("Something went wrong. Please try again.", "error");
+        }
+      }
 
   };
 
   return (
     <div className={styles.page}>
-
-    
-      <div className={styles.left}>
-        <div className={styles.particles}>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <span key={i} />
-          ))}
-        </div>
-        <div className={styles.brand}>
-          <div className={styles.logo}>R</div>
-          <h1 className={styles.head}><span>RAHEEB</span> Admin Panel</h1>
-          <p className={styles.subtitle}>
-            Secure administrative access for system management.
-          </p>
-
-          <ul className={styles.features}>
-            <li className={styles.globe}><FaGlobe size={20}/> Centralized Control</li>
-            <li className={styles.eye}><FaRegEye size={20}/> Real-time Monitoring</li>
-          </ul>
-        </div>
+      {/* Animated Background */}
+      <div className={styles.backgroundAnimation}>
+        <div className={styles.gradientOrb1}></div>
+        <div className={styles.gradientOrb2}></div>
+        <div className={styles.gradientOrb3}></div>
       </div>
 
+      {/* Geometric Pattern Overlay */}
+      <div className={styles.geometricPattern}>
+        {Array.from({ length: 50 }).map((_, i) => (
+          <div key={i} className={styles.geometricShape} />
+        ))}
+      </div>
 
-      <div className={styles.right}>
-        <form
-          className={`${styles.card} ${
-            errorShake ? styles.shake : ""
-          }`}
-          onSubmit={handleSubmit}
-        >
-          <h2>Admin Login</h2>
-          <p className={styles.loginText}>
-            Enter your admin credentials to continue
-          </p>
+      {/* Floating Golden Particles */}
+      <div className={styles.particles}>
+        {Array.from({ length: 30 }).map((_, i) => (
+          <span key={i} className={styles.particle} />
+        ))}
+      </div>
 
-          <label>Email Address</label>
-          <input
-            type="email"
-            placeholder=""
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder=""
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-
-          <div
-            className={`${styles.secure} ${
-              loading ? styles.secureLoading : ""
-            }`}
-          >
-            <FiLock className={styles.lockIcon} />
-            <span>Secure admin access</span>
+      {/* Main Content Container */}
+      <div className={styles.contentWrapper}>
+        {/* Left Side - Branding */}
+        <div className={styles.brandSection}>
+          <div className={styles.logoContainer}>
+            <div className={styles.logoGlow}>
+              <img 
+                src="/raheeb-logo.jpg" 
+                alt="RAHEEB Logo" 
+                className={styles.logo}
+              />
+            </div>
           </div>
 
-        </form>
+          <div className={styles.brandContent}>
+            <h1 className={styles.brandTitle}>
+              <span className={styles.raheeb}>RAHEEB</span>
+              <span className={styles.adminText}>Admin Portal</span>
+            </h1>
+            
+            <p className={styles.brandSubtitle}>
+              Premium Administrative Control Center
+            </p>
+
+            <div className={styles.features}>
+              <div className={styles.featureItem}>
+                <div className={styles.featureIcon}>
+                  <BiShield size={24} />
+                </div>
+                <div className={styles.featureText}>
+                  <h3>Enterprise Security</h3>
+                  <p>Military-grade encryption & protection</p>
+                </div>
+              </div>
+
+              <div className={styles.featureItem}>
+                <div className={styles.featureIcon}>
+                  <RiAdminLine size={24} />
+                </div>
+                <div className={styles.featureText}>
+                  <h3>Total Control</h3>
+                  <p>Comprehensive system management</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Login Form */}
+        <div className={styles.formSection}>
+          <form
+            className={`${styles.loginCard} ${
+              errorShake ? styles.shake : ""
+            }`}
+            onSubmit={handleSubmit}
+            data-testid="login-form"
+          >
+            <div className={styles.formHeader}>
+              <div className={styles.formIconWrapper}>
+                <FiLock className={styles.formIcon} />
+              </div>
+              <h2>Administrator Login</h2>
+              <p className={styles.formSubtext}>
+                Enter your credentials to access the system
+              </p>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="email">
+                <FiMail className={styles.inputIcon} />
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                data-testid="login-email-input"
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="password">
+                <FiLock className={styles.inputIcon} />
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                data-testid="login-password-input"
+                className={styles.input}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              data-testid="login-submit-button"
+              className={styles.submitButton}
+            >
+              {loading ? (
+                <>
+                  <span className={styles.spinner}></span>
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <FiLock className={styles.buttonIcon} />
+                  Secure Login
+                </>
+              )}
+            </button>
+
+            <div className={styles.secureNotice}>
+              <div className={styles.secureIcon}>
+                <FiLock />
+              </div>
+              <span>Protected by enterprise-grade security</span>
+            </div>
+          </form>
+
+          {/* Decorative Elements */}
+          <div className={styles.decorativeCircle1}></div>
+          <div className={styles.decorativeCircle2}></div>
+        </div>
       </div>
     </div>
-  
   );
 }

@@ -1,5 +1,5 @@
 import styles from "./Customers.module.css";
-import { FiSearch, FiMoreVertical } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
 import api from "../../services/api";
 
@@ -83,6 +83,29 @@ export default function Customers() {
       revenue: revenue.toFixed(2),
     };
   }, [customers, totalCustomers]);
+    const handleToggleStatus = async (id: string, currentStatus: "active" | "inactive") => {
+      const nextStatus = currentStatus === "active" ? "inactive" : "active";
+
+      setCustomers((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, status: nextStatus } : c
+        )
+      );
+
+      try {
+        await api.patch(`/users/${id}/status`, {
+          isActive: nextStatus === "active",
+        });
+      } catch (error) {
+        console.error("Status update failed", error);
+
+        setCustomers((prev) =>
+          prev.map((c) =>
+            c.id === id ? { ...c, status: currentStatus } : c
+          )
+        );
+      }
+    };
 
   /* ---------------- UI ---------------- */
   return (
@@ -184,8 +207,18 @@ export default function Customers() {
                       </span>
                     </td>
                     <td className={styles.actions}>
-                      <FiMoreVertical />
+                      <button
+                        className={
+                          c.status === "active"
+                            ? styles.activeBtn
+                            : styles.inactiveBtn
+                        }
+                        onClick={() => handleToggleStatus(c.id, c.status)}
+                      >
+                        {c.status === "active" ? "Deactivate" : "Activate"}
+                      </button>
                     </td>
+
                   </tr>
                 ))
               )}
@@ -206,8 +239,18 @@ export default function Customers() {
                   </div>
                 </div>
                 <div className={styles.actions}>
-                  <FiMoreVertical />
+                  <button
+                    className={
+                      c.status === "active"
+                        ? styles.activeBtn
+                        : styles.inactiveBtn
+                    }
+                    onClick={() => handleToggleStatus(c.id, c.status)}
+                  >
+                    {c.status === "active" ? "Deactivate" : "Activate"}
+                  </button>
                 </div>
+
               </div>
 
               <div className={styles.cardDetails}>

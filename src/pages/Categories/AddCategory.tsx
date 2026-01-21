@@ -2,6 +2,7 @@ import styles from "./AddCategory.module.css";
 import { useState } from "react";
 import { FiArrowLeft, FiUpload, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
 
 export default function AddCategory() {
@@ -12,8 +13,7 @@ export default function AddCategory() {
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // ✅ Slug generator
+  const { showToast } = useToast();
   const generateSlug = (text: string) =>
     text
       .toLowerCase()
@@ -21,16 +21,14 @@ export default function AddCategory() {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
 
-  // ✅ Image handler
   const handleImageChange = (file: File) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  // ✅ Submit
   const handleSubmit = async () => {
     if (!name.trim()) {
-      alert("Category name is required");
+      showToast("Category name is required", "error");
       return;
     }
 
@@ -52,11 +50,10 @@ export default function AddCategory() {
         },
       });
 
-      alert("Category created successfully");
+      showToast("Category created successfully", "success");
       navigate("/categories");
     } catch (err: any) {
-      console.error("Create category failed", err?.response?.data || err);
-      alert("Failed to create category");
+      showToast("Failed to create category", "error");
     } finally {
       setLoading(false);
     }
