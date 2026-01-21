@@ -1,5 +1,5 @@
 .card {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+ background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);
   border-radius: 16px;
   padding: 18px;
   color: white;
@@ -52,7 +52,10 @@
   opacity: 0.7;
   margin-bottom: 5px;
 }
-
+.noDataBox p {
+  padding-bottom: 8px;
+  color: #6b7280;
+}
 .heatStrip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));

@@ -22,8 +22,7 @@
 }
 
 .addBtn {
-  background: #0F172A;
-  color: #fff;
+background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #fff;
   border: none;
   padding: 10px 16px;
   border-radius: 10px;
@@ -71,26 +70,22 @@
 
 /* Purple – Total */
 .total {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
-  color: #ffff;
+background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #ffff;
 }
 
 /* Blue – Processing */
 .processing {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
-  color: #ffff;
+background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #ffff;
 }
 
 /* Orange – Shipped */
 .shipped {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
-  color: #ffff;
+background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #ffff;
 }
 
 /* Green – Completed */
 .completed {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
-  color: #ffff;
+background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #ffff;
 }
 
 

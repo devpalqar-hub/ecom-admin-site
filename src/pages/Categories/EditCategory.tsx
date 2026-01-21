@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
+import { useToast } from "../../components/toast/ToastContext";
 import styles from "./EditCategory.module.css";
 
 export default function EditCategory() {
@@ -17,7 +18,7 @@ export default function EditCategory() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
+  const { showToast } = useToast();
   /* ================= FETCH CATEGORY ================= */
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function EditCategory() {
         setPreview(category.image || null);
       } catch (error) {
         console.error("Failed to fetch category", error);
-        alert("Failed to load category");
+        showToast("Failed to load category", "error");
       } finally {
         setLoading(false);
       }
@@ -91,11 +92,11 @@ export default function EditCategory() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Category updated successfully");
+      showToast("Category updated successfully", "success");
       navigate(-1);
     } catch (error) {
       console.error("Update failed", error);
-      alert("Failed to update category");
+      showToast("Failed to update category", "error");
     } finally {
       setSaving(false);
     }

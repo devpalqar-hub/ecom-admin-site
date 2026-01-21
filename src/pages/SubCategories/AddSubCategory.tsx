@@ -2,6 +2,7 @@ import styles from "./AddSubCategory.module.css";
 import { useEffect, useState } from "react";
 import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
 
 /* ================= TYPES ================= */
@@ -23,7 +24,7 @@ export default function AddSubCategory() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const { showToast } = useToast();
   /* ---------- slug helper ---------- */
   const generateSlug = (text: string) =>
     text
@@ -58,7 +59,7 @@ export default function AddSubCategory() {
   /* ---------- submit ---------- */
   const handleSubmit = async () => {
     if (!name.trim() || !categoryId) {
-      alert("Subcategory name and category are required");
+      showToast("Subcategory name and category are required", "error");
       return;
     }
 
@@ -79,11 +80,11 @@ export default function AddSubCategory() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Subcategory created successfully");
+      showToast("Subcategory created successfully", "success");
       navigate("/subcategories");
     } catch (err: any) {
       console.error("Create subcategory failed", err?.response?.data || err);
-      alert("Failed to create subcategory");
+      showToast("Failed to create subcategory", "error");
     } finally {
       setLoading(false);
     }

@@ -33,7 +33,7 @@
   border-radius: 14px;
   padding: 16px;
   border: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #0F172A, #1E293B);
+  background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);
   color: #ffff;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -236,6 +236,30 @@ tbody tr:hover {
 
 .cardValue {
   font-weight: 500;
+}
+.activeBtn {
+  background-color: #16a34a;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.inactiveBtn {
+  background-color: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.activeBtn:hover,
+.inactiveBtn:hover {
+  opacity: 0.9;
 }
 
 /* ================= TABLET ================= */

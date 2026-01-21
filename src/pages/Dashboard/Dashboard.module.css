@@ -28,7 +28,7 @@
 }
 
 .statCard {
-  background: linear-gradient(135deg, #0F172A, #1E293B);
+  background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);
   color: #ffff;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -42,7 +42,7 @@
 
 .statCard:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 18px 35px rgba(39, 17, 0, 0.12);
 }
 
 

@@ -63,12 +63,12 @@ const updateVariation = (
   setVariations(updated);
 };
 
-
   type SubCategory = {
-  id: string;
-  name: string;
-  categoryId: string;
-};
+    id: string;
+    name: string;
+    isActive: boolean;
+    categoryId: string;
+  };
 
 type Category = {
   id: string;
@@ -81,18 +81,33 @@ const [selectedCategory, setSelectedCategory] = useState("");
 const [selectedSubCategory, setSelectedSubCategory] = useState("");
 
   useEffect(() => {
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get("/categories");
-      setCategories(res.data?.data?.data ?? []);
-    } catch (err) {
-      console.error("Failed to fetch categories", err);
-      setCategories([]);
-    }
-  };
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get("/categories", {
+          params: {
+            isActive: "true", 
+          },
+        });
 
-  fetchCategories();
-}, []);
+        const allCategories: Category[] = res.data?.data?.data ?? [];
+
+        const normalizedCategories = allCategories.map((cat) => ({
+          ...cat,
+          subCategories: cat.subCategories?.filter(
+            (sub) => sub.isActive
+          ) ?? [],
+        }));
+
+        setCategories(normalizedCategories);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
 
   /* ---------------- IMAGES ---------------- */
   const [mainImage, setMainImage] = useState<File | null>(null);
@@ -125,10 +140,19 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
       return false;
     }
 
-    if (!selectedSubCategory) {
+    const selectedCategoryObj = categories.find(
+      (cat) => cat.id === selectedCategory
+    );
+
+    if (
+      selectedCategoryObj &&
+      selectedCategoryObj.subCategories.length > 0 &&
+      !selectedSubCategory
+    ) {
       showToast("Subcategory is required", "error");
       return false;
     }
+
 
     if (stockCount < 0) {
       showToast("Stock quantity cannot be negative", "error");
@@ -296,6 +320,9 @@ const selectedCategoryObj = categories.find(
 );
 
 const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
+const hasNoSubCategories =
+  selectedCategoryObj &&
+  selectedCategoryObj.subCategories.length === 0;
 
 
   /* ---------------- UI ---------------- */
@@ -374,20 +401,28 @@ const filteredSubCategories = selectedCategoryObj?.subCategories ?? [];
               <label>Subcategory *</label>
               <select
                 value={selectedSubCategory}
-                disabled={!selectedCategory}
+                disabled={!selectedCategory || filteredSubCategories.length === 0}
                 onChange={(e) => setSelectedSubCategory(e.target.value)}
               >
-                <option value="">
-                  {selectedCategory
-                    ? "Select subcategory"
-                    : "Select category first"}
-                </option>
-                {filteredSubCategories.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))}
+                {filteredSubCategories.length === 0 ? (
+                  <option value="">No subcategories available</option>
+                ) : (
+                  <>
+                    <option value="">Select subcategory</option>
+                    {filteredSubCategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
+              {hasNoSubCategories && (
+                <p className={styles.errorText}>
+                  No subcategories found. Please create a subcategory to create a product.
+                </p>
+              )}
+
             </div>
           </div>
         </div>
