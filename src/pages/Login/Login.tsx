@@ -4,8 +4,6 @@ import api from "../../services/api";
 import styles from "./Login.module.css";
 import { FiLock, FiMail } from "react-icons/fi";
 import { useToast } from "../../components/toast/ToastContext";
-import { BiShield } from "react-icons/bi";
-import { RiAdminLine } from "react-icons/ri";
 import axios from "axios";
 
 export default function Login() {
@@ -100,28 +98,6 @@ export default function Login() {
             <p className={styles.brandSubtitle}>
               Premium Administrative Control Center
             </p>
-
-            <div className={styles.features}>
-              <div className={styles.featureItem}>
-                <div className={styles.featureIcon}>
-                  <BiShield size={24} />
-                </div>
-                <div className={styles.featureText}>
-                  <h3>Enterprise Security</h3>
-                  <p>Military-grade encryption & protection</p>
-                </div>
-              </div>
-
-              <div className={styles.featureItem}>
-                <div className={styles.featureIcon}>
-                  <RiAdminLine size={24} />
-                </div>
-                <div className={styles.featureText}>
-                  <h3>Total Control</h3>
-                  <p>Comprehensive system management</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

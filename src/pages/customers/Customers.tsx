@@ -31,6 +31,8 @@ export default function Customers() {
   /* filters */
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [activeCount, setActiveCount] = useState(0);
+  const [inactiveCount, setInactiveCount] = useState(0);
 
   /* pagination */
   const [page, setPage] = useState(1);
@@ -65,24 +67,24 @@ export default function Customers() {
 
   useEffect(() => {
     fetchCustomers();
+    fetchCustomerCounts();
   }, [page, search, status]);
 
   /* ---------------- STATS ---------------- */
-  const stats = useMemo(() => {
-    const active = customers.filter((c) => c.status === "active").length;
-    const inactive = customers.filter((c) => c.status === "inactive").length;
-    const revenue = customers.reduce(
-      (sum, c) => sum + c.totalAmountSpent,
-      0
-    );
+const stats = useMemo(() => {
+  const revenue = customers.reduce(
+    (sum, c) => sum + c.totalAmountSpent,
+    0
+  );
 
-    return {
-      total: totalCustomers,
-      active,
-      inactive,
-      revenue: revenue.toFixed(2),
-    };
-  }, [customers, totalCustomers]);
+  return {
+    total: totalCustomers,
+    active: activeCount,
+    inactive: inactiveCount,
+    revenue: revenue.toFixed(2),
+  };
+}, [customers, totalCustomers, activeCount, inactiveCount]);
+
     const handleToggleStatus = async (id: string, currentStatus: "active" | "inactive") => {
       const nextStatus = currentStatus === "active" ? "inactive" : "active";
 
@@ -104,6 +106,28 @@ export default function Customers() {
             c.id === id ? { ...c, status: currentStatus } : c
           )
         );
+      }
+    };
+    const fetchCustomerCount = async (
+      status: "active" | "inactive"
+    ) => {
+      const res = await api.get("/users/admin/customers/count", {
+        params: { status },
+      });
+
+      return res.data.data.total as number;
+    };
+    const fetchCustomerCounts = async () => {
+      try {
+        const [active, inactive] = await Promise.all([
+          fetchCustomerCount("active"),
+          fetchCustomerCount("inactive"),
+        ]);
+
+        setActiveCount(active);
+        setInactiveCount(inactive);
+      } catch (error) {
+        console.error("Failed to fetch customer counts", error);
       }
     };
 

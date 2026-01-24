@@ -113,6 +113,17 @@ const navigate = useNavigate();
   fetchOrders();
   fetchOrderAggregates();
 }, [page, search, status, dateFilter]);
+const handleExportOrders = () => {
+  // const token = localStorage.getItem("token"); 
+
+  const link = document.createElement("a");
+  link.href = "https://api.ecom.palqar.cloud/v1/orders/export/data";
+
+  link.setAttribute("download", "orders.xlsx");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   /* ---------------- UI ---------------- */
   return (
@@ -124,7 +135,7 @@ const navigate = useNavigate();
           <p>Manage and track customer orders</p>
         </div>
 
-        <button className={styles.exportBtn}>
+        <button className={styles.exportBtn} onClick={handleExportOrders}>
           <FiDownload /> Export Orders
         </button>
       </div>
