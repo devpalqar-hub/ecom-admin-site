@@ -460,6 +460,52 @@ select {
 .statusStrong {
   margin-left: 10px;
 }
+.summaryRow,
+.summaryRowDiscount {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.summaryRowDiscount {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 16px;
+}
+
+.couponBox {
+  background: #f0fdf4;
+  border: 1px dashed #22c55e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.couponApplied {
+  font-size: 12px;
+  color: #15803d;
+}
+
+.couponRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.discountAmount {
+  color: #16a34a;
+  font-weight: 600;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1024px) {

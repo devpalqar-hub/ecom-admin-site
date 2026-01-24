@@ -11,6 +11,7 @@ import {
   FiGift,
   FiImage
 } from "react-icons/fi";
+import { TbTruckDelivery } from "react-icons/tb";
 
 
 export default function Sidebar() {
@@ -82,6 +83,14 @@ export default function Sidebar() {
           }          
           onClick={() => setOpen(false)}>
             <FiShoppingCart /> Orders
+          </NavLink>
+
+          <NavLink to="/deliveryCharges" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <TbTruckDelivery /> Delivery Charges
           </NavLink>
 
           <NavLink to="/customers" 

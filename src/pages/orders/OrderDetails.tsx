@@ -3,6 +3,7 @@ import { FiArrowLeft, FiDownload, FiPrinter } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "../../components/toast/ToastContext";
+import { generateInvoice } from "../../utils/generateInvoice";
 import api from "../../services/api";
 
 interface TrackingHistory {
@@ -29,12 +30,12 @@ const getOrderById = async (orderId: string) => {
   return response.data.data;
 };
 
-const updateOrderStatus = async (orderId: string, status: string) => {
-  const res = await api.patch(`/orders/${orderId}/status`, {
-    status,
-  });
-  return res.data.data;
-};
+// const updateOrderStatus = async (orderId: string, status: string) => {
+//   const res = await api.patch(`/orders/${orderId}/status`, {
+//     status,
+//   });
+//   return res.data.data;
+// };
 
 const getTrackingByOrderId = async (orderId: string) => {
   const res = await api.get(`/tracking/order/${orderId}`);
@@ -71,7 +72,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [updatingStatus, setUpdatingStatus] = useState(false); 
+  // const [updatingStatus, setUpdatingStatus] = useState(false); 
   const [tracking, setTracking] = useState<TrackingDetails | null>(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [showCreateTracking, setShowCreateTracking] = useState(false);
@@ -115,6 +116,20 @@ export default function OrderDetails() {
   if (loading) return <p className={styles.loading}>Loading order…</p>;
   if (error) return <p className={styles.error}>{error}</p>;
   if (!order) return <p className={styles.error}>Order not found</p>;
+const itemsTotal = order.items.reduce((sum: number, item: any) => {
+    return sum + Number(item.product.discountedPrice) * item.quantity;
+  }, 0);
+
+  const couponDiscount = order.coupun
+    ? Number(order.coupun.Value)
+    : 0;
+
+  const subtotalAfterDiscount = itemsTotal - couponDiscount;
+
+  const shippingCost = Number(order.shippingCost || 0);
+  const taxAmount = Number(order.taxAmount || 0);
+
+  const finalTotal = subtotalAfterDiscount + shippingCost + taxAmount;
 
   /* ================= UI ================= */
 
@@ -132,10 +147,18 @@ export default function OrderDetails() {
         </div>
 
         <div className={styles.headerActions}>
-          <button>
+          <button onClick={()=>generateInvoice(order)}>
             <FiDownload /> Download Invoice
           </button>
-          <button>
+          {/* <button onClick={() => generateInvoice(order, "ar")}>
+            <FiDownload /> تحميل الفاتورة
+          </button> */}
+          <button
+            onClick={() => {
+              generateInvoice(order);
+              setTimeout(() => window.print(), 500);
+            }}
+          >
             <FiPrinter /> Print
           </button>
         </div>
@@ -145,7 +168,7 @@ export default function OrderDetails() {
         {/* LEFT */}
         <div>
           {/* ORDER STATUS */}
-          <div className={styles.card}>
+          {/* <div className={styles.card}>
             <h3>Order Status</h3>
 
             <select
@@ -183,7 +206,7 @@ export default function OrderDetails() {
               <option value="cancelled">Cancelled</option>
               <option value="refunded">Refunded</option>
             </select>
-          </div>
+          </div> */}
 
           <div className={styles.card}>
   <h3 className={styles.cardTitle}>Order Items</h3>
@@ -216,24 +239,43 @@ export default function OrderDetails() {
   </div>
 
   <div className={styles.summary}>
-    <div>
-      <span>Subtotal</span>
-      <span>QAR {order.totalAmount}</span>
+    <div className={styles.summaryRow}>
+      <span>Items Total</span>
+      <span>QAR {itemsTotal.toFixed(2)}</span>
     </div>
-    <div>
+
+    {order.coupun && (
+      <div className={styles.summaryRowDiscount}>
+        <span>
+          Coupon ({order.coupun.couponName})
+        </span>
+        <span>
+          − QAR {couponDiscount.toFixed(2)}
+        </span>
+      </div>
+    )}
+
+    <div className={styles.summaryRow}>
+      <span>Subtotal after discount</span>
+      <span>QAR {subtotalAfterDiscount.toFixed(2)}</span>
+    </div>
+
+    <div className={styles.summaryRow}>
       <span>Shipping</span>
-      <span>QAR {order.shippingCost}</span>
+      <span>QAR {shippingCost.toFixed(2)}</span>
     </div>
-    <div>
+
+    <div className={styles.summaryRow}>
       <span>Tax</span>
-      <span>QAR {order.taxAmount}</span>
+      <span>QAR {taxAmount.toFixed(2)}</span>
     </div>
 
     <div className={styles.totalRow}>
-      <span>Total</span>
-      <span>QAR {order.totalAmount}</span>
+      <strong>Total Payable</strong>
+      <strong>QAR {finalTotal.toFixed(2)}</strong>
     </div>
   </div>
+
 </div>
 <div className={styles.card}>
   <h3>Shipping Information</h3>
@@ -247,11 +289,11 @@ export default function OrderDetails() {
       </a>
     </div>
 
-    {tracking?.carrier && (
+    {/* {tracking?.carrier && (
       <span className={styles.courierBadge}>
         {tracking?.carrier}
       </span>
-    )}
+    )} */}
   </div>
 
   {/* Shipping Address */}
@@ -439,7 +481,7 @@ export default function OrderDetails() {
                 order.paymentStatus !== "paid" ? styles.pending : ""
               }`}
             >
-              {order.paymentStatus}
+              {/* {order.paymentStatus} */}
             </span>
           </div>
         </div>

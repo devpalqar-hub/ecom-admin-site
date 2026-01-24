@@ -20,6 +20,7 @@ import ProductDetails from "../pages/Products/ProductDetails";
 import Customers from "../pages/customers/Customers";
 import Coupons from "../pages/coupons/Coupons";
 import Banners from "../pages/banner/Banner";
+import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
 
 export default function AppRoutes() {
   return (
@@ -56,6 +57,7 @@ export default function AppRoutes() {
         <Route path="customers" element={<Customers />} />
         <Route path="coupons" element={<Coupons />} />   
         <Route path="banners" element={<Banners/>} />
+        <Route path="deliveryCharges" element={<DeliveryCharges/>} />
       </Route>
 
       {/* FALLBACK */}
