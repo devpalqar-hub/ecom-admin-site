@@ -1,3 +1,4 @@
+declare module "jspdf-autotable";
 declare module "jspdf-autotable" {
   import { jsPDF } from "jspdf";
 
