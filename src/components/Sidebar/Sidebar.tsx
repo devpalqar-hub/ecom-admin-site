@@ -44,7 +44,7 @@ export default function Sidebar() {
       >
         {/* Brand */}
         <div className={styles.brand}>
-          <div className={styles.avatar}>R</div>
+          <img src="/logo.png" alt="logo" className={styles.logo}/>
           <div>
             <h4>Raheeb Admin</h4>
             <span>E-commerce Panel</span>
