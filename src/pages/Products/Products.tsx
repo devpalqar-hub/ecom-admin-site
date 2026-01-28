@@ -46,6 +46,8 @@ export default function Products() {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState("");
+  const [activeStatus, setActiveStatus] = useState("all"); 
 
 useEffect(() => {
   const fetchProducts = async () => {
@@ -59,17 +61,17 @@ useEffect(() => {
           search: search || undefined,
           categoryId: categoryId || undefined,
           isStock:
-          status === "in"
+          stockStatus === "in"
             ? true
-            : status === "out"
+            : stockStatus === "out"
             ? false
             : undefined,
            isActive:
-            status === "inactive"
+            activeStatus === "active"
+              ? true
+              : activeStatus === "inactive"
               ? false
-              : status === "all"
-              ? undefined
-              : true,
+              : undefined,
         },
       });
 
@@ -82,7 +84,7 @@ useEffect(() => {
   };
 
   fetchProducts();
-}, [search, status, page, categoryId]);
+}, [search, stockStatus, activeStatus, page, categoryId]);
 
  useEffect(() => {
   const fetchCategories = async () => {
@@ -206,9 +208,9 @@ const toggleProductStatus = async (product: Product) => {
                 ))}
             </select>
             <select
-                value={status}
+                value={stockStatus}
                 onChange={(e) => {
-                  setStatus(e.target.value);
+                  setStockStatus(e.target.value);
                   setPage(1);
                 }}
               >
@@ -218,19 +220,16 @@ const toggleProductStatus = async (product: Product) => {
               </select>
 
               <select
-                value={status}
+                value={activeStatus}
                 onChange={(e) => {
-                  setStatus(e.target.value);
+                  setActiveStatus(e.target.value);
                   setPage(1);
                 }}
               >
-                <option value="">Active Products</option>
-                <option value="inactive">Inactive Products</option>
                 <option value="all">All Products</option>
+                <option value="active">Active Products</option>
+                <option value="inactive">Inactive Products</option>
               </select>
-
-
-
         </div>
 
       {/* TABLE */}
