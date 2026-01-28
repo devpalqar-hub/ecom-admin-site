@@ -22,10 +22,12 @@
   cursor: pointer;
   color: #6b7280;
 }
-
+.subText {
+  margin-bottom: 10px;
+}
 .toggle button {
   background: transparent;
-  border: 1px solid #334155;
+  border: 1px solid #ffffff;
   color: #cbd5f5;
   padding: 6px 10px;
   border-radius: 8px;
@@ -77,6 +79,7 @@
 }
 .bar:hover {
   transform: scaleY(1.15);
+
 }
 
 /* TOOLTIP */

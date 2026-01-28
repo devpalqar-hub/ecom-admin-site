@@ -13,6 +13,7 @@ interface Customer {
   totalAmountSpent: number;
   joinedDate: string;
   status: "active" | "inactive";
+  isActive: boolean;
 }
 
 interface CustomersResponse {
@@ -108,20 +109,27 @@ const stats = useMemo(() => {
         );
       }
     };
-    const fetchCustomerCount = async (
-      status: "active" | "inactive"
-    ) => {
+    const fetchCustomerCount = async (isActive: boolean) => {
       const res = await api.get("/users/admin/customers/count", {
-        params: { status },
+        params: { isActive },
       });
 
-      return res.data.data.total as number;
+      const roles = res.data.data.data as {
+        role: string;
+        count: number;
+      }[];
+
+      const customerCount =
+        roles.find((r) => r.role === "CUSTOMER")?.count ?? 0;
+
+      return customerCount;
     };
+
     const fetchCustomerCounts = async () => {
       try {
         const [active, inactive] = await Promise.all([
-          fetchCustomerCount("active"),
-          fetchCustomerCount("inactive"),
+          fetchCustomerCount(true),
+          fetchCustomerCount(false),
         ]);
 
         setActiveCount(active);

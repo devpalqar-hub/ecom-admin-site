@@ -26,7 +26,6 @@ import { useNavigate } from "react-router-dom";
 
 interface DashboardStats {
   totalOrders: number;
-  totalCustomers: number;
   totalProducts: number;
   totalRevenue: number;
   categoryWiseAnalytics: {
@@ -57,6 +56,10 @@ interface TopProduct {
   image: string;
 }
 
+interface UserCount {
+  role: string;
+  count: number;
+} 
 /* ---------------- COMPONENT ---------------- */
 
 export default function Dashboard() {
@@ -65,15 +68,23 @@ export default function Dashboard() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [customerCount, setCustomerCount] = useState<number>(0);
   const PIE_COLORS = ["#0F172A", "#c32c2c", "#f59e0b", "#5aee15", "#8b5cf6"];
 
   const fetchDashboard = async () => {
     try {
-      const [statsRes, ordersRes, productsRes] = await Promise.all([
+      const [statsRes, ordersRes, productsRes, customerCountRes] = await Promise.all([
         api.get("/dashboard/admin"),
         api.get("/dashboard/recent-orders"),
         api.get("/dashboard/top-products"),
+        api.get("/users/admin/customers/count"),
       ]);
+       const users: UserCount[] = customerCountRes.data.data.data;
+
+        const customers = users.find(
+          (u) => u.role ==="CUSTOMER"
+        );
+      setCustomerCount(customers?.count?? 0);
 
       setStats(statsRes.data.data);
       setRecentOrders(ordersRes.data.data.data);
@@ -97,6 +108,7 @@ export default function Dashboard() {
             name: c.categoryName,
             revenue: c.totalRevenue,
           })) ?? [];
+
   return (
     <div className={styles.page}>
       {/* HEADER */}
@@ -125,7 +137,7 @@ export default function Dashboard() {
 
         <StatCard
           title="Customers"
-          value={stats ? stats.totalCustomers.toString() : "-"}
+          value={customerCount.toString()}
           icon={<FiUsers />}
           variant="customers"
         />

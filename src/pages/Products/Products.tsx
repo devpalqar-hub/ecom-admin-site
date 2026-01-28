@@ -1,10 +1,11 @@
 import styles from "./Products.module.css";
-import { FiSearch,FiEdit2, FiTrash2,FiEye } from "react-icons/fi";
+import { FiSearch,FiEdit2 ,FiEye } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api"; 
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
+import { PiToggleLeftThin, PiToggleRightThin } from "react-icons/pi";
 
 interface Product {
   id: string;
@@ -14,6 +15,7 @@ interface Product {
   stockCount: number;
   isStock: boolean;
   isFeatured?: boolean;
+  isActive: boolean;
   images: {
     url: string;
     isMain?: boolean;
@@ -62,7 +64,12 @@ useEffect(() => {
             : status === "out"
             ? false
             : undefined,
-
+           isActive:
+            status === "inactive"
+              ? false
+              : status === "all"
+              ? undefined
+              : true,
         },
       });
 
@@ -129,6 +136,32 @@ function ProductImage({
   );
 }
 
+const toggleProductStatus = async (product: Product) => {
+  try {
+    await api.patch(`/products/${product.id}`, {
+      isActive: !product.isActive,
+    });
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === product.id
+          ? { ...p, isActive: !p.isActive }
+          : p
+      )
+    );
+
+    showToast(
+      product.isActive
+        ? "Product deactivated"
+        : "Product activated",
+      "success"
+    );
+  } catch (error) {
+    console.error("Status update failed", error);
+    showToast("Failed to update product status", "error");
+  }
+};
+
   return (
     <div className={styles.page}>
       {/* HEADER */}
@@ -183,6 +216,19 @@ function ProductImage({
                 <option value="in">In Stock</option>
                 <option value="out">Out of Stock</option>
               </select>
+
+              <select
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">Active Products</option>
+                <option value="inactive">Inactive Products</option>
+                <option value="all">All Products</option>
+              </select>
+
 
 
         </div>
@@ -264,14 +310,15 @@ function ProductImage({
                         </button>
 
                         <button
-                          className={styles.deleteBtn}
-                          onClick={() => {
-                            setDeleteProductId(p.id);
-                            setShowDeleteConfirm(true);
-                          }}
-                          title="Delete"
+                          className={styles.statusBtn}
+                          onClick={() => toggleProductStatus(p)}
+                          title={p.isActive ? "Deactivate product" : "Activate product"}
                         >
-                          <FiTrash2 />
+                          {p.isActive ? (
+                            <PiToggleRightThin data-active="true" />
+                          ) : (
+                            <PiToggleLeftThin data-active="false" />
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -352,7 +399,6 @@ function ProductImage({
                       <FiEye />
                   </button>
 
-
                 <button
                   className={styles.editBtn}
                   onClick={() => navigate(`/products/edit/${p.id}`)}
@@ -362,15 +408,17 @@ function ProductImage({
                 </button>
 
                 <button
-                  className={styles.deleteBtn}
-                  onClick={() => {
-                    setDeleteProductId(p.id);
-                    setShowDeleteConfirm(true);
-                  }}
-                  title="Delete"
+                  className={styles.statusBtn}
+                  onClick={() => toggleProductStatus(p)}
+                  title={p.isActive ? "Deactivate product" : "Activate product"}
                 >
-                  <FiTrash2 />
+                  {p.isActive ? (
+                    <PiToggleRightThin data-active="true" />
+                  ) : (
+                    <PiToggleLeftThin data-active="false" />
+                  )}
                 </button>
+
               </div>
             </div>
         ))}

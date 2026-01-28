@@ -362,7 +362,6 @@ const handleConfirmDeleteImage = async () => {
       actualPrice: Number(actualPrice),
       discountedPrice: Number(discountedPrice),
       subCategoryId,
-      isStock,
       isFeatured,
     };
 
@@ -373,7 +372,6 @@ const handleConfirmDeleteImage = async () => {
         discountedPrice: Number(v.discountedPrice),
         actualPrice: Number(v.actualPrice),
         stockCount: Number(v.stockCount),
-        isAvailable: v.isAvailable,
       }));
     }
 
@@ -508,17 +506,17 @@ const handleConfirmDeleteImage = async () => {
         {/* STATUS */}
 <div className={styles.switchRow}>
   {/* ACTIVE */}
-  <div className={styles.toggleItem}>
+  {/* <div className={styles.toggleItem}>
     <span className={styles.toggleLabel}>Active</span>
     <label className={styles.toggleSwitch}>
       <input
         type="checkbox"
-        checked={isStock}
-        onChange={() => setIsStock(!isStock)}
+        checked={isActive}
+        onChange={() => setIsActive(!isActive)}
       />
       <span className={styles.slider}></span>
     </label>
-  </div>
+  </div> */}
 
   {/* FEATURED */}
   <div className={styles.toggleItem}>
