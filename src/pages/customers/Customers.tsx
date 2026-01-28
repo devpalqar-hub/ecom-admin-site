@@ -34,6 +34,7 @@ export default function Customers() {
   const [status, setStatus] = useState("");
   const [activeCount, setActiveCount] = useState(0);
   const [inactiveCount, setInactiveCount] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
 
   /* pagination */
   const [page, setPage] = useState(1);
@@ -65,26 +66,34 @@ export default function Customers() {
       setLoading(false);
     }
   };
+  const fetchRevenueFromDashboard = async () => {
+    try {
+      const res = await api.get("/dashboard/admin");
+      setTotalRevenue(res.data.data.totalRevenue);
+    } catch (error) {
+      console.error("Failed to fetch revenue", error);
+    }
+  };
 
   useEffect(() => {
     fetchCustomers();
     fetchCustomerCounts();
+    fetchRevenueFromDashboard();
   }, [page, search, status]);
 
   /* ---------------- STATS ---------------- */
 const stats = useMemo(() => {
-  const revenue = customers.reduce(
-    (sum, c) => sum + c.totalAmountSpent,
-    0
-  );
 
   return {
     total: totalCustomers,
     active: activeCount,
     inactive: inactiveCount,
-    revenue: revenue.toFixed(2),
+    revenue: totalRevenue.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
   };
-}, [customers, totalCustomers, activeCount, inactiveCount]);
+}, [customers, totalCustomers, activeCount, inactiveCount, totalRevenue]);
 
     const handleToggleStatus = async (id: string, currentStatus: "active" | "inactive") => {
       const nextStatus = currentStatus === "active" ? "inactive" : "active";

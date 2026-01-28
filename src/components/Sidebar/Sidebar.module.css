@@ -24,10 +24,9 @@
   margin-bottom: 24px;
 }
 
-.avatar {
-  width: 40px;
+.logo {
+  width: 60px;
   height: 40px;
-  background: linear-gradient(135deg, #0F172A, #1E293B);
   color: #fff;
   font-weight: 700;
   border-radius: 10px;
@@ -65,8 +64,8 @@
 }
 
 .menu a.active {
-  background: #eef2ff;
-  color: #0F172A;
+  background: #9f8d70;
+  color: #2d2416;
   font-weight: 600;
 }
 /* Hamburger */
