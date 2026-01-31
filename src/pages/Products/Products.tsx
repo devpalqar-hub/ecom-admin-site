@@ -1,10 +1,11 @@
 import styles from "./Products.module.css";
-import { FiSearch,FiEdit2, FiTrash2,FiEye } from "react-icons/fi";
+import { FiSearch,FiEdit2 ,FiEye } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api"; 
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
+import { PiToggleLeftThin, PiToggleRightThin } from "react-icons/pi";
 
 interface Product {
   id: string;
@@ -14,6 +15,7 @@ interface Product {
   stockCount: number;
   isStock: boolean;
   isFeatured?: boolean;
+  isActive: boolean;
   images: {
     url: string;
     isMain?: boolean;
@@ -44,6 +46,8 @@ export default function Products() {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState("");
+  const [activeStatus, setActiveStatus] = useState("all"); 
 
 useEffect(() => {
   const fetchProducts = async () => {
@@ -57,12 +61,17 @@ useEffect(() => {
           search: search || undefined,
           categoryId: categoryId || undefined,
           isStock:
-          status === "in"
+          stockStatus === "in"
             ? true
-            : status === "out"
+            : stockStatus === "out"
             ? false
             : undefined,
-
+           isActive:
+            activeStatus === "active"
+              ? true
+              : activeStatus === "inactive"
+              ? false
+              : undefined,
         },
       });
 
@@ -75,7 +84,7 @@ useEffect(() => {
   };
 
   fetchProducts();
-}, [search, status, page, categoryId]);
+}, [search, stockStatus, activeStatus, page, categoryId]);
 
  useEffect(() => {
   const fetchCategories = async () => {
@@ -129,6 +138,32 @@ function ProductImage({
   );
 }
 
+const toggleProductStatus = async (product: Product) => {
+  try {
+    await api.patch(`/products/${product.id}`, {
+      isActive: !product.isActive,
+    });
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === product.id
+          ? { ...p, isActive: !p.isActive }
+          : p
+      )
+    );
+
+    showToast(
+      product.isActive
+        ? "Product deactivated"
+        : "Product activated",
+      "success"
+    );
+  } catch (error) {
+    console.error("Status update failed", error);
+    showToast("Failed to update product status", "error");
+  }
+};
+
   return (
     <div className={styles.page}>
       {/* HEADER */}
@@ -173,9 +208,9 @@ function ProductImage({
                 ))}
             </select>
             <select
-                value={status}
+                value={stockStatus}
                 onChange={(e) => {
-                  setStatus(e.target.value);
+                  setStockStatus(e.target.value);
                   setPage(1);
                 }}
               >
@@ -184,7 +219,17 @@ function ProductImage({
                 <option value="out">Out of Stock</option>
               </select>
 
-
+              <select
+                value={activeStatus}
+                onChange={(e) => {
+                  setActiveStatus(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="all">All Products</option>
+                <option value="active">Active Products</option>
+                <option value="inactive">Inactive Products</option>
+              </select>
         </div>
 
       {/* TABLE */}
@@ -264,14 +309,15 @@ function ProductImage({
                         </button>
 
                         <button
-                          className={styles.deleteBtn}
-                          onClick={() => {
-                            setDeleteProductId(p.id);
-                            setShowDeleteConfirm(true);
-                          }}
-                          title="Delete"
+                          className={styles.statusBtn}
+                          onClick={() => toggleProductStatus(p)}
+                          title={p.isActive ? "Deactivate product" : "Activate product"}
                         >
-                          <FiTrash2 />
+                          {p.isActive ? (
+                            <PiToggleRightThin data-active="true" />
+                          ) : (
+                            <PiToggleLeftThin data-active="false" />
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -352,7 +398,6 @@ function ProductImage({
                       <FiEye />
                   </button>
 
-
                 <button
                   className={styles.editBtn}
                   onClick={() => navigate(`/products/edit/${p.id}`)}
@@ -362,15 +407,17 @@ function ProductImage({
                 </button>
 
                 <button
-                  className={styles.deleteBtn}
-                  onClick={() => {
-                    setDeleteProductId(p.id);
-                    setShowDeleteConfirm(true);
-                  }}
-                  title="Delete"
+                  className={styles.statusBtn}
+                  onClick={() => toggleProductStatus(p)}
+                  title={p.isActive ? "Deactivate product" : "Activate product"}
                 >
-                  <FiTrash2 />
+                  {p.isActive ? (
+                    <PiToggleRightThin data-active="true" />
+                  ) : (
+                    <PiToggleLeftThin data-active="false" />
+                  )}
                 </button>
+
               </div>
             </div>
         ))}

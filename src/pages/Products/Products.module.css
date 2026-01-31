@@ -34,6 +34,50 @@
   font-size: 14px;
   cursor: pointer;
 }
+/* ================= STATUS TOGGLE ================= */
+
+.statusBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+/* Hover feedback */
+.statusBtn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+/* Icon base */
+.statusBtn svg {
+  font-size: 22px;
+}
+
+/* ACTIVE → GREEN */
+.statusBtn svg[data-active="true"] {
+  color: #16a34a; /* green-600 */
+}
+
+/* INACTIVE → GRAY */
+.statusBtn svg[data-active="false"] {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Optional focus ring (accessibility) */
+.statusBtn:focus-visible {
+  outline: 2px solid #63e100;
+  outline-offset: 2px;
+}
 
 /* FILTER BAR */
 .filters {
