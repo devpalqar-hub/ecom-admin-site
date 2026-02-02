@@ -23,6 +23,14 @@ type ProductImage = {
   url: string;
   isMain?: boolean;
 };
+type ProductMetaType = "SPEC" | "INFO";
+
+type ProductMetaForm = {
+  id: string;
+  type: ProductMetaType;
+  title: string;
+  value: string;
+};
 
 export default function EditProduct() {
   const navigate = useNavigate();
@@ -39,6 +47,7 @@ export default function EditProduct() {
   const [isStock, setIsStock] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [subCategoryId, setSubCategoryId] = useState("");
+  const [productMetas, setProductMetas] = useState<ProductMetaForm[]>([]);
 
   /* ================= IMAGES ================= */
 
@@ -84,6 +93,16 @@ export default function EditProduct() {
         const res = await api.get(`/products/${id}`);
         const p = res.data.data;
 
+        if(p.productMetas?.length) {
+          setProductMetas(
+            p.productMetas.map((m: any) => ({
+              id: m.id,
+              type: m.type,
+              title: m.title,
+              value: m.value,
+            }))
+          )
+        }
         setName(p.name);
         setDescription(p.description || "");
         setStockCount(p.stockCount);
@@ -253,6 +272,14 @@ const handleConfirmDeleteImage = async () => {
   }
 };
 
+const updateProductMetaValue = (id: string, value: string) => {
+  setProductMetas((prev) =>
+    prev.map((m) =>
+      m.id === id ? { ...m, value } : m
+    )
+  );
+};
+
 
   const validateForm = () => {
     if (variationsEnabled && variations.length === 0) {
@@ -372,6 +399,13 @@ const handleConfirmDeleteImage = async () => {
         discountedPrice: Number(v.discountedPrice),
         actualPrice: Number(v.actualPrice),
         stockCount: Number(v.stockCount),
+      }));
+    }
+
+    if (productMetas.length > 0) {
+      payload.productMetas = productMetas.map((m) => ({
+        id: m.id,
+        value: m.value,
       }));
     }
 
@@ -531,6 +565,46 @@ const handleConfirmDeleteImage = async () => {
     </label>
   </div>
 </div>
+
+{/* ================= PRODUCT META ================= */}
+{productMetas.length > 0 && (
+  <div className={styles.metaCard}>
+    <h3>Product Details</h3>
+
+    {/* SPEC TABLE */}
+    {productMetas
+      .filter((m) => m.type === "SPEC")
+      .map((m) => (
+        <div key={m.id} className={styles.metaRow}>
+          <span className={styles.metaLabel}>{m.title}</span>
+          <input
+            value={m.value}
+            onChange={(e) =>
+              updateProductMetaValue(m.id, e.target.value)
+            }
+          />
+        </div>
+      ))}
+
+
+    {/* INFO BLOCKS */}
+    {productMetas
+      .filter((m) => m.type === "INFO")
+      .map((m) => (
+        <div key={m.id} className={styles.metaInfoBlock}>
+          <label>{m.title}</label>
+          <textarea
+            rows={3}
+            value={m.value}
+            onChange={(e) =>
+              updateProductMetaValue(m.id, e.target.value)
+            }
+          />
+        </div>
+      ))}
+  </div>
+)}
+
 
         {/* VARIATIONS */}
           <div className={styles.variationHeader}>

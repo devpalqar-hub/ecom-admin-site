@@ -9,8 +9,10 @@ import {
   FiTag,
   FiLayers,
   FiGift,
-  FiImage
+  FiImage,
+  FiHelpCircle,
 } from "react-icons/fi";
+import { FaClipboardList, FaUserPlus } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
 
 
@@ -44,10 +46,10 @@ export default function Sidebar() {
       >
         {/* Brand */}
         <div className={styles.brand}>
-          <img src="/logo.png" alt="logo" className={styles.logo}/>
+          <img src="/avior-logo.png" alt="logo" className={styles.logo}/>
           <div>
-            <h4>Raheeb Admin</h4>
-            <span>E-commerce Panel</span>
+            <h4>Avior Biotech</h4>
+            <span>Admin Panel</span>
           </div>
         </div>
 
@@ -124,6 +126,29 @@ export default function Sidebar() {
             <FiLayers />Subcategories    
           </NavLink>
 
+          <NavLink to="/enquiry" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <FiHelpCircle />Enquiry    
+          </NavLink>
+
+          <NavLink to="/leads" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <FaUserPlus />Leads    
+          </NavLink>
+
+          <NavLink to="/leadLog" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <FaClipboardList />Lead Log    
+          </NavLink>
         </nav>
       </aside>
     </>

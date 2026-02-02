@@ -5,6 +5,14 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
 
+type ProductMetaType = "SPEC" | "INFO";
+
+type ProductMetaForm = {
+  type: ProductMetaType;
+  title: string;
+  value: string;
+};
+
 export default function CreateProduct() {
  
   const navigate = useNavigate();
@@ -16,6 +24,7 @@ export default function CreateProduct() {
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
   const { showToast } = useToast();  const [isFeatured, setIsFeatured] = useState(false);
+  const [productMetas, setProductMetas] = useState<ProductMetaForm[]>([]);
 
 
   type VariationForm = {
@@ -253,6 +262,27 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     return true;
   };
 
+  const addProductMeta = (type: ProductMetaType) => {
+    setProductMetas((prev) => [
+      ...prev,
+      { type, title: "", value: "" },
+    ]);
+  };
+
+  const updateProductMeta = (
+    index: number,
+    key: keyof ProductMetaForm,
+    value: string
+  ) => {
+    const updated = [...productMetas];
+    updated[index] = { ...updated[index], [key]: value };
+    setProductMetas(updated);
+  };
+
+  const removeProductMeta = (index: number) => {
+    setProductMetas((prev) => prev.filter((_, i) => i !== index));
+  };
+
   
 const handleCreateProduct = async () => {
   if(!validateForm()) return;
@@ -269,6 +299,9 @@ const handleCreateProduct = async () => {
     formData.append("subCategoryId", selectedSubCategory);
     formData.append("isFeatured", String(isFeatured));
     formData.append("isStock", String(isStock));
+    if (productMetas.length > 0) {
+      formData.append("productMetas", JSON.stringify(productMetas));
+    }
 
 
 
@@ -447,6 +480,51 @@ const hasNoSubCategories =
             </div>
           </div>
         </div>
+
+        {/* PRODUCT META */}
+        <div className={styles.card}>
+          <h3>Product Details</h3>
+
+          <div className={styles.metaActions}>
+            <button type="button" onClick={() => addProductMeta("SPEC")}>
+              + Add Specification
+            </button>
+            <button type="button" onClick={() => addProductMeta("INFO")}>
+              + Add Info
+            </button>
+          </div>
+
+          {productMetas.map((m, index) => (
+            <div key={index} className={styles.metaRow}>
+              <span className={styles.metaType}>{m.type}</span>
+
+              <input
+                placeholder="Title (e.g. Weight)"
+                value={m.title}
+                onChange={(e) =>
+                  updateProductMeta(index, "title", e.target.value)
+                }
+              />
+
+              <input
+                placeholder="Value (e.g. 500g)"
+                value={m.value}
+                onChange={(e) =>
+                  updateProductMeta(index, "value", e.target.value)
+                }
+              />
+
+              <button
+                type="button"
+                className={styles.removeBtn}
+                onClick={() => removeProductMeta(index)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
 
         {/* IMAGES */}
         <div className={styles.card}>

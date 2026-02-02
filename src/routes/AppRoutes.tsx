@@ -21,6 +21,9 @@ import Customers from "../pages/customers/Customers";
 import Coupons from "../pages/coupons/Coupons";
 import Banners from "../pages/banner/Banner";
 import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
+import Enquiries from "@/pages/enquiries/Enquiries";
+import Leads from "@/pages/leads/Leads";
+import LeadLogs from "@/pages/leadLog/LeadLog";
 
 export default function AppRoutes() {
   return (
@@ -58,6 +61,9 @@ export default function AppRoutes() {
         <Route path="coupons" element={<Coupons />} />   
         <Route path="banners" element={<Banners/>} />
         <Route path="deliveryCharges" element={<DeliveryCharges/>} />
+        <Route path="enquiry" element={<Enquiries/>} />
+        <Route path="leads" element={<Leads/>} />
+        <Route path="leadLog" element={<LeadLogs/>} />
       </Route>
 
       {/* FALLBACK */}

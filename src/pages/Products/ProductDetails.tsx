@@ -35,7 +35,14 @@ interface Product {
     };
   };
   reviews?: Review[];
+  productMetas?: ProductMeta[];
 }
+type ProductMeta = {
+  id: string;
+  type: "SPEC" | "INFO";
+  title: string;
+  value: string;
+};
 
 /* ================= COMPONENT ================= */
 
@@ -230,6 +237,40 @@ export default function ProductDetails() {
       </div>
     </div>
   </div>
+  {/* ================= PRODUCT META ================= */}
+    {product.productMetas && product.productMetas.length > 0 && (
+      <div className={styles.productMetaSection}>
+        {/* SPEC TABLE */}
+        {product.productMetas.some((m) => m.type === "SPEC") && (
+          <>
+            <h3>Specifications</h3>
+            <table className={styles.specTable}>
+              <tbody>
+                {product.productMetas
+                  .filter((m) => m.type === "SPEC")
+                  .map((m) => (
+                    <tr key={m.id}>
+                      <th>{m.title}</th>
+                      <td>{m.value}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
+        {/* INFO BLOCKS */}
+        {product.productMetas
+          .filter((m) => m.type === "INFO")
+          .map((m) => (
+            <div key={m.id} className={styles.infoBlock}>
+              <strong>{m.title}</strong>
+              <p>{m.value}</p>
+            </div>
+          ))}
+      </div>
+    )}
+
       {/* ================= REVIEWS ================= */}
       <h3 className={styles.reviewTitle}>Customer Reviews</h3>
 

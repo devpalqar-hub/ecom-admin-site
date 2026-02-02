@@ -82,8 +82,8 @@ export default function Login() {
           <div className={styles.logoContainer}>
             <div className={styles.logoGlow}>
               <img 
-                src="/raheeb-logo.jpg" 
-                alt="RAHEEB Logo" 
+                src="/avior-logo.png" 
+                alt="AVIOR BIOTECH Logo" 
                 className={styles.logo}
               />
             </div>
@@ -91,7 +91,7 @@ export default function Login() {
 
           <div className={styles.brandContent}>
             <h1 className={styles.brandTitle}>
-              <span className={styles.raheeb}>RAHEEB</span>
+              <span className={styles.raheeb}>AVIOR BIOTECH</span>
               <span className={styles.adminText}>Admin Portal</span>
             </h1>
             

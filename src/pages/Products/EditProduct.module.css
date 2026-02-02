@@ -358,3 +358,84 @@
   resize: vertical;   /* user can resize if needed */
   line-height: 1.6;
 }
+/* ================= PRODUCT META (EDIT) ================= */
+
+.metaCard {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.metaSubTitle {
+  margin: 12px 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.metaTable {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.metaLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.metaRow input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.metaRow input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* INFO BLOCK */
+.metaInfoBlock {
+  margin-top: 14px;
+}
+
+.metaInfoBlock label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.metaInfoBlock textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.metaInfoBlock textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .metaRow {
+    grid-template-columns: 1fr;
+  }
+}
