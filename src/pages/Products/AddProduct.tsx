@@ -16,6 +16,8 @@ export default function CreateProduct() {
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [isStock, setIsStock] = useState(true);
   const { showToast } = useToast();  const [isFeatured, setIsFeatured] = useState(false);
+  const [variationTitle, setVariationTitle] = useState("");
+
 
 
   type VariationForm = {
@@ -269,6 +271,7 @@ const handleCreateProduct = async () => {
     formData.append("subCategoryId", selectedSubCategory);
     formData.append("isFeatured", String(isFeatured));
     formData.append("isStock", String(isStock));
+    formData.append("variationTitle", variationTitle);
 
 
 
@@ -522,7 +525,17 @@ const hasNoSubCategories =
           <p className={styles.muted}>
             Add variations like sizes, colors, or models
           </p>
-
+          {/* NEW FIELD */}
+          {/* Variation Title Field */}
+        <div className={styles.variationTitleField}>
+          <label>Variation Title</label>
+          <input
+            type="text"
+            value={variationTitle}
+            onChange={(e) => setVariationTitle(e.target.value)}
+            placeholder="Size, Models, colors"
+          />
+        </div>
           {variationsEnabled && (
             <div className={styles.variationList}>
               {variations.map((v, index) => (

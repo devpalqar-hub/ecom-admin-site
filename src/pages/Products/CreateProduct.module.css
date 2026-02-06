@@ -324,6 +324,38 @@
   margin-bottom: 12px;
 }
 
+
+
+
+.variationTitleField {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  margin-bottom: 14px;
+   font-weight: 600;
+}
+
+.variationTitleField label {
+  font-size: 14px;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.variationTitleField input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background: #fff;
+}
+
+
+
+
+
+
+
+
 .variationList {
   display: flex;
   flex-direction: column;
