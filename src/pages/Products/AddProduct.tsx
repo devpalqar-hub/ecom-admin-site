@@ -522,7 +522,7 @@ const hasNoSubCategories =
             </label>
           </div>
 
-          <p className={styles.muted}>
+          <p className={styles.mutedVariation}>
             Add variations like sizes, colors, or models
           </p>
           {/* NEW FIELD */}
