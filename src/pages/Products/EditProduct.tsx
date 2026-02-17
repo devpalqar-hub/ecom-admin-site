@@ -39,6 +39,7 @@ export default function EditProduct() {
   const [isStock, setIsStock] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [subCategoryId, setSubCategoryId] = useState("");
+  const [variationTitle, setVariationTitle] = useState("");
 
   /* ================= IMAGES ================= */
 
@@ -92,6 +93,7 @@ export default function EditProduct() {
         setIsStock(p.isStock);
         setIsFeatured(p.isFeatured);
         setSubCategoryId(p.subCategoryId);
+        setVariationTitle(p.variationTitle || "");
 
         if (p.images?.length) {
           setImages(p.images);
@@ -363,6 +365,7 @@ const handleConfirmDeleteImage = async () => {
       discountedPrice: Number(discountedPrice),
       subCategoryId,
       isFeatured,
+      variationTitle, 
     };
 
     if (variationsEnabled) {
@@ -539,6 +542,16 @@ const handleConfirmDeleteImage = async () => {
               <p className={styles.variationHint}>
                 Add sizes, colors or models with different prices
               </p>
+              {/* NEW VARIATION TITLE FIELD */}
+              <div className={styles.variationTitleField}>
+                <label>Variation Title</label>
+                <input
+                  type="text"
+                  value={variationTitle}
+                  onChange={(e) => setVariationTitle(e.target.value)}
+                  placeholder="Size, Color, Model"
+                />
+              </div>
             </div>
 
             {/* TOGGLE */}
