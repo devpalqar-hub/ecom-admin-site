@@ -1037,7 +1037,327 @@ select:disabled {
   color: #6b7280;
   font-size: 0.875rem;
 }
+/* ================= DELIVERY PARTNER CARD ================= */
 
+.dpCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dpEditBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dpEditBtn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Assigned partner info */
+.dpInfo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #f8faff;
+  border: 1px solid #e0e7ff;
+  border-radius: 10px;
+}
+
+.dpAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: #3730a3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dpDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dpName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dpEmail {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.dpPhone {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Empty state */
+.dpEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  background: #ebd8ba;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.dpEmptyIcon {
+  color: #0F172A;
+}
+
+.dpEmpty p {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.dpEmpty span {
+  font-size: 0.8125rem;
+  color: #505153;
+}
+
+/* ================= MODAL ================= */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.15s;
+}
+
+.modalClose:hover {
+  background: #f3f4f6;
+  color: #151d30;
+}
+
+.modalBody {
+  padding: 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalLoading {
+  text-align: center;
+  padding: 32px;
+  color: #6b7280;
+  font-size: 0.9375rem;
+}
+
+.modalEmpty {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+}
+
+/* Partner list */
+.partnerList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.partnerItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid #9f8d70;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.partnerItem:hover {
+  border-color: #9f8d70;
+  background: #e5d2b5;
+}
+
+.partnerItemSelected {
+  border-color: #9f8d70;
+  background: #fcecd3;
+}
+
+.partnerAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #cfb58c;
+  color: #a87016;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.partnerItemDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.partnerName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.partnerEmail {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.partnerPhone {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.partnerCheck {
+  color: #9f8d70;
+  flex-shrink: 0;
+}
+
+.currentBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #ffefd6;
+  color: #166534;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* Modal footer */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.modalCancelBtn {
+  padding: 10px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.modalCancelBtn:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.modalCancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modalConfirmBtn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #0F172A;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.modalConfirmBtn:hover:not(:disabled) {
+  background: #0F172A;
+}
+
+.modalConfirmBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Discount row color */
+.discountRow span {
+  color: #16a34a !important;
+}
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
   .content {
