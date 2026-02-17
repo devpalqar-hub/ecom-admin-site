@@ -7,6 +7,8 @@ import { generateInvoice } from "../../utils/generateInvoice";
 import api from "../../services/api";
 import ConfirmModal from "@/components/confirmModal/ConfirmModal";
 
+
+
 interface TrackingHistory {
   status: string;
   notes: string;
@@ -127,6 +129,18 @@ export default function OrderDetails() {
   } | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+
+  const formatStatus = (status: string) => {
+  if (!status) return "";
+  
+  return status
+    .replace(/_/g, " ")               // replace ALL underscores
+    .toLowerCase()                    // normalize
+    .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize words
+};
+
+
+
   const FRONTEND_TO_BACKEND_STATUS: Record<string, string> = {
     order_placed: "order_placed",
     processing: "processing",
@@ -138,7 +152,8 @@ export default function OrderDetails() {
     failed_delivery: "failed_delivery",
     returned: "returned",
   };
-
+  
+  
   const ALLOWED_TRANSITIONS: Record<string, string[]> = {
     order_placed: ["processing", "failed_delivery"],
     processing: ["ready_to_ship", "failed_delivery"],
@@ -151,6 +166,18 @@ export default function OrderDetails() {
     cancelled: [],
     returned: [],
   };
+  const STATUS_FLOW = [
+  "order_placed",
+  "processing",
+  "ready_to_ship",
+  "shipped",
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+  "returned"
+];
+
 
   /* ================= E-COMMERCE VALIDATIONS ================= */
   const validateStatusChange = (
@@ -202,8 +229,37 @@ export default function OrderDetails() {
     if (nextStatus === "ready_to_ship") {
       return { isValid: true, requiresConfirmation: true, warningMessage: "Mark order as ready to ship?" };
     }
-    return { isValid: true, requiresConfirmation: true, warningMessage: `Change order status to "${nextStatus.replace(/_/g, " ")}"?` };
+
+    // Default: Allow with confirmation
+    return {
+      isValid: true,
+      requiresConfirmation: true,
+      warningMessage: `Change order status to "${nextStatus.replace(/_/g, " ")}"?`,
+    };
   };
+  const getRemainingStatuses = (currentStatus: string) => {
+  const index = STATUS_FLOW.indexOf(currentStatus);
+
+  if (index === -1) return [];
+
+  let futureStatuses = STATUS_FLOW.slice(index + 1);
+
+  // Special transitions
+  if (currentStatus === "out_for_delivery") {
+    futureStatuses.push("failed_delivery");
+  }
+
+  if (currentStatus === "delivered") {
+    futureStatuses.push("returned");
+  }
+
+  if (currentStatus === "failed_delivery") {
+    futureStatuses.push("out_for_delivery", "returned");
+  }
+
+  return futureStatuses;
+};
+
 
   /* ================= FETCH ORDER ================= */
   useEffect(() => {
@@ -284,10 +340,12 @@ export default function OrderDetails() {
   const executeStatusChange = async (newStatus: string) => {
     try {
       const backendStatus = FRONTEND_TO_BACKEND_STATUS[newStatus] || newStatus;
-      const notes = `Status changed to ${newStatus.replace(/_/g, " ")} by admin`;
+      const notes = `Status changed to ${formatStatus(newStatus)} by admin`;
+
+      
       const updated = await updateTrackingStatus(order.id, backendStatus, notes);
       setTracking(updated);
-      showToast(`Order status updated to ${newStatus.replace(/_/g, " ")}`, "success");
+      showToast(`Order status updated to ${formatStatus(newStatus)}`, "success");
     } catch (err: any) {
       showToast(err.response?.data?.message || "Failed to update order status", "error");
     } finally {
@@ -348,9 +406,8 @@ export default function OrderDetails() {
 
   const currentStatus = tracking?.status;
   const allowedNextStatuses =
-    currentStatus && ALLOWED_TRANSITIONS[currentStatus]
-      ? ALLOWED_TRANSITIONS[currentStatus]
-      : [];
+  currentStatus ? getRemainingStatuses(currentStatus) : [];
+
   const isFinalState =
     currentStatus === "delivered" ||
     currentStatus === "cancelled" ||
@@ -534,9 +591,10 @@ export default function OrderDetails() {
                   </div>
                   <div className={styles.trackingDetail}>
                     <label>Status</label>
-                    <span className={styles.statusBadge}>
-                      {tracking.status.replace(/_/g, " ")}
-                    </span>
+                    <p className={styles.statusBadge}>
+                      {formatStatus(tracking.status)}
+
+                    </p>
                   </div>
                 </div>
 
@@ -553,7 +611,9 @@ export default function OrderDetails() {
 
                 {isFinalState && (
                   <div className={styles.lockedNotice}>
-                    ⚠️ Order is in final state: {currentStatus?.replace(/_/g, " ")}
+                    ⚠️ Order is in final state: {formatStatus(currentStatus || "")}
+
+
                   </div>
                 )}
 
@@ -565,12 +625,14 @@ export default function OrderDetails() {
                     onChange={(e) => handleStatusChangeRequest(e.target.value)}
                     disabled={isFinalState && currentStatus !== "delivered"}
                   >
-                    <option value="" disabled>
-                      {tracking.status.replace(/_/g, " ")} (current)
+                    <option value={tracking.status}>
+                      {formatStatus(tracking.status)} (Current)
+
                     </option>
                     {allowedNextStatuses.map((status) => (
                       <option key={status} value={status}>
-                        {status.replace(/_/g, " ")}
+                        {formatStatus(status)}
+
                       </option>
                     ))}
                   </select>
@@ -586,7 +648,7 @@ export default function OrderDetails() {
                       <div key={i} className={styles.timelineItem}>
                         <div className={styles.timelineMarker} />
                         <div className={styles.timelineContent}>
-                          <h4>{h.status.replace(/_/g, " ")}</h4>
+                          <h4>{formatStatus(h.status)}</h4>
                           <p>{h.notes}</p>
                           <span className={styles.timelineDate}>
                             {new Date(h.timestamp).toLocaleString()}
