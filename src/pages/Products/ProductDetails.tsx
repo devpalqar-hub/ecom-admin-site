@@ -26,6 +26,16 @@ interface Product {
   isStock: boolean;
   isFeatured: boolean;
   createdAt: string;
+
+  variationTitle?: string;   // 👈 ADD HERE
+  variations?: {              // 👈 ADD HERE
+    id: string;
+    variationName: string;
+    actualPrice: string;
+    discountedPrice: string;
+    stockCount: number;
+    isAvailable: boolean;
+  }[];
   images: { id: string; url: string; isMain?: boolean }[];
   subCategory?: {
     name: string;
@@ -210,6 +220,20 @@ export default function ProductDetails() {
       </p>
 
       <p className={styles.desc}>{product.description}</p>
+        {/* ===== VARIATIONS DISPLAY ===== */}
+        {product.variationTitle && product.variations?.length ? (
+          <div className={styles.variationBlock}>
+            <h4>{product.variationTitle}</h4>
+
+            <div className={styles.variationOptions}>
+              {product.variations.map((v) => (
+                <span key={v.id} className={styles.variationTag}>
+                  {v.variationName}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
       <p className={styles.stock}>
         Stock Available: <strong>{product.stockCount}</strong>

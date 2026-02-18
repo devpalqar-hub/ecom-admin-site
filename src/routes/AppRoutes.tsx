@@ -21,6 +21,11 @@ import Customers from "../pages/customers/Customers";
 import Coupons from "../pages/coupons/Coupons";
 import Banners from "../pages/banner/Banner";
 import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
+import DeliveryPartners from "@/pages/Deliverypartners/DeliveryPartners";
+import DeliveryPartnerDetail from "@/pages/Deliverypartners/DeliveryPartnerDetail";
+import MobileLogin from "@/pages/mobile-login/MobileLogin";
+import ReturnedItems from "@/pages/ReturnedItems/ReturnedItems";
+import ReturnedItemDetails from "@/pages/ReturnedItems/details/ReturnedItemDetails";
 
 export default function AppRoutes() {
   return (
@@ -30,7 +35,7 @@ export default function AppRoutes() {
 
       {/* PUBLIC */}
       <Route path="/login" element={<Login />} />
-
+      <Route path="/mobile/:token" element={<MobileLogin />} />
       {/* ADMIN LAYOUT */}
       <Route
         path="/"
@@ -43,13 +48,17 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="products/add" element={<AddProduct />} />
-         <Route path="products/:id" element={<ProductDetails />} />
+        <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="categories" element={<Categories />} />
         <Route path="categories/add" element={<AddCategory />} />
         <Route path="subcategories" element={<SubCategories />} /> 
         <Route path="subcategories/add" element={<AddSubCategory />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
+
+        <Route path="/returned-items" element={<ReturnedItems />} />
+        <Route path="/returned-items/:returnId" element={<ReturnedItemDetails />} />
+        
         <Route path="/products/edit/:id" element={<EditProduct />} />
         <Route path="/categories/edit/:id" element={<EditCategory/>} />
         <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
@@ -58,6 +67,8 @@ export default function AppRoutes() {
         <Route path="coupons" element={<Coupons />} />   
         <Route path="banners" element={<Banners/>} />
         <Route path="deliveryCharges" element={<DeliveryCharges/>} />
+        <Route path="deliveryPartner" element={<DeliveryPartners/>} />
+        <Route path="deliveryPartner/:id" element={<DeliveryPartnerDetail/>} />
       </Route>
 
       {/* FALLBACK */}
