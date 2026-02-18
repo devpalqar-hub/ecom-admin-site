@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logout } from "@/utils/logout";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -18,17 +19,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isAuthCheck = error.config?.url?.includes("/auth/me");
-
-    if (error.response?.status === 401 && !isAuthCheck) {
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("adminUser");
-      window.location.href = "/login";
+    if (error.response?.status === 401) {
+      logout();
     }
-
     return Promise.reject(error);
   }
 );
-
 
 export default api;
