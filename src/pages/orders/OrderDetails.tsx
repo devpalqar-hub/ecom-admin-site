@@ -7,8 +7,6 @@ import { generateInvoice } from "../../utils/generateInvoice";
 import api from "../../services/api";
 import ConfirmModal from "@/components/confirmModal/ConfirmModal";
 
-
-
 interface TrackingHistory {
   status: string;
   notes: string;
@@ -85,16 +83,22 @@ const assignDeliveryPartner = async (
   const res = await api.patch(`/orders/${orderId}/assign-delivery-partner`, {
     deliveryPartnerId,
   });
-  return res.data.data.data; 
+  return res.data.data.data;
 };
 
-/* ================= VALIDATION TYPES ================= */
-interface ValidationResult {
-  isValid: boolean;
-  message?: string;
-  requiresConfirmation?: boolean;
-  warningMessage?: string;
-}
+/* ================= ALL POSSIBLE STATUSES ================= */
+const ALL_STATUSES = [
+  "order_placed",
+  "processing",
+  "ready_to_ship",
+  "shipped",
+  "in_transit",
+  "out_for_delivery",
+  "delivered",
+  "failed_delivery",
+  "cancelled",
+  "returned",
+];
 
 /* ================= COMPONENT ================= */
 export default function OrderDetails() {
@@ -121,145 +125,17 @@ export default function OrderDetails() {
   const [assignLoading, setAssignLoading] = useState(false);
   const [partnersLoading, setPartnersLoading] = useState(false);
 
-  // Modal states
+  // Status change confirm
   const [showStatusChangeConfirm, setShowStatusChangeConfirm] = useState(false);
-  const [pendingStatusChange, setPendingStatusChange] = useState<{
-    status: string;
-    validation: ValidationResult;
-  } | null>(null);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-
+  const [pendingStatus, setPendingStatus] = useState<string>("");
 
   const formatStatus = (status: string) => {
-  if (!status) return "";
-  
-  return status
-    .replace(/_/g, " ")               // replace ALL underscores
-    .toLowerCase()                    // normalize
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize words
-};
-
-
-
-  const FRONTEND_TO_BACKEND_STATUS: Record<string, string> = {
-    order_placed: "order_placed",
-    processing: "processing",
-    ready_to_ship: "ready_to_ship",
-    shipped: "shipped",
-    in_transit: "in_transit",
-    out_for_delivery: "out_for_delivery",
-    delivered: "delivered",
-    failed_delivery: "failed_delivery",
-    returned: "returned",
+    if (!status) return "";
+    return status
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   };
-  
-  
-  const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-    order_placed: ["processing", "failed_delivery"],
-    processing: ["ready_to_ship", "failed_delivery"],
-    ready_to_ship: ["shipped", "failed_delivery"],
-    shipped: ["in_transit", "failed_delivery"],
-    in_transit: ["out_for_delivery", "failed_delivery"],
-    out_for_delivery: ["delivered", "failed_delivery"],
-    delivered: ["returned"],
-    failed_delivery: ["returned", "out_for_delivery"],
-    cancelled: [],
-    returned: [],
-  };
-  const STATUS_FLOW = [
-  "order_placed",
-  "processing",
-  "ready_to_ship",
-  "shipped",
-  "in_transit",
-  "out_for_delivery",
-  "delivered",
-  "cancelled",
-  "returned"
-];
-
-
-  /* ================= E-COMMERCE VALIDATIONS ================= */
-  const validateStatusChange = (
-    currentStatus: string,
-    nextStatus: string,
-    orderData: any,
-    trackingData: TrackingDetails | null
-  ): ValidationResult => {
-    const allowedStatuses = ALLOWED_TRANSITIONS[currentStatus] || [];
-    if (!allowedStatuses.includes(nextStatus)) {
-      return {
-        isValid: false,
-        message: `Cannot change status from "${currentStatus.replace(/_/g, " ")}" to "${nextStatus.replace(/_/g, " ")}". This transition is not allowed.`,
-      };
-    }
-    if (currentStatus === "delivered" && nextStatus !== "returned") {
-      return { isValid: false, message: "Delivered orders can only be marked as returned." };
-    }
-    if (currentStatus === "cancelled") {
-      return { isValid: false, message: "Cancelled orders cannot be modified." };
-    }
-    if (nextStatus === "shipped") {
-      if (!trackingData?.trackingNumber) {
-        return { isValid: false, message: "Cannot mark as shipped: Tracking number is required." };
-      }
-      if (!trackingData.carrier) {
-        return { isValid: false, message: "Cannot mark as shipped: Carrier information is required." };
-      }
-      return {
-        isValid: true, requiresConfirmation: true,
-        warningMessage: `Mark order as shipped with ${trackingData.carrier} (${trackingData.trackingNumber})?`,
-      };
-    }
-    if (nextStatus === "out_for_delivery") {
-      return { isValid: true, requiresConfirmation: true, warningMessage: "Mark order as out for delivery? Customer will be notified." };
-    }
-    if (nextStatus === "delivered") {
-      return { isValid: true, requiresConfirmation: true, warningMessage: "Confirm order delivery? This action is final." };
-    }
-    if (nextStatus === "returned") {
-      return { isValid: true, requiresConfirmation: true, warningMessage: "Process return for this order?" };
-    }
-    if (nextStatus === "failed_delivery") {
-      return { isValid: true, requiresConfirmation: true, warningMessage: "Mark delivery as failed?" };
-    }
-    if (nextStatus === "processing" && orderData.paymentStatus !== "paid" && orderData.paymentMethod !== "cash_on_delivery") {
-      return { isValid: false, message: "Cannot process order: Payment not confirmed." };
-    }
-    if (nextStatus === "ready_to_ship") {
-      return { isValid: true, requiresConfirmation: true, warningMessage: "Mark order as ready to ship?" };
-    }
-
-    // Default: Allow with confirmation
-    return {
-      isValid: true,
-      requiresConfirmation: true,
-      warningMessage: `Change order status to "${nextStatus.replace(/_/g, " ")}"?`,
-    };
-  };
-  const getRemainingStatuses = (currentStatus: string) => {
-  const index = STATUS_FLOW.indexOf(currentStatus);
-
-  if (index === -1) return [];
-
-  let futureStatuses = STATUS_FLOW.slice(index + 1);
-
-  // Special transitions
-  if (currentStatus === "out_for_delivery") {
-    futureStatuses.push("failed_delivery");
-  }
-
-  if (currentStatus === "delivered") {
-    futureStatuses.push("returned");
-  }
-
-  if (currentStatus === "failed_delivery") {
-    futureStatuses.push("out_for_delivery", "returned");
-  }
-
-  return futureStatuses;
-};
-
 
   /* ================= FETCH ORDER ================= */
   useEffect(() => {
@@ -321,48 +197,34 @@ export default function OrderDetails() {
     }
   };
 
-  /* ================= EVENT HANDLERS ================= */
+  /* ================= STATUS CHANGE HANDLERS ================= */
   const handleStatusChangeRequest = (newStatus: string) => {
-    if (!tracking) return;
-    const validation = validateStatusChange(tracking.status, newStatus, order, tracking);
-    if (!validation.isValid) {
-      showToast(validation.message || "Invalid status change", "error");
+    if (!tracking || !newStatus || newStatus === tracking.status) return;
+
+    // Only restriction: "returned" is only allowed from "delivered"
+    if (newStatus === "returned" && tracking.status !== "delivered") {
+      showToast(
+        "Only delivered orders can be marked as returned.",
+        "error"
+      );
       return;
     }
-    if (validation.requiresConfirmation) {
-      setPendingStatusChange({ status: newStatus, validation });
-      setShowStatusChangeConfirm(true);
-    } else {
-      executeStatusChange(newStatus);
-    }
+
+    setPendingStatus(newStatus);
+    setShowStatusChangeConfirm(true);
   };
 
   const executeStatusChange = async (newStatus: string) => {
     try {
-      const backendStatus = FRONTEND_TO_BACKEND_STATUS[newStatus] || newStatus;
       const notes = `Status changed to ${formatStatus(newStatus)} by admin`;
-
-      
-      const updated = await updateTrackingStatus(order.id, backendStatus, notes);
+      const updated = await updateTrackingStatus(order.id, newStatus, notes);
       setTracking(updated);
       showToast(`Order status updated to ${formatStatus(newStatus)}`, "success");
     } catch (err: any) {
       showToast(err.response?.data?.message || "Failed to update order status", "error");
     } finally {
       setShowStatusChangeConfirm(false);
-      setPendingStatusChange(null);
-    }
-  };
-
-  const handleResetTracking = async () => {
-    try {
-      const resetData = await resetOrderTracking(order.id);
-      setTracking(resetData);
-      showToast("Order tracking has been reset to initial state", "success");
-    } catch (err: any) {
-      showToast(err.response?.data?.message || "Failed to reset order tracking", "error");
-    } finally {
-      setShowResetConfirm(false);
+      setPendingStatus("");
     }
   };
 
@@ -405,15 +267,9 @@ export default function OrderDetails() {
   const finalTotal = subtotalAfterDiscount + shippingCost + taxAmount;
 
   const currentStatus = tracking?.status;
-  const allowedNextStatuses =
-  currentStatus ? getRemainingStatuses(currentStatus) : [];
 
-  const isFinalState =
-    currentStatus === "delivered" ||
-    currentStatus === "cancelled" ||
-    currentStatus === "returned";
-  const canResetTracking =
-    tracking && !["delivered", "cancelled", "returned"].includes(tracking.status);
+  // All statuses except the current one are available
+  const availableStatuses = ALL_STATUSES.filter((s) => s !== currentStatus);
 
   /* ================= UI ================= */
   return (
@@ -593,7 +449,6 @@ export default function OrderDetails() {
                     <label>Status</label>
                     <p className={styles.statusBadge}>
                       {formatStatus(tracking.status)}
-
                     </p>
                   </div>
                 </div>
@@ -609,36 +464,22 @@ export default function OrderDetails() {
                   </a>
                 )}
 
-                {isFinalState && (
-                  <div className={styles.lockedNotice}>
-                    ⚠️ Order is in final state: {formatStatus(currentStatus || "")}
-
-
-                  </div>
-                )}
-
                 <div className={styles.statusUpdate}>
                   <label>Update Order Status</label>
                   <select
                     className={styles.statusSelect}
                     value=""
                     onChange={(e) => handleStatusChangeRequest(e.target.value)}
-                    disabled={isFinalState && currentStatus !== "delivered"}
                   >
-                    <option value={tracking.status}>
+                    <option value="">
                       {formatStatus(tracking.status)} (Current)
-
                     </option>
-                    {allowedNextStatuses.map((status) => (
+                    {availableStatuses.map((status) => (
                       <option key={status} value={status}>
                         {formatStatus(status)}
-
                       </option>
                     ))}
                   </select>
-                  {allowedNextStatuses.length === 0 && !isFinalState && (
-                    <p className={styles.noTransitions}>No status transitions available</p>
-                  )}
                 </div>
 
                 <div className={styles.timeline}>
@@ -810,25 +651,12 @@ export default function OrderDetails() {
       <ConfirmModal
         open={showStatusChangeConfirm}
         title="Confirm Status Change"
-        message={pendingStatusChange?.validation.warningMessage || ""}
+        message={`Change order status to "${formatStatus(pendingStatus)}"?`}
         onCancel={() => {
           setShowStatusChangeConfirm(false);
-          setPendingStatusChange(null);
+          setPendingStatus("");
         }}
-        onConfirm={() => {
-          if (pendingStatusChange) {
-            executeStatusChange(pendingStatusChange.status);
-          }
-        }}
-      />
-
-      {/* RESET CONFIRMATION MODAL */}
-      <ConfirmModal
-        open={showResetConfirm}
-        title="Reset Tracking"
-        message="Are you sure you want to reset this order's tracking to its initial state?"
-        onCancel={() => setShowResetConfirm(false)}
-        onConfirm={handleResetTracking}
+        onConfirm={() => executeStatusChange(pendingStatus)}
       />
     </div>
   );
