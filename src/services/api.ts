@@ -18,13 +18,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthCheck = error.config?.url?.includes("/auth/me");
+
+    if (error.response?.status === 401 && !isAuthCheck) {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminUser");
       window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );
+
 
 export default api;
