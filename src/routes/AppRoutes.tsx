@@ -24,6 +24,8 @@ import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
 import DeliveryPartners from "@/pages/Deliverypartners/DeliveryPartners";
 import DeliveryPartnerDetail from "@/pages/Deliverypartners/DeliveryPartnerDetail";
 import MobileLogin from "@/pages/mobile-login/MobileLogin";
+import ReturnedItems from "@/pages/ReturnedItems/ReturnedItems";
+import ReturnedItemDetails from "@/pages/ReturnedItems/details/ReturnedItemDetails";
 
 export default function AppRoutes() {
   return (
@@ -53,6 +55,10 @@ export default function AppRoutes() {
         <Route path="subcategories" element={<SubCategories />} /> 
         <Route path="subcategories/add" element={<AddSubCategory />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
+
+        <Route path="/returned-items" element={<ReturnedItems />} />
+        <Route path="/returned-items/:returnId" element={<ReturnedItemDetails />} />
+        
         <Route path="/products/edit/:id" element={<EditProduct />} />
         <Route path="/categories/edit/:id" element={<EditCategory/>} />
         <Route path="/subcategories/edit/:id" element={<EditSubCategory />} />
