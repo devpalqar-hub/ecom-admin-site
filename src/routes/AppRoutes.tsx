@@ -23,6 +23,7 @@ import Banners from "../pages/banner/Banner";
 import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
 import DeliveryPartners from "@/pages/Deliverypartners/DeliveryPartners";
 import DeliveryPartnerDetail from "@/pages/Deliverypartners/DeliveryPartnerDetail";
+import MobileLogin from "@/pages/mobile-login/MobileLogin";
 
 export default function AppRoutes() {
   return (
@@ -32,7 +33,7 @@ export default function AppRoutes() {
 
       {/* PUBLIC */}
       <Route path="/login" element={<Login />} />
-
+      <Route path="/mobile/:token" element={<MobileLogin />} />
       {/* ADMIN LAYOUT */}
       <Route
         path="/"
