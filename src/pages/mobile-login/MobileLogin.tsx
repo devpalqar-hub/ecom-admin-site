@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { logout } from "@/utils/logout";
 
 export default function MobileLogin() {
   const { token } = useParams();
@@ -7,17 +8,14 @@ export default function MobileLogin() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login", { replace: true });
+      logout();
       return;
     }
 
-    // store token
     localStorage.setItem("adminToken", token);
 
-    // remove token from URL (VERY IMPORTANT)
     window.history.replaceState({}, document.title, "/mobile-auth");
 
-    // go to dashboard
     navigate("/dashboard", { replace: true });
 
   }, [token, navigate]);

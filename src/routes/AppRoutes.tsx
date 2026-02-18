@@ -46,7 +46,7 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="products/add" element={<AddProduct />} />
-         <Route path="products/:id" element={<ProductDetails />} />
+        <Route path="products/:id" element={<ProductDetails />} />
         <Route path="orders" element={<Orders />} />
         <Route path="categories" element={<Categories />} />
         <Route path="categories/add" element={<AddCategory />} />
