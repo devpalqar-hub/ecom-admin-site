@@ -4,6 +4,7 @@ import api from "../../services/api";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
+import { GiPriceTag } from "react-icons/gi";
 
 export default function CreateProduct() {
  
@@ -277,13 +278,21 @@ const handleCreateProduct = async () => {
 
     /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
     if (variationsEnabled) {
-      const payloadVariations = variations.map((v) => ({
-        variationName: v.variationName,
-        price: Number(v.price),
-        discountedPrice: Number(v.discountedPrice) || null,
-        stockCount: Number(v.stockCount),
-        isAvailable: v.isAvailable,
-      }));
+      const payloadVariations = variations.map((v) => {
+        const price = Number(v.price);
+        const discounted =
+          v.discountedPrice === "" || v.discountedPrice === null
+            ? price
+            : Number(v.discountedPrice);
+
+        return {
+          variationName: v.variationName,
+          price: price,
+          discountedPrice: discounted,
+          stockCount: Number(v.stockCount),
+          isAvailable: v.isAvailable,
+        };
+      });
 
       formData.append("variations", JSON.stringify(payloadVariations));
     }
