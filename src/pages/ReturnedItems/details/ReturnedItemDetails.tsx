@@ -2,7 +2,7 @@ import styles from "./ReturnedItemDetails.module.css";
 import {
   FiArrowLeft,
   FiUser,
-  FiEdit2,
+  // FiEdit2,
   FiX,
   FiCheck,
   FiPackage,
@@ -100,10 +100,10 @@ const getReturnById = async (id: string) => {
   return res.data.data as ReturnDetail;
 };
 
-const getAllDeliveryPartners = async () => {
-  const res = await api.get("/delivery-partners");
-  return res.data.data as DeliveryPartner[];
-};
+// const getAllDeliveryPartners = async () => {
+//   const res = await api.get("/delivery-partners");
+//   return res.data.data as DeliveryPartner[];
+// };
 
 /* ---------------- FORMAT HELPERS ---------------- */
 const formatStatus = (s: string) =>
@@ -198,18 +198,18 @@ export default function ReturnedItemDetails() {
   };
 
   /* ---------------- DELIVERY PARTNER HANDLERS ---------------- */
-  const openAssignModal = async () => {
-    setShowAssignModal(true);
-    setPartnersLoading(true);
-    try {
-      const partners = await getAllDeliveryPartners();
-      setDeliveryPartners(partners);
-    } catch {
-      showToast("Failed to load delivery partners", "error");
-    } finally {
-      setPartnersLoading(false);
-    }
-  };
+  // const openAssignModal = async () => {
+  //   setShowAssignModal(true);
+  //   setPartnersLoading(true);
+  //   try {
+  //     const partners = await getAllDeliveryPartners();
+  //     setDeliveryPartners(partners);
+  //   } catch {
+  //     showToast("Failed to load delivery partners", "error");
+  //   } finally {
+  //     setPartnersLoading(false);
+  //   }
+  // };
 
   const handleAssignPartner = async () => {
     if (!selectedPartnerId) {
@@ -279,12 +279,12 @@ export default function ReturnedItemDetails() {
             {formatStatus(returnData.status)}
           </span>
 
-          {!isFinalStatus && (
+          {/* {!isFinalStatus && (
             <button className={styles.editStatusBtn} onClick={openStatusModal}>
               <FiEdit2 size={14} />
               Edit Status
             </button>
-          )}
+          )} */}
         </div>
       </div>
 

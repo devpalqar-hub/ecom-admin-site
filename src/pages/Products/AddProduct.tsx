@@ -267,12 +267,15 @@ const handleCreateProduct = async () => {
     formData.append("description", description);
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
-    formData.append("discountedPrice", discountedPrice);
+    const finalDiscount =
+      discountedPrice === "" || discountedPrice === null || discountedPrice === " "
+      ? actualPrice 
+      : discountedPrice
+    formData.append("discountedPrice", finalDiscount);
     formData.append("subCategoryId", selectedSubCategory);
     formData.append("isFeatured", String(isFeatured));
     formData.append("isStock", String(isStock));
     formData.append("variationTitle", variationTitle);
-
 
 
     /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
