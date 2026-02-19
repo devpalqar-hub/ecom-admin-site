@@ -588,7 +588,74 @@ tbody tr:hover {
 .confirmDeleteBtn:hover {
   opacity: 0.9;
 }
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
 
+.sectionHeader h3 {
+  margin: 0;
+}
+
+/* Date picker group */
+.dateFilterBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dateFilterGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dateFilterGroup label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.dateFilterGroup input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dateFilterGroup input[type="date"]:focus {
+  border-color: #6366f1;
+}
+
+/* Clear button */
+.clearDateBtn {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.clearDateBtn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
 /* ================= TABLET ================= */
 @media (max-width: 1024px) {
   .stats {
