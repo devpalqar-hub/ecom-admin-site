@@ -87,8 +87,6 @@ export default function DeliveryPartners() {
           const res = await api.get("/delivery-partners/analytics/stats", {
             params: {
               partnerId: partner.id,
-              startDate,
-              endDate,
             },
           });
 

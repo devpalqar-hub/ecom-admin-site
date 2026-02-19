@@ -4,7 +4,6 @@ import api from "../../services/api";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
-import { GiPriceTag } from "react-icons/gi";
 
 export default function CreateProduct() {
  
