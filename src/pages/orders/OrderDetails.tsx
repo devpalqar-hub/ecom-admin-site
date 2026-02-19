@@ -1,5 +1,5 @@
 import styles from "./OrderDetails.module.css";
-import { FiArrowLeft, FiDownload, FiPrinter, FiEdit2, FiUser, FiX, FiCheck } from "react-icons/fi";
+import { FiArrowLeft, FiDownload, FiPrinter, FiEdit2, FiUser, FiX, FiCheck, FiAlertTriangle } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "../../components/toast/ToastContext";
@@ -66,11 +66,6 @@ const updateTrackingStatus = async (
   return res.data.data.tracking;
 };
 
-const resetOrderTracking = async (orderId: string) => {
-  const res = await api.post(`/tracking/order/${orderId}/reset`);
-  return res.data.data;
-};
-
 const getAllDeliveryPartners = async () => {
   const res = await api.get(`/delivery-partners`);
   return res.data.data as DeliveryPartner[];
@@ -99,6 +94,118 @@ const ALL_STATUSES = [
   "cancelled",
   "returned",
 ];
+
+/* ================= RETURN STATUS PILL ================= */
+const RETURN_STATUS_MAP: Record<string, { bg: string; color: string; label: string }> = {
+  pending:   { bg: "#fef3c7", color: "#92400e", label: "Return Pending" },
+  approved:  { bg: "#d1fae5", color: "#065f46", label: "Return Approved" },
+  rejected:  { bg: "#fee2e2", color: "#991b1b", label: "Return Rejected" },
+  completed: { bg: "#e0e7ff", color: "#3730a3", label: "Return Completed" },
+};
+
+function ReturnStatusPill({ status }: { status: string }) {
+  const s = RETURN_STATUS_MAP[status] ?? { bg: "#f3f4f6", color: "#374151", label: status };
+  return (
+    <span className={styles.returnStatusPill} style={{ background: s.bg, color: s.color }}>
+      {s.label}
+    </span>
+  );
+}
+
+/* ================= RETURN MODAL ================= */
+interface ReturnModalProps {
+  mode: "item" | "order";
+  item?: any;
+  onConfirm: (reason: string) => Promise<void>;
+  onClose: () => void;
+}
+
+function ReturnModal({ mode, item, onConfirm, onClose }: ReturnModalProps) {
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleConfirm = async () => {
+    if (!reason.trim()) { setError("Please provide a reason for the return."); return; }
+    setLoading(true);
+    setError("");
+    try {
+      await onConfirm(reason.trim());
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to process return. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const isOrder = mode === "order";
+  const mainImage = item?.product?.images?.find((i: any) => i.isMain)?.url
+    ?? item?.product?.images?.[0]?.url;
+
+  return (
+    <div className={styles.returnModalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.returnModal}>
+        {/* Header */}
+        <div className={styles.returnModalHeader}>
+          <div className={styles.returnModalHeaderLeft}>
+            <div className={styles.returnWarningIcon}><FiAlertTriangle size={20} /></div>
+            <div>
+              <h3>{isOrder ? "Return Entire Order" : "Return Item"}</h3>
+              <p>{isOrder ? "This will mark all items as returned" : item?.product?.name}</p>
+            </div>
+          </div>
+          <button className={styles.returnModalClose} onClick={onClose} disabled={loading}>
+            <FiX size={18} />
+          </button>
+        </div>
+
+        {/* Warning banner */}
+        <div className={styles.returnWarningBanner}>
+          <FiAlertTriangle size={14} />
+          <span>
+            {isOrder
+              ? "This action is irreversible. The entire order will be marked as returned and cannot be undone."
+              : "This action is irreversible. Once returned, this item cannot be reverted back."}
+          </span>
+        </div>
+
+        {/* Item preview */}
+        {!isOrder && item && (
+          <div className={styles.returnItemPreview}>
+            {mainImage && (
+              <img src={mainImage} alt={item.product?.name} className={styles.returnItemImg} />
+            )}
+            <div className={styles.returnItemMeta}>
+              <span className={styles.returnItemName}>{item.product?.name}</span>
+              <span className={styles.returnItemQty}>Qty: {item.quantity}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Reason */}
+        <div className={styles.returnField}>
+          <label>Reason for Return <span>*</span></label>
+          <textarea
+            className={styles.returnTextarea}
+            rows={3}
+            placeholder={isOrder ? "Describe why this order is being returned..." : "Describe why this item is being returned..."}
+            value={reason}
+            onChange={(e) => { setReason(e.target.value); setError(""); }}
+            disabled={loading}
+          />
+          {error && <p className={styles.returnError}>{error}</p>}
+        </div>
+
+        {/* Actions */}
+        <div className={styles.returnModalActions}>
+          <button className={styles.returnCancelBtn} onClick={onClose} disabled={loading}>Cancel</button>
+          <button className={styles.returnConfirmBtn} onClick={handleConfirm} disabled={loading}>
+            {loading ? "Processing..." : isOrder ? "Return Entire Order" : "Confirm Return"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ================= COMPONENT ================= */
 export default function OrderDetails() {
@@ -129,39 +236,70 @@ export default function OrderDetails() {
   const [showStatusChangeConfirm, setShowStatusChangeConfirm] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string>("");
 
+  // Return modal state
+  const [returnModal, setReturnModal] = useState<{ mode: "item" | "order"; item?: any } | null>(null);
+
   const formatStatus = (status: string) => {
     if (!status) return "";
-    return status
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   /* ================= FETCH ORDER ================= */
-  useEffect(() => {
+  const fetchOrder = async () => {
     if (!orderId) return;
-    const fetchOrder = async () => {
-      try {
-        const data = await getOrderById(orderId);
-        setOrder(data);
-        setTracking(data.tracking ?? null);
-        setDeliveryPartner(data.deliveryPartner ?? null);
-        if (data.deliveryPartner) setSelectedPartnerId(data.deliveryPartner.id);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load order");
-      } finally {
-        setLoading(false);
-      }
-      try {
-        const trackingData = await getTrackingByOrderId(orderId);
-        setTracking(trackingData);
-      } catch {
-        setTracking(null);
-      }
-    };
+    try {
+      const data = await getOrderById(orderId);
+      setOrder(data);
+      setTracking(data.tracking ?? null);
+      setDeliveryPartner(data.deliveryPartner ?? null);
+      if (data.deliveryPartner) setSelectedPartnerId(data.deliveryPartner.id);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load order");
+    } finally {
+      setLoading(false);
+    }
+    try {
+      const trackingData = await getTrackingByOrderId(orderId);
+      setTracking(trackingData);
+    } catch {
+      setTracking(null);
+    }
+  };
+
+  useEffect(() => {
     fetchOrder();
   }, [orderId]);
+
+  /* ================= RETURN HANDLER ================= */
+  const handleReturn = async (mode: "item" | "order", item: any, reason: string) => {
+    const payload =
+      mode === "order"
+        ? {
+            orderId: order.id,
+            returnType: "full",
+            reason,
+            items: order.items.map((i: any) => ({
+              orderItemId: i.id,
+              quantity: i.quantity,
+              reason,
+            })),
+          }
+        : {
+            orderId: order.id,
+            returnType: "partial",
+            reason,
+            items: [{ orderItemId: item.id, quantity: item.quantity, reason }],
+          };
+
+    await api.post("/returns/admin/direct-return", payload);
+    showToast(
+      mode === "order" ? "Order return initiated successfully" : "Item return initiated successfully",
+      "success"
+    );
+    setReturnModal(null);
+    fetchOrder(); // refetch to reflect updated isReturned / returnStatus
+  };
 
   /* ================= DELIVERY PARTNER HANDLERS ================= */
   const openAssignModal = async () => {
@@ -179,10 +317,7 @@ export default function OrderDetails() {
   };
 
   const handleAssignPartner = async () => {
-    if (!selectedPartnerId) {
-      showToast("Please select a delivery partner", "error");
-      return;
-    }
+    if (!selectedPartnerId) { showToast("Please select a delivery partner", "error"); return; }
     setAssignLoading(true);
     try {
       const updated = await assignDeliveryPartner(order.id, selectedPartnerId);
@@ -200,16 +335,10 @@ export default function OrderDetails() {
   /* ================= STATUS CHANGE HANDLERS ================= */
   const handleStatusChangeRequest = (newStatus: string) => {
     if (!tracking || !newStatus || newStatus === tracking.status) return;
-
-    // Only restriction: "returned" is only allowed from "delivered"
     if (newStatus === "returned" && tracking.status !== "delivered") {
-      showToast(
-        "Only delivered orders can be marked as returned.",
-        "error"
-      );
+      showToast("Only delivered orders can be marked as returned.", "error");
       return;
     }
-
     setPendingStatus(newStatus);
     setShowStatusChangeConfirm(true);
   };
@@ -267,9 +396,12 @@ export default function OrderDetails() {
   const finalTotal = subtotalAfterDiscount + shippingCost + taxAmount;
 
   const currentStatus = tracking?.status;
-
-  // All statuses except the current one are available
   const availableStatuses = ALL_STATUSES.filter((s) => s !== currentStatus);
+
+  // Return logic
+  const isDelivered = tracking?.status === "delivered";
+  const anyReturned = order.items.some((i: any) => i.isReturned);
+  const showFullReturnBtn = isDelivered && !anyReturned;
 
   /* ================= UI ================= */
   return (
@@ -282,22 +414,14 @@ export default function OrderDetails() {
           </button>
           <div>
             <h2 className={styles.title}>Order #{order.orderNumber}</h2>
-            <p className={styles.subtitle}>
-              {new Date(order.createdAt).toLocaleString()}
-            </p>
+            <p className={styles.subtitle}>{new Date(order.createdAt).toLocaleString()}</p>
           </div>
         </div>
         <div className={styles.headerRight}>
           <button className={styles.actionBtn} onClick={() => generateInvoice(order)}>
             <FiDownload size={15} /> Download Invoice
           </button>
-          <button
-            className={styles.actionBtn}
-            onClick={() => {
-              generateInvoice(order);
-              setTimeout(() => window.print(), 500);
-            }}
-          >
+          <button className={styles.actionBtn} onClick={() => { generateInvoice(order); setTimeout(() => window.print(), 500); }}>
             <FiPrinter size={15} /> Print
           </button>
         </div>
@@ -306,20 +430,31 @@ export default function OrderDetails() {
       <div className={styles.content}>
         {/* LEFT */}
         <div className={styles.left}>
-          {/* ORDER ITEMS */}
+
+          {/* ── ORDER ITEMS ── */}
           <div className={styles.card}>
-            <h3 className={styles.cardTitle}>Order Items</h3>
+            {/* Card header: title + full-order return */}
+            <div className={styles.itemsCardHeader}>
+              <h3 className={styles.cardTitle}>Order Items</h3>
+              {showFullReturnBtn && (
+                <button
+                  className={styles.returnOrderBtn}
+                  onClick={() => setReturnModal({ mode: "order" })}
+                >
+                  Return Entire Order
+                </button>
+              )}
+            </div>
+
             <div className={styles.items}>
               {order.items.map((item: any) => {
                 const product = item.product;
-                const image = product.images?.[0]?.url;
+                const mainImage = product.images?.find((img: any) => img.isMain)?.url
+                  ?? product.images?.[0]?.url;
+
                 return (
                   <div key={item.id} className={styles.item}>
-                    <img
-                      src={image}
-                      alt={product.name}
-                      className={styles.itemImage}
-                    />
+                    <img src={mainImage} alt={product.name} className={styles.itemImage} />
                     <div className={styles.itemDetails}>
                       <p className={styles.itemName}>{product.name}</p>
                       <p className={styles.itemSku}>SKU: {product.sku ?? "—"}</p>
@@ -327,8 +462,21 @@ export default function OrderDetails() {
                         QAR {product.discountedPrice} × {item.quantity}
                       </p>
                     </div>
-                    <div className={styles.itemTotal}>
-                      QAR {(Number(product.discountedPrice) * item.quantity).toFixed(2)}
+                    {/* Price + return action aligned right */}
+                    <div className={styles.itemRight}>
+                      <div className={styles.itemTotal}>
+                        QAR {(Number(product.discountedPrice) * item.quantity).toFixed(2)}
+                      </div>
+                      {item.isReturned ? (
+                        <ReturnStatusPill status={item.returnStatus} />
+                      ) : isDelivered ? (
+                        <button
+                          className={styles.returnItemBtn}
+                          onClick={() => setReturnModal({ mode: "item", item })}
+                        >
+                          Return Item
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -394,41 +542,19 @@ export default function OrderDetails() {
               <>
                 <div className={styles.noTracking}>
                   <p>Tracking not created for this order</p>
-                  <button
-                    className={styles.createBtn}
-                    onClick={() => setShowCreateTracking(!showCreateTracking)}
-                  >
+                  <button className={styles.createBtn} onClick={() => setShowCreateTracking(!showCreateTracking)}>
                     {showCreateTracking ? "Cancel" : "Create Tracking"}
                   </button>
                 </div>
                 {showCreateTracking && (
                   <div className={styles.trackingForm}>
-                    <input
-                      placeholder="Carrier (e.g. FedEx)"
-                      value={trackingForm.carrier}
-                      onChange={(e) =>
-                        setTrackingForm({ ...trackingForm, carrier: e.target.value })
-                      }
-                    />
-                    <input
-                      placeholder="Tracking Number"
-                      value={trackingForm.trackingNumber}
-                      onChange={(e) =>
-                        setTrackingForm({ ...trackingForm, trackingNumber: e.target.value })
-                      }
-                    />
-                    <input
-                      placeholder="Tracking URL (optional)"
-                      value={trackingForm.trackingUrl}
-                      onChange={(e) =>
-                        setTrackingForm({ ...trackingForm, trackingUrl: e.target.value })
-                      }
-                    />
-                    <button
-                      className={styles.saveBtn}
-                      onClick={handleCreateTracking}
-                      disabled={trackingLoading}
-                    >
+                    <input placeholder="Carrier (e.g. FedEx)" value={trackingForm.carrier}
+                      onChange={(e) => setTrackingForm({ ...trackingForm, carrier: e.target.value })} />
+                    <input placeholder="Tracking Number" value={trackingForm.trackingNumber}
+                      onChange={(e) => setTrackingForm({ ...trackingForm, trackingNumber: e.target.value })} />
+                    <input placeholder="Tracking URL (optional)" value={trackingForm.trackingUrl}
+                      onChange={(e) => setTrackingForm({ ...trackingForm, trackingUrl: e.target.value })} />
+                    <button className={styles.saveBtn} onClick={handleCreateTracking} disabled={trackingLoading}>
                       {trackingLoading ? "Creating..." : "Save Tracking"}
                     </button>
                   </div>
@@ -437,47 +563,26 @@ export default function OrderDetails() {
             ) : (
               <>
                 <div className={styles.trackingInfo}>
-                  <div className={styles.trackingDetail}>
-                    <label>Carrier</label>
-                    <p>{tracking.carrier}</p>
-                  </div>
-                  <div className={styles.trackingDetail}>
-                    <label>Tracking Number</label>
-                    <p>{tracking.trackingNumber}</p>
-                  </div>
+                  <div className={styles.trackingDetail}><label>Carrier</label><p>{tracking.carrier}</p></div>
+                  <div className={styles.trackingDetail}><label>Tracking Number</label><p>{tracking.trackingNumber}</p></div>
                   <div className={styles.trackingDetail}>
                     <label>Status</label>
-                    <p className={styles.statusBadge}>
-                      {formatStatus(tracking.status)}
-                    </p>
+                    <p className={styles.statusBadge}>{formatStatus(tracking.status)}</p>
                   </div>
                 </div>
 
                 {tracking.trackingUrl && (
-                  <a
-                    href={tracking.trackingUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={styles.trackingLink}
-                  >
+                  <a href={tracking.trackingUrl} target="_blank" rel="noreferrer" className={styles.trackingLink}>
                     View on carrier site →
                   </a>
                 )}
 
                 <div className={styles.statusUpdate}>
                   <label>Update Order Status</label>
-                  <select
-                    className={styles.statusSelect}
-                    value=""
-                    onChange={(e) => handleStatusChangeRequest(e.target.value)}
-                  >
-                    <option value="">
-                      {formatStatus(tracking.status)} (Current)
-                    </option>
+                  <select className={styles.statusSelect} value="" onChange={(e) => handleStatusChangeRequest(e.target.value)}>
+                    <option value="">{formatStatus(tracking.status)} (Current)</option>
                     {availableStatuses.map((status) => (
-                      <option key={status} value={status}>
-                        {formatStatus(status)}
-                      </option>
+                      <option key={status} value={status}>{formatStatus(status)}</option>
                     ))}
                   </select>
                 </div>
@@ -491,9 +596,7 @@ export default function OrderDetails() {
                         <div className={styles.timelineContent}>
                           <h4>{formatStatus(h.status)}</h4>
                           <p>{h.notes}</p>
-                          <span className={styles.timelineDate}>
-                            {new Date(h.timestamp).toLocaleString()}
-                          </span>
+                          <span className={styles.timelineDate}>{new Date(h.timestamp).toLocaleString()}</span>
                         </div>
                       </div>
                     ))
@@ -513,9 +616,7 @@ export default function OrderDetails() {
             <h3 className={styles.cardTitle}>Customer Information</h3>
             <strong>{order.shippingAddress?.name}</strong>
             <p>{order.shippingAddress?.phone}</p>
-            <p>
-              {order.shippingAddress?.address}, {order.shippingAddress?.city}
-            </p>
+            <p>{order.shippingAddress?.address}, {order.shippingAddress?.city}</p>
           </div>
 
           {/* DELIVERY PARTNER */}
@@ -530,18 +631,12 @@ export default function OrderDetails() {
 
             {deliveryPartner ? (
               <div className={styles.dpInfo}>
-                <div className={styles.dpAvatar}>
-                  <FiUser size={22} />
-                </div>
+                <div className={styles.dpAvatar}><FiUser size={22} /></div>
                 <div className={styles.dpDetails}>
-                  <strong className={styles.dpName}>
-                    {deliveryPartner.AdminProfile?.name ?? "—"}
-                  </strong>
+                  <strong className={styles.dpName}>{deliveryPartner.AdminProfile?.name ?? "—"}</strong>
                   <p className={styles.dpEmail}>{deliveryPartner.email}</p>
                   {deliveryPartner.AdminProfile?.phone && (
-                    <p className={styles.dpPhone}>
-                      {deliveryPartner.AdminProfile.phone}
-                    </p>
+                    <p className={styles.dpPhone}>{deliveryPartner.AdminProfile.phone}</p>
                   )}
                 </div>
               </div>
@@ -557,13 +652,9 @@ export default function OrderDetails() {
           {/* PAYMENT INFORMATION */}
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Payment Information</h3>
-            <p className={styles.paymentMethod}>
-              {order.paymentMethod.split("_").join(" ")}
-            </p>
+            <p className={styles.paymentMethod}>{order.paymentMethod.split("_").join(" ")}</p>
             <span className={order.paymentStatus === "paid" || order.paymentStatus === "completed" ? styles.paid : styles.pending}>
-              {order.paymentStatus === "paid" || order.paymentStatus === "completed"
-                ? "✓ Paid"
-                : "⏳ Pending"}
+              {order.paymentStatus === "paid" || order.paymentStatus === "completed" ? "✓ Paid" : "⏳ Pending"}
             </span>
           </div>
         </div>
@@ -575,11 +666,8 @@ export default function OrderDetails() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>{deliveryPartner ? "Reassign Delivery Partner" : "Assign Delivery Partner"}</h3>
-              <button className={styles.modalClose} onClick={() => setShowAssignModal(false)}>
-                <FiX size={18} />
-              </button>
+              <button className={styles.modalClose} onClick={() => setShowAssignModal(false)}><FiX size={18} /></button>
             </div>
-
             <div className={styles.modalBody}>
               {partnersLoading ? (
                 <div className={styles.modalLoading}>Loading partners…</div>
@@ -598,26 +686,18 @@ export default function OrderDetails() {
                             className={`${styles.partnerItem} ${isSelected ? styles.partnerItemSelected : ""}`}
                             onClick={() => setSelectedPartnerId(partner.id)}
                           >
-                            <div className={styles.partnerAvatar}>
-                              <FiUser size={18} />
-                            </div>
+                            <div className={styles.partnerAvatar}><FiUser size={18} /></div>
                             <div className={styles.partnerItemDetails}>
                               <span className={styles.partnerName}>
                                 {partner.AdminProfile?.name ?? "Unnamed"}
-                                {isCurrent && (
-                                  <span className={styles.currentBadge}>Current</span>
-                                )}
+                                {isCurrent && <span className={styles.currentBadge}>Current</span>}
                               </span>
                               <span className={styles.partnerEmail}>{partner.email}</span>
                               {partner.AdminProfile?.phone && (
-                                <span className={styles.partnerPhone}>
-                                  {partner.AdminProfile.phone}
-                                </span>
+                                <span className={styles.partnerPhone}>{partner.AdminProfile.phone}</span>
                               )}
                             </div>
-                            {isSelected && (
-                              <FiCheck size={18} className={styles.partnerCheck} />
-                            )}
+                            {isSelected && <FiCheck size={18} className={styles.partnerCheck} />}
                           </div>
                         );
                       })}
@@ -626,20 +706,9 @@ export default function OrderDetails() {
                 </>
               )}
             </div>
-
             <div className={styles.modalFooter}>
-              <button
-                className={styles.modalCancelBtn}
-                onClick={() => setShowAssignModal(false)}
-                disabled={assignLoading}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.modalConfirmBtn}
-                onClick={handleAssignPartner}
-                disabled={assignLoading || !selectedPartnerId || partnersLoading}
-              >
+              <button className={styles.modalCancelBtn} onClick={() => setShowAssignModal(false)} disabled={assignLoading}>Cancel</button>
+              <button className={styles.modalConfirmBtn} onClick={handleAssignPartner} disabled={assignLoading || !selectedPartnerId || partnersLoading}>
                 {assignLoading ? "Assigning…" : "Confirm Assignment"}
               </button>
             </div>
@@ -647,17 +716,24 @@ export default function OrderDetails() {
         </div>
       )}
 
-      {/* STATUS CHANGE CONFIRMATION MODAL */}
+      {/* STATUS CHANGE CONFIRM */}
       <ConfirmModal
         open={showStatusChangeConfirm}
         title="Confirm Status Change"
         message={`Change order status to "${formatStatus(pendingStatus)}"?`}
-        onCancel={() => {
-          setShowStatusChangeConfirm(false);
-          setPendingStatus("");
-        }}
+        onCancel={() => { setShowStatusChangeConfirm(false); setPendingStatus(""); }}
         onConfirm={() => executeStatusChange(pendingStatus)}
       />
+
+      {/* ===== RETURN MODAL ===== */}
+      {returnModal && (
+        <ReturnModal
+          mode={returnModal.mode}
+          item={returnModal.item}
+          onConfirm={(reason) => handleReturn(returnModal.mode, returnModal.item, reason)}
+          onClose={() => setReturnModal(null)}
+        />
+      )}
     </div>
   );
 }
