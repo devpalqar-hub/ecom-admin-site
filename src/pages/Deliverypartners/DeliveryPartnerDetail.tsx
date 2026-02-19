@@ -93,6 +93,60 @@ interface Order {
   }>;
 }
 
+/* ---------------- HELPERS ---------------- */
+function filterByDate(orders: Order[], startDate: string, endDate: string) {
+  return orders.filter((o) => {
+    const d = new Date(o.createdAt);
+    if (startDate && d < new Date(startDate)) return false;
+    if (endDate && d > new Date(endDate + "T23:59:59")) return false;
+    return true;
+  });
+}
+
+/* Reusable table rows */
+function OrderRows({ orders }: { orders: Order[] }) {
+  return (
+    <>
+      {orders.map((order) => (
+        <tr key={order.id}>
+          <td><strong>{order.orderNumber}</strong></td>
+          <td>
+            <div>{order.CustomerProfile.name}</div>
+            <div style={{ fontSize: 12, color: "#6b7280" }}>
+              {order.CustomerProfile.user.email}
+            </div>
+          </td>
+          <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+          <td>
+            {order.items.length} item{order.items.length !== 1 ? "s" : ""}
+          </td>
+          <td>QAR {parseFloat(order.totalAmount).toFixed(2)}</td>
+          <td>
+            <span className={styles.paymentStatus}>{order.paymentStatus}</span>
+          </td>
+          <td>
+            <span className={styles.orderStatus}>{order.status}</span>
+          </td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
+const ORDER_THEAD = (
+  <thead>
+    <tr>
+      <th>Order Number</th>
+      <th>Customer</th>
+      <th>Date</th>
+      <th>Items</th>
+      <th>Amount</th>
+      <th>Payment</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+);
+
 /* ---------------- COMPONENT ---------------- */
 export default function DeliveryPartnerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -106,6 +160,12 @@ export default function DeliveryPartnerDetail() {
   const [activeTab, setActiveTab] = useState<
     "profile" | "orders" | "completed" | "manage"
   >("profile");
+
+  /* Per-tab date filters */
+  const [ordersStart, setOrdersStart] = useState("");
+  const [ordersEnd, setOrdersEnd] = useState("");
+  const [completedStart, setCompletedStart] = useState("");
+  const [completedEnd, setCompletedEnd] = useState("");
 
   /* Edit mode */
   const [isEditing, setIsEditing] = useState(false);
@@ -121,13 +181,11 @@ export default function DeliveryPartnerDetail() {
   /* ---------------- FETCH ---------------- */
   const fetchPartnerDetails = async () => {
     if (!id) return;
-
     setLoading(true);
     try {
       const res = await api.get(`/delivery-partners/${id}`);
       const partnerData: DeliveryPartner = res.data.data;
       setPartner(partnerData);
-
       setEditForm({
         name: partnerData.AdminProfile?.name || "",
         email: partnerData.email,
@@ -142,23 +200,10 @@ export default function DeliveryPartnerDetail() {
 
   const fetchAnalytics = async () => {
     if (!id) return;
-
     try {
-      const endDate = new Date().toISOString().split("T")[0];
-      const startDate = new Date(
-        new Date().setMonth(new Date().getMonth() - 1)
-      )
-        .toISOString()
-        .split("T")[0];
-
       const res = await api.get("/delivery-partners/analytics/stats", {
-        params: {
-          partnerId: id,
-          startDate,
-          endDate,
-        },
+        params: { partnerId: id },
       });
-
       setAnalytics(res.data.data);
     } catch (error) {
       console.error("Failed to fetch analytics", error);
@@ -167,23 +212,10 @@ export default function DeliveryPartnerDetail() {
 
   const fetchOrders = async () => {
     if (!id) return;
-
     try {
-      const endDate = new Date().toISOString().split("T")[0];
-      const startDate = new Date(
-        new Date().setMonth(new Date().getMonth() - 1)
-      )
-        .toISOString()
-        .split("T")[0];
-
       const res = await api.get("/delivery-partners/analytics/orders", {
-        params: {
-          partnerId: id,
-          startDate,
-          endDate,
-        },
+        params: { partnerId: id },
       });
-
       setOrders(res.data.data.orders || []);
     } catch (error) {
       console.error("Failed to fetch orders", error);
@@ -199,19 +231,10 @@ export default function DeliveryPartnerDetail() {
   /* ---------------- HANDLERS ---------------- */
   const handleUpdate = async () => {
     if (!id) return;
-
     try {
-      const payload: any = {
-        name: editForm.name,
-        email: editForm.email,
-      };
-
-      if (editForm.password) {
-        payload.password = editForm.password;
-      }
-
+      const payload: any = { name: editForm.name, email: editForm.email };
+      if (editForm.password) payload.password = editForm.password;
       await api.patch(`/delivery-partners/${id}`, payload);
-
       showToast("Delivery partner updated successfully", "success");
       setIsEditing(false);
       fetchPartnerDetails();
@@ -223,7 +246,6 @@ export default function DeliveryPartnerDetail() {
 
   const handleDelete = async () => {
     if (!id) return;
-
     try {
       await api.delete(`/delivery-partners/${id}`);
       showToast("Delivery partner deleted successfully", "success");
@@ -234,9 +256,53 @@ export default function DeliveryPartnerDetail() {
     }
   };
 
+  /* ---------------- DATE FILTER BAR ---------------- */
+  function DateFilterBar({
+    start,
+    end,
+    onStartChange,
+    onEndChange,
+    onClear,
+  }: {
+    start: string;
+    end: string;
+    onStartChange: (v: string) => void;
+    onEndChange: (v: string) => void;
+    onClear: () => void;
+  }) {
+    return (
+      <div className={styles.dateFilterBar}>
+        <div className={styles.dateFilterGroup}>
+          <label>From</label>
+          <input
+            type="date"
+            value={start}
+            max={end || undefined}
+            onChange={(e) => onStartChange(e.target.value)}
+          />
+        </div>
+        <div className={styles.dateFilterGroup}>
+          <label>To</label>
+          <input
+            type="date"
+            value={end}
+            min={start || undefined}
+            onChange={(e) => onEndChange(e.target.value)}
+          />
+        </div>
+        {(start || end) && (
+          <button className={styles.clearDateBtn} onClick={onClear}>
+            Clear
+          </button>
+        )}
+      </div>
+    );
+  }
+
   /* ---------------- RENDER TABS ---------------- */
   const renderTabContent = () => {
     switch (activeTab) {
+      /* ── PROFILE ── */
       case "profile":
         return (
           <div className={styles.profileSection}>
@@ -279,7 +345,6 @@ export default function DeliveryPartnerDetail() {
                 </div>
               </div>
             </div>
-
             {partner?.AdminProfile?.notes && (
               <div className={styles.profileField}>
                 <label>Notes</label>
@@ -289,170 +354,94 @@ export default function DeliveryPartnerDetail() {
           </div>
         );
 
-      case "orders":
+      /* ── TOTAL ORDERS ── */
+      case "orders": {
+        const filtered = filterByDate(orders, ordersStart, ordersEnd);
         return (
           <div className={styles.ordersSection}>
-            <h3>All Orders</h3>
-            {orders.length === 0 ? (
+            <div className={styles.sectionHeader}>
+              <h3>All Orders</h3>
+              <DateFilterBar
+                start={ordersStart}
+                end={ordersEnd}
+                onStartChange={setOrdersStart}
+                onEndChange={setOrdersEnd}
+                onClear={() => { setOrdersStart(""); setOrdersEnd(""); }}
+              />
+            </div>
+
+            {filtered.length === 0 ? (
               <p className={styles.emptyState}>No orders found</p>
             ) : (
               <div className={styles.ordersTable}>
                 <table>
-                  <thead>
-                    <tr>
-                      <th>Order Number</th>
-                      <th>Customer</th>
-                      <th>Date</th>
-                      <th>Items</th>
-                      <th>Amount</th>
-                      <th>Payment</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
+                  {ORDER_THEAD}
                   <tbody>
-                    {orders.map((order) => (
-                      <tr key={order.id}>
-                        <td><strong>{order.orderNumber}</strong></td>
-                        <td>
-                          <div>{order.CustomerProfile.name}</div>
-                          <div style={{ fontSize: 12, color: '#6b7280' }}>
-                            {order.CustomerProfile.user.email}
-                          </div>
-                        </td>
-                        <td>
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </td>
-                        <td>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</td>
-                        <td>QAR {parseFloat(order.totalAmount).toFixed(2)}</td>
-                        <td>
-                          <span className={styles.paymentStatus}>
-                            {order.paymentStatus}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.orderStatus}>
-                            {order.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    <OrderRows orders={filtered} />
                   </tbody>
                 </table>
               </div>
             )}
           </div>
         );
+      }
 
-      case "completed":
-        const completedOrders = orders.filter(
+      /* ── COMPLETED & RETURNED ── */
+      case "completed": {
+        const allFiltered = filterByDate(orders, completedStart, completedEnd);
+        const completedOrders = allFiltered.filter(
           (o) => o.status === "delivered" || o.status === "completed"
         );
-        const returnedOrders = orders.filter(
+        const returnedOrders = allFiltered.filter(
           (o) => o.status === "returned" || o.status === "cancelled"
         );
 
         return (
           <div className={styles.ordersSection}>
-            <h3>Completed Orders</h3>
+            {/* Completed */}
+            <div className={styles.sectionHeader}>
+              <h3>Completed Orders</h3>
+              <DateFilterBar
+                start={completedStart}
+                end={completedEnd}
+                onStartChange={setCompletedStart}
+                onEndChange={setCompletedEnd}
+                onClear={() => { setCompletedStart(""); setCompletedEnd(""); }}
+              />
+            </div>
+
             {completedOrders.length === 0 ? (
               <p className={styles.emptyState}>No completed orders</p>
             ) : (
               <div className={styles.ordersTable}>
                 <table>
-                  <thead>
-                    <tr>
-                      <th>Order Number</th>
-                      <th>Customer</th>
-                      <th>Date</th>
-                      <th>Items</th>
-                      <th>Amount</th>
-                      <th>Payment</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
+                  {ORDER_THEAD}
                   <tbody>
-                    {completedOrders.map((order) => (
-                      <tr key={order.id}>
-                        <td><strong>{order.orderNumber}</strong></td>
-                        <td>
-                          <div>{order.CustomerProfile.name}</div>
-                          <div style={{ fontSize: 12, color: '#6b7280' }}>
-                            {order.CustomerProfile.user.email}
-                          </div>
-                        </td>
-                        <td>
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </td>
-                        <td>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</td>
-                        <td>QAR {parseFloat(order.totalAmount).toFixed(2)}</td>
-                        <td>
-                          <span className={styles.paymentStatus}>
-                            {order.paymentStatus}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.orderStatus}>
-                            {order.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    <OrderRows orders={completedOrders} />
                   </tbody>
                 </table>
               </div>
             )}
 
+            {/* Returned — shares the same date filter */}
             <h3 style={{ marginTop: 32 }}>Returned Orders</h3>
             {returnedOrders.length === 0 ? (
               <p className={styles.emptyState}>No returned orders</p>
             ) : (
               <div className={styles.ordersTable}>
                 <table>
-                  <thead>
-                    <tr>
-                      <th>Order Number</th>
-                      <th>Customer</th>
-                      <th>Date</th>
-                      <th>Items</th>
-                      <th>Amount</th>
-                      <th>Payment</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
+                  {ORDER_THEAD}
                   <tbody>
-                    {returnedOrders.map((order) => (
-                      <tr key={order.id}>
-                        <td><strong>{order.orderNumber}</strong></td>
-                        <td>
-                          <div>{order.CustomerProfile.name}</div>
-                          <div style={{ fontSize: 12, color: '#6b7280' }}>
-                            {order.CustomerProfile.user.email}
-                          </div>
-                        </td>
-                        <td>
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </td>
-                        <td>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</td>
-                        <td>QAR {parseFloat(order.totalAmount).toFixed(2)}</td>
-                        <td>
-                          <span className={styles.paymentStatus}>
-                            {order.paymentStatus}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.orderStatus}>
-                            {order.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    <OrderRows orders={returnedOrders} />
                   </tbody>
                 </table>
               </div>
             )}
           </div>
         );
+      }
 
+      /* ── MANAGE ── */
       case "manage":
         return (
           <div className={styles.manageSection}>
@@ -581,47 +570,35 @@ export default function DeliveryPartnerDetail() {
           />
           <StatCard
             title="Total Revenue"
-            value={`QAR ${analytics.summary.totalRevenue.toLocaleString(
-              "en-US",
-              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-            )}`}
+            value={`QAR ${analytics.summary.totalRevenue.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
           />
           <StatCard
             title="Average Order Value"
-            value={`QAR ${analytics.summary.averageOrderValue.toLocaleString(
-              "en-US",
-              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-            )}`}
+            value={`QAR ${analytics.summary.averageOrderValue.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
           />
         </div>
       )}
 
       {/* TABS */}
       <div className={styles.tabs}>
-        <button
-          className={activeTab === "profile" ? styles.activeTab : ""}
-          onClick={() => setActiveTab("profile")}
-        >
-          Full Profile
-        </button>
-        <button
-          className={activeTab === "orders" ? styles.activeTab : ""}
-          onClick={() => setActiveTab("orders")}
-        >
-          Total Orders
-        </button>
-        <button
-          className={activeTab === "completed" ? styles.activeTab : ""}
-          onClick={() => setActiveTab("completed")}
-        >
-          Completed & Returned
-        </button>
-        <button
-          className={activeTab === "manage" ? styles.activeTab : ""}
-          onClick={() => setActiveTab("manage")}
-        >
-          Manage
-        </button>
+        {(["profile", "orders", "completed", "manage"] as const).map((tab) => (
+          <button
+            key={tab}
+            className={activeTab === tab ? styles.activeTab : ""}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === "profile" && "Full Profile"}
+            {tab === "orders" && "Total Orders"}
+            {tab === "completed" && "Completed & Returned"}
+            {tab === "manage" && "Manage"}
+          </button>
+        ))}
       </div>
 
       {/* TAB CONTENT */}
@@ -633,11 +610,14 @@ export default function DeliveryPartnerDetail() {
           <div className={styles.modal}>
             <h3>Delete Delivery Partner</h3>
             <p>
-              Are you sure you want to delete this delivery partner? This
-              action cannot be undone.
+              Are you sure you want to delete this delivery partner? This action
+              cannot be undone.
             </p>
             <div className={styles.modalActions}>
-              <button className={styles.confirmDeleteBtn} onClick={handleDelete}>
+              <button
+                className={styles.confirmDeleteBtn}
+                onClick={handleDelete}
+              >
                 Delete
               </button>
               <button
