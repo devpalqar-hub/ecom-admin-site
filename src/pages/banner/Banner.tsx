@@ -48,7 +48,7 @@ const Banners = () => {
 
   /* ================= CREATE ================= */
   const handleCreate = async () => {
-    if (!createImage || !createTitle || !createLink) {
+    if (!createImage || !createTitle ) {
       showToast("All fields are required", "error");
       return;
     }

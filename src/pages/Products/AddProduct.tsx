@@ -268,7 +268,7 @@ const handleCreateProduct = async () => {
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
     const finalDiscount =
-      discountedPrice === "" || discountedPrice === null || discountedPrice === " "
+      discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
       ? actualPrice 
       : discountedPrice
     formData.append("discountedPrice", finalDiscount);
@@ -283,13 +283,13 @@ const handleCreateProduct = async () => {
       const payloadVariations = variations.map((v) => {
         const price = Number(v.price);
         const discounted =
-          v.discountedPrice === "" || v.discountedPrice === null
+          v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
             ? price
             : Number(v.discountedPrice);
 
         return {
           variationName: v.variationName,
-          price: price,
+          actualPrice: price,
           discountedPrice: discounted,
           stockCount: Number(v.stockCount),
           isAvailable: v.isAvailable,
