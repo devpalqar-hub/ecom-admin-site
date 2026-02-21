@@ -267,23 +267,34 @@ const handleCreateProduct = async () => {
     formData.append("description", description);
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
-    formData.append("discountedPrice", discountedPrice);
+    const finalDiscount =
+      discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
+      ? actualPrice 
+      : discountedPrice
+    formData.append("discountedPrice", finalDiscount);
     formData.append("subCategoryId", selectedSubCategory);
     formData.append("isFeatured", String(isFeatured));
     formData.append("isStock", String(isStock));
     formData.append("variationTitle", variationTitle);
 
 
-
     /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
     if (variationsEnabled) {
-      const payloadVariations = variations.map((v) => ({
-        variationName: v.variationName,
-        price: Number(v.price),
-        discountedPrice: Number(v.discountedPrice) || null,
-        stockCount: Number(v.stockCount),
-        isAvailable: v.isAvailable,
-      }));
+      const payloadVariations = variations.map((v) => {
+        const price = Number(v.price);
+        const discounted =
+          v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
+            ? price
+            : Number(v.discountedPrice);
+
+        return {
+          variationName: v.variationName,
+          actualPrice: price,
+          discountedPrice: discounted,
+          stockCount: Number(v.stockCount),
+          isAvailable: v.isAvailable,
+        };
+      });
 
       formData.append("variations", JSON.stringify(payloadVariations));
     }
@@ -522,7 +533,7 @@ const hasNoSubCategories =
             </label>
           </div>
 
-          <p className={styles.muted}>
+          <p className={styles.mutedVariation}>
             Add variations like sizes, colors, or models
           </p>
           {/* NEW FIELD */}

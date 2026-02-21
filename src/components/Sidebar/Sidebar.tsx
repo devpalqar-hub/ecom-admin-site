@@ -12,7 +12,8 @@ import {
   FiImage
 } from "react-icons/fi";
 import { TbTruckDelivery } from "react-icons/tb";
-
+import { GiReturnArrow } from "react-icons/gi";
+import { FaUserPlus } from "react-icons/fa";
 
 export default function Sidebar() {
   
@@ -85,12 +86,28 @@ export default function Sidebar() {
             <FiShoppingCart /> Orders
           </NavLink>
 
+          <NavLink to="/returned-items" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <GiReturnArrow /> Returned Items
+          </NavLink>
+
           <NavLink to="/deliveryCharges" 
           className={({ isActive }) => 
             `${styles.item} ${isActive ? styles.active : " "}`
           }          
           onClick={() => setOpen(false)}>
             <TbTruckDelivery /> Delivery Charges
+          </NavLink>
+
+          <NavLink to="/deliveryPartner" 
+          className={({ isActive }) => 
+            `${styles.item} ${isActive ? styles.active : " "}`
+          }          
+          onClick={() => setOpen(false)}>
+            <FaUserPlus /> Delivery Partners
           </NavLink>
 
           <NavLink to="/customers" 

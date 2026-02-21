@@ -1,0 +1,290 @@
+.page {
+  padding: 16px;
+  background: #f9fafb;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
+  max-width: 520px;
+}
+
+.searchBox input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.filters select {
+  width: 220px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* TABLE */
+.tableWrapper {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f3f4f6;
+}
+
+th {
+  padding: 24px 24px;
+  text-align: left;
+  font-size: 15px;
+}
+
+td {
+  padding: 14px 21px;
+  text-align: left;
+  font-size: 15px;
+}
+
+tbody tr {
+  border-top: 1px solid #e5e7eb;
+  height: 72px;
+}
+
+.time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* STATUS BADGES */
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.pending {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pickedUp {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.returned {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.refunded {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+/* RETURN TYPE BADGE */
+.returnType {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* ACTION */
+.viewBtn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #e5e7eb;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.viewBtn:hover {
+  background: #d1d5db;
+}
+
+/* PAGINATION */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.pageBtn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #eef2ff;
+  border-color: #6366f1;
+  color: #4338ca;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* MOBILE CARDS */
+.mobileList {
+  display: none;
+}
+
+/* RESPONSIVE */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .filters select {
+    width: 100%;
+  }
+
+  .tableWrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 767px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters select {
+    width: 100%;
+  }
+
+  .tableWrapper {
+    display: none;
+  }
+
+  .mobileList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mobileCard {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .cardRow {
+    margin-top: 8px;
+  }
+
+  .cardRow span {
+    font-size: 12px;
+    color: #6b7280;
+    display: block;
+  }
+
+  .cardRow p,
+  .cardRow strong {
+    margin-top: 2px;
+    font-size: 14px;
+    color: #111827;
+  }
+
+  .viewBtn {
+    margin-top: 12px;
+    width: 100%;
+  }
+}

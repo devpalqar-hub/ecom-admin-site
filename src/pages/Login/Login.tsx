@@ -5,6 +5,7 @@ import styles from "./Login.module.css";
 import { FiLock, FiMail } from "react-icons/fi";
 import { useToast } from "../../components/toast/ToastContext";
 import axios from "axios";
+import { useEffect } from "react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,13 @@ export default function Login() {
   const [errorShake, setErrorShake] = useState(false);
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+      useEffect(() => {
+        const token = localStorage.getItem("adminToken");
+        if (token) {
+          navigate("/dashboard", { replace: true });
+        }
+      }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

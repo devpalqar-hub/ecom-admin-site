@@ -40,7 +40,7 @@ export default function Customers() {
   const [page, setPage] = useState(1);
   const limit = 10;
   const [totalPages, setTotalPages] = useState(1);
-  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState<number>(0);
 
   /* ---------------- FETCH ---------------- */
   const fetchCustomers = async () => {
@@ -58,7 +58,6 @@ export default function Customers() {
       const payload: CustomersResponse = res.data.data;
 
       setCustomers(payload.data);
-      setTotalCustomers(payload.total);
       setTotalPages(payload.totalPages);
     } catch (error) {
       console.error("Failed to fetch customers", error);
@@ -136,6 +135,19 @@ const stats = useMemo(() => {
 
     const fetchCustomerCounts = async () => {
       try {
+        const res = await api.get("/users/admin/customers/count");
+
+        const roles = res.data.data.data as {
+          role: string;
+          count: number;
+        }[];
+
+        const customerTotal =
+          roles.find((r) => r.role === "CUSTOMER")?.count ?? 0;
+
+        setTotalCustomers(customerTotal);
+
+        // active inactive counts
         const [active, inactive] = await Promise.all([
           fetchCustomerCount(true),
           fetchCustomerCount(false),
@@ -143,10 +155,12 @@ const stats = useMemo(() => {
 
         setActiveCount(active);
         setInactiveCount(inactive);
+
       } catch (error) {
         console.error("Failed to fetch customer counts", error);
       }
     };
+
 
   /* ---------------- UI ---------------- */
   return (
