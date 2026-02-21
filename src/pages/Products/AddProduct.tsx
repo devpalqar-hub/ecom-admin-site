@@ -29,6 +29,11 @@ export default function CreateProduct() {
 };
 
 const [variationsEnabled, setVariationsEnabled] = useState(false);
+useEffect(() => {
+  if (variationsEnabled) {
+    setStockCount(0); // clear stock
+  }
+}, [variationsEnabled]);
 
 const [variations, setVariations] = useState<VariationForm[]>([
   {
@@ -156,10 +161,12 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     }
 
 
-    if (stockCount < 0) {
-      showToast("Stock quantity cannot be negative", "error");
+    if (!variationsEnabled) {
+    if (stockCount <= 0) {
+      showToast("Stock quantity is required", "error");
       return false;
     }
+  }
 
     if (!actualPrice || Number(actualPrice) <= 0) {
       showToast("Regular price must be greater than 0", "error");
@@ -199,14 +206,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
         0
       );
 
-      if (totalVariationStock > stockCount) {
-        showToast(
-          `Total variation stock (${totalVariationStock}) cannot exceed product stock (${stockCount})`,
-          "error"
-        );
-        return false;
-      }
-
+      
       for (let i = 0; i < variations.length; i++) {
         const v = variations[i];
 
@@ -377,9 +377,12 @@ const hasNoSubCategories =
             <label>Stock Quantity *</label>
             <input
               type="number"
-              value={stockCount === 0 ? "" : stockCount}
+              value={variationsEnabled ? "" : stockCount === 0 ? "" : stockCount}
+              disabled={variationsEnabled}
               onChange={(e) =>
-                setStockCount(e.target.value === "" ? 0 : Number(e.target.value))
+                setStockCount(
+                  e.target.value === "" ? 0 : Number(e.target.value)
+                )
               }
             />
           </div>

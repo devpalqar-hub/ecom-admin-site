@@ -182,47 +182,90 @@ export default function DeliveryCharges() {
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* DATA SECTION */}
       <div className={styles.tableWrapper}>
         {loading ? (
           <p className={styles.loading}>Loading...</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Postal Code</th>
-                <th>Delivery Charge</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d) => (
-                <tr key={d.id}>
-                  <td>{d.postalCode}</td>
-                  <td>QAR {d.deliveryCharge}</td>
-                  <td>{new Date(d.createdAt).toLocaleDateString()}</td>
-                  <td className={styles.actions}>
-                    <button
-                      className={styles.editBtn}
-                      onClick={() => {
-                        setEditCode(d.postalCode);
-                        setCharge(d.deliveryCharge);
-                      }}
-                    >
-                      <FiEdit2 />
-                    </button>
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => setDeleteCode(d.postalCode)}
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </td>
+          <>
+            {/* DESKTOP TABLE VIEW */}
+            <table className={styles.desktopTable}>
+              <thead>
+                <tr>
+                  <th>Postal Code</th>
+                  <th>Delivery Charge</th>
+                  <th>Created</th>
+                  <th>Actions</th>
                 </tr>
+              </thead>
+              <tbody>
+                {data.map((d) => (
+                  <tr key={d.id}>
+                    <td>{d.postalCode}</td>
+                    <td>QAR {d.deliveryCharge}</td>
+                    <td>{new Date(d.createdAt).toLocaleDateString()}</td>
+                    <td className={styles.actions}>
+                      <button
+                        className={styles.editBtn}
+                        onClick={() => {
+                          setEditCode(d.id);
+                          setCharge(d.deliveryCharge);
+                        }}
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => setDeleteCode(d.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* MOBILE CARD VIEW */}
+            <div className={styles.mobileCards}>
+              {data.map((d) => (
+                <div key={d.id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <span className={styles.cardCode}>{d.postalCode}</span>
+                    <div className={styles.cardActions}>
+                      <button 
+                        className={styles.editBtn}
+                        onClick={() => {
+                          setEditCode(d.id);
+                          setCharge(d.deliveryCharge);
+                        }}
+                      >
+                        <FiEdit2 />
+                      </button>
+                      <button 
+                        className={styles.deleteBtn}
+                        onClick={() => setDeleteCode(d.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardRow}>
+                      <span className={styles.label}>Charge:</span>
+                      <span className={styles.value}>QAR {d.deliveryCharge}</span>
+                    </div>
+                    <div className={styles.cardRow}>
+                      <span className={styles.label}>Created:</span>
+                      <span className={styles.value}>
+                        {new Date(d.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
 
         {/* PAGINATION */}
@@ -234,7 +277,7 @@ export default function DeliveryCharges() {
           >
             Prev
           </button>
-          <span className={styles.pageInfo}>Page {page}</span>
+          <span className={styles.pageInfo}>Page {page} of {totalPages}</span>
           <button
             className={styles.pageBtn}
             disabled={page === totalPages}
@@ -252,34 +295,33 @@ export default function DeliveryCharges() {
             <h3>{editCode ? "Edit Delivery Charge" : "Add Delivery Charges"}</h3>
 
             {!editCode && (
-              <>
-                <div className={styles.chipInput}>
-                  {postalCodes.map((c) => (
-                    <span key={c} className={styles.chip}>
-                      {c}
-                      <FiX onClick={() =>
-                        setPostalCodes(postalCodes.filter(p => p !== c))
-                      } />
-                    </span>
-                  ))}
-                  <input
-                    value={postalInput}
-                    placeholder="Enter postal code"
-                    onChange={(e) => setPostalInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            e.preventDefault();
-                            addPostalCode();
-                        }
-                        }}
-                  />
-                </div>
-              </>
+              <div className={styles.chipInput}>
+                {postalCodes.map((c) => (
+                  <span key={c} className={styles.chip}>
+                    {c}
+                    <FiX onClick={() =>
+                      setPostalCodes(postalCodes.filter(p => p !== c))
+                    } />
+                  </span>
+                ))}
+                <input
+                  value={postalInput}
+                  placeholder="Enter postal code"
+                  onChange={(e) => setPostalInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addPostalCode();
+                    }
+                  }}
+                />
+              </div>
             )}
 
             <input
               type="number"
               placeholder="Delivery Charge (QAR)"
+              className={styles.modalInput}
               value={charge}
               onChange={(e) => setCharge(e.target.value)}
             />

@@ -113,16 +113,18 @@ background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  col
   font-size: 14px;
 }
 
-/* TABLE */
+/* [FIX 1] Improved Table Scannability */
 .tableWrapper {
   background: #fff;
   border-radius: 14px;
-  overflow: hidden;
+  overflow-x: auto; /* Crucial for responsive tables */
+  border: 1px solid #e5e7eb;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px; /* Prevents text clumping on smaller screens */
 }
 
 thead {
@@ -131,7 +133,7 @@ thead {
 
 th,
 td {
-  padding: 20px 18px;
+  padding:16px 12px;
   text-align: left;
   font-size: 14px;
   text-align: center;
@@ -266,6 +268,9 @@ tbody tr {
 
 @media (min-width: 768px) and (max-width: 1023px) {
   /* Keep table layout */
+  .page {
+    padding: 20px; /* Reduced outer padding */
+  }
   .tableWrapper {
     display: block;
   }
@@ -277,7 +282,7 @@ tbody tr {
   /* Reduce paddings for tablet */
   th,
   td {
-    padding: 14px 12px;
+    padding: 12px 8px;
     font-size: 13px;
   }
 
@@ -290,8 +295,11 @@ tbody tr {
   /* Stats grid → 2 columns */
   .stats {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
-
+   .statCard {
+    padding: 15px; /* Smaller inner padding */
+  }
   /* Search bar width */
   .searchBar {
     width: 100%;
@@ -311,7 +319,55 @@ tbody tr {
 
 @media (max-width: 767px) {
   /* Hide table on mobile */
-  .statIcon{
+  .page {
+    padding: 16px; /* Optimized for small screens */
+  }
+  header {
+    flex-direction: row; /* Keeping them side-by-side but shrinking text */
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+  }
+
+  .header p {
+    font-size: 12px;
+  }
+  /* 1. Force 3 columns and reduce gap to prevent overflow */
+  .stats {
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; /* Tighter gap for 3 columns */
+    margin-bottom: 20px;
+  }
+
+  /* 2. Slim down the stat cards */
+  .statCard {
+    padding: 10px 8px; /* Very small padding to maximize space */
+    flex-direction: column;
+    align-items: center; /* Center text for a cleaner 3-column look */
+    text-align: center;
+    min-height: 80px; /* Ensures uniform height */
+    justify-content: center;
+  }
+
+  /* 3. Scale down text so it doesn't wrap awkwardly */
+  .statCard span {
+    font-size: 10px; /* Small label */
+    line-height: 1.2;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .statCard h3 {
+    font-size: 18px; /* Smaller value */
+    margin: 0;
+    font-weight: 700;
+  }
+
+  /* Hide icon entirely to save space in 3-col layout */
+  .statIcon {
     display: none;
   }
   .tableWrapper {
@@ -325,13 +381,14 @@ tbody tr {
     gap: 14px;
   }
 
+  /* 5. Mobile Card list padding */
   .mobileCard {
     background: #fff;
     border-radius: 12px;
-    padding: 14px;
+    padding: 16px; 
     border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
   }
-
   .cardHeader {
     display: flex;
     justify-content: space-between;
