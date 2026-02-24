@@ -106,7 +106,10 @@
   margin-right: 12px;
   transition: all 0.2s;
 }
-
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .formCard input[type="file"]::file-selector-button:hover {
   background: #f3f4f6;
   border-color: #d1d5db;

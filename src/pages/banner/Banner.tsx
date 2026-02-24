@@ -18,6 +18,9 @@ const Banners = () => {
   const { showToast } = useToast();
 
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   /* ================= CREATE STATE ================= */
   const [createImage, setCreateImage] = useState<File | null>(null);
@@ -48,28 +51,36 @@ const Banners = () => {
 
   /* ================= CREATE ================= */
   const handleCreate = async () => {
-    if (!createImage || !createTitle ) {
-      showToast("All fields are required", "error");
-      return;
-    }
+  if (isCreating) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("image", createImage);
-      formData.append("title", createTitle);
-      formData.append("link", createLink);
+  if (!createImage || !createTitle) {
+    showToast("All fields are required", "error");
+    return;
+  }
 
-      await api.post("/banners/admin", formData);
+  try {
+    setIsCreating(true);
 
-      showToast("Banner created successfully", "success");
-      setCreateImage(null);
-      setCreateTitle("");
-      setCreateLink("");
-      fetchBanners();
-    } catch {
-      showToast("Failed to create banner", "error");
-    }
-  };
+    const formData = new FormData();
+    formData.append("image", createImage);
+    formData.append("title", createTitle);
+    formData.append("link", createLink);
+
+    await api.post("/banners/admin", formData);
+
+    showToast("Banner created successfully", "success");
+
+    setCreateImage(null);
+    setCreateTitle("");
+    setCreateLink("");
+
+    fetchBanners();
+  } catch {
+    showToast("Failed to create banner", "error");
+  } finally {
+    setIsCreating(false);
+  }
+};
 
   /* ================= OPEN EDIT ================= */
   const openEditModal = (banner: Banner) => {
@@ -82,42 +93,50 @@ const Banners = () => {
 
   /* ================= UPDATE ================= */
   const handleUpdate = async () => {
-    if (!editingBanner) return;
+  if (isUpdating || !editingBanner) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("title", editTitle);
-      formData.append("link", editLink);
+  try {
+    setIsUpdating(true);
 
-      if (editImage) {
-        formData.append("image", editImage);
-      }
+    const formData = new FormData();
+    formData.append("title", editTitle);
+    formData.append("link", editLink);
 
-      await api.patch(`/banners/admin/${editingBanner.id}`, formData);
-
-      showToast("Banner updated successfully", "success");
-      closeEditModal();
-      fetchBanners();
-    } catch {
-      showToast("Failed to update banner", "error");
+    if (editImage) {
+      formData.append("image", editImage);
     }
-  };
+
+    await api.patch(`/banners/admin/${editingBanner.id}`, formData);
+
+    showToast("Banner updated successfully", "success");
+    closeEditModal();
+    fetchBanners();
+  } catch {
+    showToast("Failed to update banner", "error");
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   /* ================= DELETE ================= */
   const handleDeleteBanner = async () => {
-    if (!deleteBannerId) return;
+  if (isDeleting || !deleteBannerId) return;
 
-    try {
-      await api.delete(`/banners/admin/${deleteBannerId}`);
-      showToast("Banner deleted", "success");
-      fetchBanners();
-    } catch {
-      showToast("Failed to delete banner", "error");
-    } finally {
-      setShowDeleteConfirm(false);
-      setDeleteBannerId(null);
-    }
-  };
+  try {
+    setIsDeleting(true);
+
+    await api.delete(`/banners/admin/${deleteBannerId}`);
+
+    showToast("Banner deleted", "success");
+    fetchBanners();
+  } catch {
+    showToast("Failed to delete banner", "error");
+  } finally {
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
+    setDeleteBannerId(null);
+  }
+};
 
 
   /* ================= CLOSE EDIT ================= */
@@ -167,7 +186,12 @@ const Banners = () => {
             onChange={(e) => setCreateLink(e.target.value)}
           />
 
-          <button onClick={handleCreate}>Create Banner</button>
+          <button
+            onClick={handleCreate}
+            disabled={isCreating}
+          >
+            {isCreating ? "Creating..." : "Create Banner"}
+          </button>
         </div>
       </div>
 
@@ -286,7 +310,12 @@ const Banners = () => {
             />
 
             <div className={styles.modalActions}>
-              <button onClick={handleUpdate}>Update</button>
+              <button
+                onClick={handleUpdate}
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating..." : "Update"}
+              </button>
               <button className={styles.cancelBtn} onClick={closeEditModal}>
                 Cancel
               </button>

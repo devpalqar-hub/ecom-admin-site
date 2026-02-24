@@ -83,6 +83,7 @@ type Category = {
   subCategories: SubCategory[];
 };
 
+const [isSubmitting, setIsSubmitting] = useState(false);
 const [categories, setCategories] = useState<Category[]>([]);
 const [selectedCategory, setSelectedCategory] = useState("");
 const [selectedSubCategory, setSelectedSubCategory] = useState("");
@@ -257,9 +258,15 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   
 const handleCreateProduct = async () => {
-  if(!validateForm()) return;
+  // 🚀 Prevent double click
+  if (isSubmitting) return;
+
+  // ✅ Validate before locking button
+  if (!validateForm()) return;
 
   try {
+    setIsSubmitting(true); // 🔒 Lock button
+
     const formData = new FormData();
 
     /* ---------------- TEXT FIELDS ---------------- */
@@ -267,23 +274,24 @@ const handleCreateProduct = async () => {
     formData.append("description", description);
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
+
     const finalDiscount =
-      discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
-      ? actualPrice 
-      : discountedPrice
+      !discountedPrice || discountedPrice.trim() === "" || discountedPrice === "0"
+        ? actualPrice
+        : discountedPrice;
+
     formData.append("discountedPrice", finalDiscount);
     formData.append("subCategoryId", selectedSubCategory);
     formData.append("isFeatured", String(isFeatured));
     formData.append("isStock", String(isStock));
     formData.append("variationTitle", variationTitle);
 
-
-    /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
+    /* ---------------- VARIATIONS ---------------- */
     if (variationsEnabled) {
       const payloadVariations = variations.map((v) => {
         const price = Number(v.price);
         const discounted =
-          v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
+          !v.discountedPrice || v.discountedPrice === "0"
             ? price
             : Number(v.discountedPrice);
 
@@ -302,30 +310,33 @@ const handleCreateProduct = async () => {
     /* ---------------- IMAGES ---------------- */
     if (!mainImage) {
       showToast("Main image is required", "error");
-        return;
+      setIsSubmitting(false);
+      return;
     }
-    formData.append("images", mainImage); 
+
+    formData.append("images", mainImage);
     images.forEach((img) => {
       formData.append("images", img);
     });
 
     /* ---------------- API CALL ---------------- */
-    const res = await api.post("/products", formData, {
+    await api.post("/products", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
 
-    console.log("Product created:", res.data);
-    
-    showToast("Product created successfully", "success")
+    showToast("Product created successfully", "success");
+
     navigate("/products");
+
   } catch (error: any) {
-    console.error("Create product failed", error?.response?.data || error);
-   showToast(
-  error?.response?.data?.message || "Failed to create product",
-  "error"
-);
+    showToast(
+      error?.response?.data?.message || "Failed to create product",
+      "error"
+    );
+  } finally {
+    setIsSubmitting(false); // 🔓 Always unlock
   }
 };
 
@@ -673,9 +684,9 @@ const hasNoSubCategories =
       <button
         className={styles.primary}
         onClick={handleCreateProduct}
-        disabled={!name || !selectedSubCategory}
+        disabled={isSubmitting || !name || !selectedSubCategory}
       >
-        Create Product
+        {isSubmitting ? "Creating..." : "Create Product"}
       </button>
     </div>
   </div>
