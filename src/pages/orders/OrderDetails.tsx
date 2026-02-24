@@ -449,6 +449,7 @@ export default function OrderDetails() {
             <div className={styles.items}>
               {order.items.map((item: any) => {
                 const product = item.product;
+                const productVariation = item.productVariation;
                 const mainImage = product.images?.find((img: any) => img.isMain)?.url
                   ?? product.images?.[0]?.url;
 
@@ -457,6 +458,9 @@ export default function OrderDetails() {
                     <img src={mainImage} alt={product.name} className={styles.itemImage} />
                     <div className={styles.itemDetails}>
                       <p className={styles.itemName}>{product.name}</p>
+                      {productVariation && (
+                        <p>Variation: {productVariation.variationName}</p>
+                      )}
                       <p className={styles.itemSku}>SKU: {product.sku ?? "—"}</p>
                       <p className={styles.itemPrice}>
                         QAR {product.discountedPrice} × {item.quantity}
