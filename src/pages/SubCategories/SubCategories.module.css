@@ -19,18 +19,21 @@
   font-size: 14px;
   color: #6b7280;
 }
-
 .addBtn {
-background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);  color: #fff;
+  background: linear-gradient(135deg, #1a1410 0%, #2d2416 50%, #1a1410 100%);
+  color: #fff;
   border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
+
+  padding: 6px 12px;     /* smaller padding */
+  font-size: 13px;       /* smaller text */
+  border-radius: 8px;    /* slightly smaller radius */
+
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;              /* reduce space between + and text */
+  width: fit-content;    /* prevent stretching */
 }
-
 .filters {
   margin-bottom: 16px;
 }
@@ -242,6 +245,17 @@ tbody tr {
     display: none;
   }
 
+
+
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.header p {
+  font-size: 8px;
+  color: #6b7280;
+}
   .mobileList {
     display: flex;
     flex-direction: column;
@@ -261,7 +275,22 @@ tbody tr {
     align-items: center;
     margin-bottom: 10px;
   }
+  .addBtn {
+    padding: 5px 10px;   /* smaller padding */
+    font-size: 12px;     /* smaller text */
+    gap: 3px;            /* reduce space between icon and text */
+    border-radius: 6px;  /* slightly smaller radius */
+    width: fit-content;  /* prevent stretching */
+  }
 
+
+  /* Optional: If the button still feels too wide, you can force it to fit content */
+  .addBtn {
+    width: fit-content;
+  }
+.addBtn svg {
+    display: none;   /* hides the + icon */
+  }
   .cardHeader h4 {
     margin: 0;
     font-size: 15px;

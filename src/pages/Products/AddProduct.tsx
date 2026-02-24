@@ -29,6 +29,11 @@ export default function CreateProduct() {
 };
 
 const [variationsEnabled, setVariationsEnabled] = useState(false);
+useEffect(() => {
+  if (variationsEnabled) {
+    setStockCount(0); // clear stock
+  }
+}, [variationsEnabled]);
 
 const [variations, setVariations] = useState<VariationForm[]>([
   {
@@ -156,10 +161,12 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     }
 
 
-    if (stockCount < 0) {
-      showToast("Stock quantity cannot be negative", "error");
+    if (!variationsEnabled) {
+    if (stockCount <= 0) {
+      showToast("Stock quantity is required", "error");
       return false;
     }
+  }
 
     if (!actualPrice || Number(actualPrice) <= 0) {
       showToast("Regular price must be greater than 0", "error");
@@ -199,14 +206,7 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
         0
       );
 
-      if (totalVariationStock > stockCount) {
-        showToast(
-          `Total variation stock (${totalVariationStock}) cannot exceed product stock (${stockCount})`,
-          "error"
-        );
-        return false;
-      }
-
+      
       for (let i = 0; i < variations.length; i++) {
         const v = variations[i];
 
@@ -268,7 +268,7 @@ const handleCreateProduct = async () => {
     formData.append("stockCount", String(stockCount));
     formData.append("actualPrice", actualPrice);
     const finalDiscount =
-      discountedPrice === "" || discountedPrice === null || discountedPrice === " "
+      discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
       ? actualPrice 
       : discountedPrice
     formData.append("discountedPrice", finalDiscount);
@@ -283,13 +283,13 @@ const handleCreateProduct = async () => {
       const payloadVariations = variations.map((v) => {
         const price = Number(v.price);
         const discounted =
-          v.discountedPrice === "" || v.discountedPrice === null
+          v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
             ? price
             : Number(v.discountedPrice);
 
         return {
           variationName: v.variationName,
-          price: price,
+          actualPrice: price,
           discountedPrice: discounted,
           stockCount: Number(v.stockCount),
           isAvailable: v.isAvailable,
@@ -377,9 +377,12 @@ const hasNoSubCategories =
             <label>Stock Quantity *</label>
             <input
               type="number"
-              value={stockCount === 0 ? "" : stockCount}
+              value={variationsEnabled ? "" : stockCount === 0 ? "" : stockCount}
+              disabled={variationsEnabled}
               onChange={(e) =>
-                setStockCount(e.target.value === "" ? 0 : Number(e.target.value))
+                setStockCount(
+                  e.target.value === "" ? 0 : Number(e.target.value)
+                )
               }
             />
           </div>
