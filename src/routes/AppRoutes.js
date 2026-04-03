@@ -1,0 +1,30 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "../pages/Login/Login";
+import Dashboard from "../pages/Dashboard/Dashboard";
+import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
+import MainLayout from "../layouts/MainLayout";
+import Orders from "../pages/orders/Orders";
+import Products from "../pages/Products/Products";
+import AddProduct from "../pages/Products/AddProduct";
+import Categories from "../pages/Categories/Categories";
+import SubCategories from "../pages/SubCategories/SubCategories";
+import AddCategory from "../pages/Categories/AddCategory";
+import AddSubCategory from "../pages/SubCategories/AddSubCategory";
+import OrderDetails from "../pages/orders/OrderDetails";
+import EditProduct from "../pages/Products/EditProduct";
+import EditCategory from "../pages/Categories/EditCategory";
+import EditSubCategory from "../pages/SubCategories/EditSubCategory";
+import ProductDetails from "../pages/Products/ProductDetails";
+import Customers from "../pages/customers/Customers";
+import Coupons from "../pages/coupons/Coupons";
+import Banners from "../pages/banner/Banner";
+import DeliveryCharges from "../pages/deliveryCharges/DeliveryCharges";
+import DeliveryPartners from "@/pages/Deliverypartners/DeliveryPartners";
+import DeliveryPartnerDetail from "@/pages/Deliverypartners/DeliveryPartnerDetail";
+import MobileLogin from "@/pages/mobile-login/MobileLogin";
+import ReturnedItems from "@/pages/ReturnedItems/ReturnedItems";
+import ReturnedItemDetails from "@/pages/ReturnedItems/details/ReturnedItemDetails";
+export default function AppRoutes() {
+    return (_jsxs(Routes, { children: [_jsx(Route, { path: "/", element: _jsx(Navigate, { to: "/login", replace: true }) }), _jsx(Route, { path: "/login", element: _jsx(Login, {}) }), _jsx(Route, { path: "/mobile/:token", element: _jsx(MobileLogin, {}) }), _jsxs(Route, { path: "/", element: _jsx(ProtectedRoute, { children: _jsx(MainLayout, {}) }), children: [_jsx(Route, { path: "dashboard", element: _jsx(Dashboard, {}) }), _jsx(Route, { path: "products", element: _jsx(Products, {}) }), _jsx(Route, { path: "products/add", element: _jsx(AddProduct, {}) }), _jsx(Route, { path: "products/:id", element: _jsx(ProductDetails, {}) }), _jsx(Route, { path: "orders", element: _jsx(Orders, {}) }), _jsx(Route, { path: "categories", element: _jsx(Categories, {}) }), _jsx(Route, { path: "categories/add", element: _jsx(AddCategory, {}) }), _jsx(Route, { path: "subcategories", element: _jsx(SubCategories, {}) }), _jsx(Route, { path: "subcategories/add", element: _jsx(AddSubCategory, {}) }), _jsx(Route, { path: "/orders/:orderId", element: _jsx(OrderDetails, {}) }), _jsx(Route, { path: "/returned-items", element: _jsx(ReturnedItems, {}) }), _jsx(Route, { path: "/returned-items/:returnId", element: _jsx(ReturnedItemDetails, {}) }), _jsx(Route, { path: "/products/edit/:id", element: _jsx(EditProduct, {}) }), _jsx(Route, { path: "/categories/edit/:id", element: _jsx(EditCategory, {}) }), _jsx(Route, { path: "/subcategories/edit/:id", element: _jsx(EditSubCategory, {}) }), _jsx(Route, { path: "customers", element: _jsx(Customers, {}) }), _jsx(Route, { path: "coupons", element: _jsx(Coupons, {}) }), _jsx(Route, { path: "banners", element: _jsx(Banners, {}) }), _jsx(Route, { path: "deliveryCharges", element: _jsx(DeliveryCharges, {}) }), _jsx(Route, { path: "deliveryPartner", element: _jsx(DeliveryPartners, {}) }), _jsx(Route, { path: "deliveryPartner/:id", element: _jsx(DeliveryPartnerDetail, {}) })] }), _jsx(Route, { path: "*", element: _jsx(Navigate, { to: "/login", replace: true }) })] }));
+}

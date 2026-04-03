@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import styles from "./Banner.module.css";
 import api from "../../services/api";
@@ -23,6 +23,9 @@ const Banners = () => {
   const [createImage, setCreateImage] = useState<File | null>(null);
   const [createTitle, setCreateTitle] = useState("");
   const [createLink, setCreateLink] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const createInFlightRef = useRef(false);
+  const createFileInputRef = useRef<HTMLInputElement | null>(null);
 
   /* ================= EDIT STATE ================= */
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -33,27 +36,32 @@ const Banners = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteBannerId, setDeleteBannerId] = useState<string | null>(null);
   /* ================= FETCH ================= */
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     try {
       const res = await api.get("/banners");
       setBanners(res.data.data);
     } catch {
       showToast("Failed to fetch banners", "error");
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     fetchBanners();
-  }, []);
+  }, [fetchBanners]);
 
   /* ================= CREATE ================= */
   const handleCreate = async () => {
+    if (createInFlightRef.current) return;
+
     if (!createImage || !createTitle ) {
       showToast("All fields are required", "error");
       return;
     }
 
     try {
+      createInFlightRef.current = true;
+      setIsCreating(true);
+
       const formData = new FormData();
       formData.append("image", createImage);
       formData.append("title", createTitle);
@@ -65,9 +73,15 @@ const Banners = () => {
       setCreateImage(null);
       setCreateTitle("");
       setCreateLink("");
-      fetchBanners();
+      if (createFileInputRef.current) {
+        createFileInputRef.current.value = "";
+      }
+      await fetchBanners();
     } catch {
       showToast("Failed to create banner", "error");
+    } finally {
+      createInFlightRef.current = false;
+      setIsCreating(false);
     }
   };
 
@@ -148,8 +162,10 @@ const Banners = () => {
           <h3>Create Banner</h3>
 
           <input
+            ref={createFileInputRef}
             type="file"
             accept="image/*"
+            disabled={isCreating}
             onChange={(e) => setCreateImage(e.target.files?.[0] || null)}
           />
 
@@ -157,6 +173,7 @@ const Banners = () => {
             type="text"
             placeholder="Banner title"
             value={createTitle}
+            disabled={isCreating}
             onChange={(e) => setCreateTitle(e.target.value)}
           />
 
@@ -164,10 +181,13 @@ const Banners = () => {
             type="text"
             placeholder="Redirect link (https://...)"
             value={createLink}
+            disabled={isCreating}
             onChange={(e) => setCreateLink(e.target.value)}
           />
 
-          <button onClick={handleCreate}>Create Banner</button>
+          <button onClick={handleCreate} disabled={isCreating}>
+            {isCreating ? "Creating..." : "Create Banner"}
+          </button>
         </div>
       </div>
 
