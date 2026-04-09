@@ -229,7 +229,21 @@ tbody tr {
   font-size: 14px;
   margin-bottom: 16px;
 }
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #374151;
+}
 
+.checkbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0f172a;
+}
 /* ================= MODAL ACTIONS ================= */
 .modalActions {
   display: flex;
@@ -256,20 +270,35 @@ tbody tr {
 /* ... Keep all your base styles for .page, .header, .addBtn, etc. ... */
 
 /* --- Visibility Logic --- */
-.mobileCards { display: none; }
-.desktopTable { display: table; width: 100%; }
+.mobileCards {
+  display: none;
+}
+.desktopTable {
+  display: table;
+  width: 100%;
+}
 
 /* ============================================================
    Laptops & Large Tablets (max-width: 1024px)
    ============================================================ */
 @media (max-width: 1024px) {
-  .page { padding: 16px; }
-  
-  .searchBox { max-width: 350px; }
-  
-  th, td { padding: 12px 8px; font-size: 13px; }
-  
-  .modal { max-width: 440px; }
+  .page {
+    padding: 16px;
+  }
+
+  .searchBox {
+    max-width: 350px;
+  }
+
+  th,
+  td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
+  .modal {
+    max-width: 440px;
+  }
 }
 
 /* ============================================================
@@ -283,15 +312,25 @@ tbody tr {
     margin-bottom: 20px;
     gap: 16px;
   }
-  
-  .header h1 { font-size: 20px; }
-  .addBtn { width: 100%; justify-content: center; height: 48px; }
+
+  .header h1 {
+    font-size: 20px;
+  }
+  .addBtn {
+    width: 100%;
+    justify-content: center;
+    height: 48px;
+  }
 
   /* Search box full width */
-  .searchBox { max-width: 100%; }
+  .searchBox {
+    max-width: 100%;
+  }
 
   /* SWITCH: Table to Cards */
-  .desktopTable { display: none; }
+  .desktopTable {
+    display: none;
+  }
   .mobileCards {
     display: flex;
     flex-direction: column;
@@ -315,8 +354,11 @@ tbody tr {
     margin-bottom: 12px;
   }
 
-  .cardActions { display: flex; gap: 10px; }
-  
+  .cardActions {
+    display: flex;
+    gap: 10px;
+  }
+
   /* Pagination Stack */
   .pagination {
     justify-content: center;
@@ -334,12 +376,18 @@ tbody tr {
    Small Phones (max-width: 460px)
    ============================================================ */
 @media (max-width: 460px) {
-  .page { padding: 10px; }
+  .page {
+    padding: 10px;
+  }
 
   /* Tighten card spacing */
-  .card { padding: 12px; }
-  
-  .cardCode { font-size: 14px; }
+  .card {
+    padding: 12px;
+  }
+
+  .cardCode {
+    font-size: 14px;
+  }
 
   /* Make Save/Cancel buttons stack for easier thumb access */
   .modalActions {
@@ -373,7 +421,11 @@ tbody tr {
   }
 
   /* Modal Adjustments */
-  .modal h3 { font-size: 16px; }
-  
-  .chipInput input { font-size: 16px; } /* Prevents iOS auto-zoom */
+  .modal h3 {
+    font-size: 16px;
+  }
+
+  .chipInput input {
+    font-size: 16px;
+  } /* Prevents iOS auto-zoom */
 }

@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import styles from "./DeliveryCharges.module.css";
-import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX, } from "react-icons/fi";
+import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
@@ -24,6 +24,7 @@ export default function DeliveryCharges() {
     const [postalCodes, setPostalCodes] = useState([]);
     const [postalInput, setPostalInput] = useState("");
     const [charge, setCharge] = useState("");
+    const [isFreeDeliveryEligible, setIsFreeDeliveryEligible] = useState(false);
     /* ================= FETCH ================= */
     const fetchCharges = async () => {
         try {
@@ -74,6 +75,7 @@ export default function DeliveryCharges() {
             await api.post("/delivery-charges", {
                 postalCodes: finalCodes,
                 deliveryCharge: Number(charge),
+                isFreeDeliveryEligible,
             });
             showToast("Delivery charges added successfully", "success");
             setPostalCodes([]);
@@ -93,6 +95,7 @@ export default function DeliveryCharges() {
         try {
             await api.patch(`/delivery-charges/${editCode}`, {
                 deliveryCharge: Number(charge),
+                isFreeDeliveryEligible,
             });
             showToast("Delivery charge updated", "success");
             setEditCode(null);
@@ -124,18 +127,21 @@ export default function DeliveryCharges() {
                             } })] }) }), _jsxs("div", { className: styles.tableWrapper, children: [loading ? (_jsx("p", { className: styles.loading, children: "Loading..." })) : (_jsxs(_Fragment, { children: [_jsxs("table", { className: styles.desktopTable, children: [_jsx("thead", { children: _jsxs("tr", { children: [_jsx("th", { children: "Postal Code" }), _jsx("th", { children: "Delivery Charge" }), _jsx("th", { children: "Created" }), _jsx("th", { children: "Actions" })] }) }), _jsx("tbody", { children: data.map((d) => (_jsxs("tr", { children: [_jsx("td", { children: d.postalCode }), _jsxs("td", { children: ["QAR ", d.deliveryCharge] }), _jsx("td", { children: new Date(d.createdAt).toLocaleDateString() }), _jsxs("td", { className: styles.actions, children: [_jsx("button", { className: styles.editBtn, onClick: () => {
                                                                 setEditCode(d.id);
                                                                 setCharge(d.deliveryCharge);
+                                                                setIsFreeDeliveryEligible(d.isFreeDeliveryEligible);
                                                             }, children: _jsx(FiEdit2, {}) }), _jsx("button", { className: styles.deleteBtn, onClick: () => setDeleteCode(d.id), children: _jsx(FiTrash2, {}) })] })] }, d.id))) })] }), _jsx("div", { className: styles.mobileCards, children: data.map((d) => (_jsxs("div", { className: styles.card, children: [_jsxs("div", { className: styles.cardHeader, children: [_jsx("span", { className: styles.cardCode, children: d.postalCode }), _jsxs("div", { className: styles.cardActions, children: [_jsx("button", { className: styles.editBtn, onClick: () => {
                                                                 setEditCode(d.id);
                                                                 setCharge(d.deliveryCharge);
-                                                            }, children: _jsx(FiEdit2, {}) }), _jsx("button", { className: styles.deleteBtn, onClick: () => setDeleteCode(d.id), children: _jsx(FiTrash2, {}) })] })] }), _jsxs("div", { className: styles.cardBody, children: [_jsxs("div", { className: styles.cardRow, children: [_jsx("span", { className: styles.label, children: "Charge:" }), _jsxs("span", { className: styles.value, children: ["QAR ", d.deliveryCharge] })] }), _jsxs("div", { className: styles.cardRow, children: [_jsx("span", { className: styles.label, children: "Created:" }), _jsx("span", { className: styles.value, children: new Date(d.createdAt).toLocaleDateString() })] })] })] }, d.id))) })] })), _jsxs("div", { className: styles.pagination, children: [_jsx("button", { className: styles.pageBtn, disabled: page === 1, onClick: () => setPage((p) => p - 1), children: "Prev" }), _jsxs("span", { className: styles.pageInfo, children: ["Page ", page, " of ", totalPages] }), _jsx("button", { className: styles.pageBtn, disabled: page === totalPages, onClick: () => setPage((p) => p + 1), children: "Next" })] })] }), (showCreate || editCode) && (_jsx("div", { className: styles.modalBackdrop, children: _jsxs("div", { className: styles.modal, children: [_jsx("h3", { children: editCode ? "Edit Delivery Charge" : "Add Delivery Charges" }), !editCode && (_jsxs("div", { className: styles.chipInput, children: [postalCodes.map((c) => (_jsxs("span", { className: styles.chip, children: [c, _jsx(FiX, { onClick: () => setPostalCodes(postalCodes.filter(p => p !== c)) })] }, c))), _jsx("input", { value: postalInput, placeholder: "Enter postal code", onChange: (e) => setPostalInput(e.target.value), onKeyDown: (e) => {
+                                                                setIsFreeDeliveryEligible(d.isFreeDeliveryEligible);
+                                                            }, children: _jsx(FiEdit2, {}) }), _jsx("button", { className: styles.deleteBtn, onClick: () => setDeleteCode(d.id), children: _jsx(FiTrash2, {}) })] })] }), _jsxs("div", { className: styles.cardBody, children: [_jsxs("div", { className: styles.cardRow, children: [_jsx("span", { className: styles.label, children: "Charge:" }), _jsxs("span", { className: styles.value, children: ["QAR ", d.deliveryCharge] })] }), _jsxs("div", { className: styles.cardRow, children: [_jsx("span", { className: styles.label, children: "Created:" }), _jsx("span", { className: styles.value, children: new Date(d.createdAt).toLocaleDateString() })] })] })] }, d.id))) })] })), _jsxs("div", { className: styles.pagination, children: [_jsx("button", { className: styles.pageBtn, disabled: page === 1, onClick: () => setPage((p) => p - 1), children: "Prev" }), _jsxs("span", { className: styles.pageInfo, children: ["Page ", page, " of ", totalPages] }), _jsx("button", { className: styles.pageBtn, disabled: page === totalPages, onClick: () => setPage((p) => p + 1), children: "Next" })] })] }), (showCreate || editCode) && (_jsx("div", { className: styles.modalBackdrop, children: _jsxs("div", { className: styles.modal, children: [_jsx("h3", { children: editCode ? "Edit Delivery Charge" : "Add Delivery Charges" }), !editCode && (_jsxs("div", { className: styles.chipInput, children: [postalCodes.map((c) => (_jsxs("span", { className: styles.chip, children: [c, _jsx(FiX, { onClick: () => setPostalCodes(postalCodes.filter((p) => p !== c)) })] }, c))), _jsx("input", { value: postalInput, placeholder: "Enter postal code", onChange: (e) => setPostalInput(e.target.value), onKeyDown: (e) => {
                                         if (e.key === "Enter") {
                                             e.preventDefault();
                                             addPostalCode();
                                         }
-                                    } })] })), _jsx("input", { type: "number", placeholder: "Delivery Charge (QAR)", className: styles.modalInput, value: charge, onChange: (e) => setCharge(e.target.value) }), _jsxs("div", { className: styles.modalActions, children: [_jsx("button", { className: styles.cancelBtn, onClick: () => {
+                                    } })] })), _jsx("input", { type: "number", placeholder: "Delivery Charge (QAR)", className: styles.modalInput, value: charge, onChange: (e) => setCharge(e.target.value) }), _jsxs("label", { className: styles.checkbox, children: [_jsx("input", { type: "checkbox", checked: isFreeDeliveryEligible, onChange: (e) => setIsFreeDeliveryEligible(e.target.checked) }), "Free Delivery Eligible"] }), _jsxs("div", { className: styles.modalActions, children: [_jsx("button", { className: styles.cancelBtn, onClick: () => {
                                         setShowCreate(false);
                                         setEditCode(null);
                                         setPostalCodes([]);
                                         setCharge("");
+                                        setIsFreeDeliveryEligible(false);
                                     }, children: "Cancel" }), _jsx("button", { className: styles.saveBtn, onClick: editCode ? handleUpdate : handleCreate, children: "Save" })] })] }) })), _jsx(ConfirmModal, { open: !!deleteCode, title: "Delete Delivery Charge", message: "Are you sure you want to delete this delivery charge?", confirmText: "Delete", onCancel: () => setDeleteCode(null), onConfirm: handleDelete })] }));
 }

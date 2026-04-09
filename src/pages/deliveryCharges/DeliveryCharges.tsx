@@ -1,11 +1,5 @@
 import styles from "./DeliveryCharges.module.css";
-import {
-  FiSearch,
-  FiEdit2,
-  FiTrash2,
-  FiPlus,
-  FiX,
-} from "react-icons/fi";
+import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
@@ -16,6 +10,7 @@ interface DeliveryCharge {
   id: string;
   postalCode: string;
   deliveryCharge: string;
+  isFreeDeliveryEligible: boolean;
   createdAt: string;
 }
 
@@ -53,6 +48,7 @@ export default function DeliveryCharges() {
   const [postalCodes, setPostalCodes] = useState<string[]>([]);
   const [postalInput, setPostalInput] = useState("");
   const [charge, setCharge] = useState("");
+  const [isFreeDeliveryEligible, setIsFreeDeliveryEligible] = useState(false);
 
   /* ================= FETCH ================= */
   const fetchCharges = async () => {
@@ -88,40 +84,39 @@ export default function DeliveryCharges() {
 
     setPostalCodes((prev) => [...prev, code]);
     setPostalInput("");
-    };
-
+  };
 
   const handleCreate = async () => {
     const finalCodes = [...postalCodes];
 
     if (postalInput.trim()) {
-        if (!finalCodes.includes(postalInput.trim())) {
+      if (!finalCodes.includes(postalInput.trim())) {
         finalCodes.push(postalInput.trim());
-        }
+      }
     }
 
     if (finalCodes.length === 0) {
-        showToast("Please add at least one postal code", "error");
-        return;
+      showToast("Please add at least one postal code", "error");
+      return;
     }
 
     try {
-        await api.post("/delivery-charges", {
+      await api.post("/delivery-charges", {
         postalCodes: finalCodes,
         deliveryCharge: Number(charge),
-        });
+        isFreeDeliveryEligible,
+      });
 
-        showToast("Delivery charges added successfully", "success");
-        setPostalCodes([]);
-        setPostalInput("");
-        setCharge("");
-        setShowCreate(false);
-        fetchCharges();
+      showToast("Delivery charges added successfully", "success");
+      setPostalCodes([]);
+      setPostalInput("");
+      setCharge("");
+      setShowCreate(false);
+      fetchCharges();
     } catch {
-        showToast("Failed to create delivery charges", "error");
+      showToast("Failed to create delivery charges", "error");
     }
-    };
-
+  };
 
   /* ================= UPDATE ================= */
   const handleUpdate = async () => {
@@ -129,6 +124,7 @@ export default function DeliveryCharges() {
     try {
       await api.patch(`/delivery-charges/${editCode}`, {
         deliveryCharge: Number(charge),
+        isFreeDeliveryEligible,
       });
 
       showToast("Delivery charge updated", "success");
@@ -210,6 +206,7 @@ export default function DeliveryCharges() {
                         onClick={() => {
                           setEditCode(d.id);
                           setCharge(d.deliveryCharge);
+                          setIsFreeDeliveryEligible(d.isFreeDeliveryEligible);
                         }}
                       >
                         <FiEdit2 />
@@ -233,16 +230,17 @@ export default function DeliveryCharges() {
                   <div className={styles.cardHeader}>
                     <span className={styles.cardCode}>{d.postalCode}</span>
                     <div className={styles.cardActions}>
-                      <button 
+                      <button
                         className={styles.editBtn}
                         onClick={() => {
                           setEditCode(d.id);
                           setCharge(d.deliveryCharge);
+                          setIsFreeDeliveryEligible(d.isFreeDeliveryEligible);
                         }}
                       >
                         <FiEdit2 />
                       </button>
-                      <button 
+                      <button
                         className={styles.deleteBtn}
                         onClick={() => setDeleteCode(d.id)}
                       >
@@ -253,7 +251,9 @@ export default function DeliveryCharges() {
                   <div className={styles.cardBody}>
                     <div className={styles.cardRow}>
                       <span className={styles.label}>Charge:</span>
-                      <span className={styles.value}>QAR {d.deliveryCharge}</span>
+                      <span className={styles.value}>
+                        QAR {d.deliveryCharge}
+                      </span>
                     </div>
                     <div className={styles.cardRow}>
                       <span className={styles.label}>Created:</span>
@@ -277,7 +277,9 @@ export default function DeliveryCharges() {
           >
             Prev
           </button>
-          <span className={styles.pageInfo}>Page {page} of {totalPages}</span>
+          <span className={styles.pageInfo}>
+            Page {page} of {totalPages}
+          </span>
           <button
             className={styles.pageBtn}
             disabled={page === totalPages}
@@ -292,16 +294,20 @@ export default function DeliveryCharges() {
       {(showCreate || editCode) && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modal}>
-            <h3>{editCode ? "Edit Delivery Charge" : "Add Delivery Charges"}</h3>
+            <h3>
+              {editCode ? "Edit Delivery Charge" : "Add Delivery Charges"}
+            </h3>
 
             {!editCode && (
               <div className={styles.chipInput}>
                 {postalCodes.map((c) => (
                   <span key={c} className={styles.chip}>
                     {c}
-                    <FiX onClick={() =>
-                      setPostalCodes(postalCodes.filter(p => p !== c))
-                    } />
+                    <FiX
+                      onClick={() =>
+                        setPostalCodes(postalCodes.filter((p) => p !== c))
+                      }
+                    />
                   </span>
                 ))}
                 <input
@@ -326,6 +332,15 @@ export default function DeliveryCharges() {
               onChange={(e) => setCharge(e.target.value)}
             />
 
+            <label className={styles.checkbox}>
+              <input
+                type="checkbox"
+                checked={isFreeDeliveryEligible}
+                onChange={(e) => setIsFreeDeliveryEligible(e.target.checked)}
+              />
+              Free Delivery Eligible
+            </label>
+
             <div className={styles.modalActions}>
               <button
                 className={styles.cancelBtn}
@@ -334,6 +349,7 @@ export default function DeliveryCharges() {
                   setEditCode(null);
                   setPostalCodes([]);
                   setCharge("");
+                  setIsFreeDeliveryEligible(false);
                 }}
               >
                 Cancel
