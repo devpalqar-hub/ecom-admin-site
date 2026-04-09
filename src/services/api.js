@@ -11,7 +11,9 @@ api.interceptors.request.use((config) => {
     return config;
 }, (error) => Promise.reject(error));
 api.interceptors.response.use((response) => response, (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url ?? "";
+    const isLoginRequest = typeof requestUrl === "string" && requestUrl.includes("/auth/login");
+    if (error.response?.status === 401 && !isLoginRequest) {
         logout();
     }
     return Promise.reject(error);
