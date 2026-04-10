@@ -156,7 +156,7 @@ export default function DeliveryCharges() {
       <div className={styles.header}>
         <div>
           <h1>Delivery Charges</h1>
-          <p>Manage delivery charges by postal code</p>
+          <p>Manage delivery charges by zone number</p>
         </div>
         <button className={styles.addBtn} onClick={() => setShowCreate(true)}>
           <FiPlus /> Add Charges
@@ -168,7 +168,7 @@ export default function DeliveryCharges() {
         <div className={styles.searchBox}>
           <FiSearch className={styles.searchIcon} />
           <input
-            placeholder="Search postal code..."
+            placeholder="Search zone number..."
             value={search}
             onChange={(e) => {
               setPage(1);
@@ -188,7 +188,7 @@ export default function DeliveryCharges() {
             <table className={styles.desktopTable}>
               <thead>
                 <tr>
-                  <th>Postal Code</th>
+                  <th>Zone Number</th>
                   <th>Delivery Charge</th>
                   <th>Created</th>
                   <th>Actions</th>
@@ -312,7 +312,7 @@ export default function DeliveryCharges() {
                 ))}
                 <input
                   value={postalInput}
-                  placeholder="Enter postal code"
+                  placeholder="Enter zone number"
                   onChange={(e) => setPostalInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
