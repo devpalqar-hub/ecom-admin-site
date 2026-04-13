@@ -6,6 +6,7 @@ import styles from "./EditProduct.module.css";
 import { useToast } from "../../components/toast/ToastContext";
 import axios from "axios";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ================= TYPES ================= */
 
@@ -52,6 +53,7 @@ export default function EditProduct() {
   const [variations, setVariations] = useState<VariationForm[]>([]);
 
   const [loading, setLoading] = useState(true);
+  const { isRunning: isSaving, runWithLock } = useAsyncActionLock();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteImageId, setDeleteImageId] = useState<string | null>(null);
   const [showVariationDeleteConfirm, setShowVariationDeleteConfirm] =
@@ -356,39 +358,41 @@ const handleConfirmDeleteImage = async () => {
   e.preventDefault();
   
   if (!validateForm()) return;
-  try {
-    const payload: any = {
-      name,
-      description,
-      stockCount,
-      actualPrice: Number(actualPrice),
-      discountedPrice: Number(discountedPrice),
-      subCategoryId,
-      isFeatured,
-      variationTitle, 
-    };
+  await runWithLock(async () => {
+    try {
+      const payload: any = {
+        name,
+        description,
+        stockCount,
+        actualPrice: Number(actualPrice),
+        discountedPrice: Number(discountedPrice),
+        subCategoryId,
+        isFeatured,
+        variationTitle, 
+      };
 
-    if (variationsEnabled) {
-      payload.variations = variations.map((v) => ({
-        id: v.id,
-        variationName: v.variationName,
-        discountedPrice: Number(v.discountedPrice),
-        actualPrice: Number(v.actualPrice),
-        stockCount: Number(v.stockCount),
-      }));
+      if (variationsEnabled) {
+        payload.variations = variations.map((v) => ({
+          id: v.id,
+          variationName: v.variationName,
+          discountedPrice: Number(v.discountedPrice),
+          actualPrice: Number(v.actualPrice),
+          stockCount: Number(v.stockCount),
+        }));
+      }
+
+      await api.patch(`/products/${id}`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      showToast("Product updated successfully", "success");
+      navigate(-1);
+    } catch (err) {
+      showToast(getErrorMessage(err), "error");
     }
-
-    await api.patch(`/products/${id}`, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    showToast("Product updated successfully", "success");
-    navigate(-1);
-  } catch (err) {
-    showToast(getErrorMessage(err), "error");
-  }
+  });
 };
 
   if (loading) return <p>Loading...</p>;
@@ -648,12 +652,12 @@ const handleConfirmDeleteImage = async () => {
 
         {/* ACTIONS */}
           <div className={styles.actions}>
-            <button type="button" onClick={() => navigate(-1)}>
+            <button type="button" onClick={() => navigate(-1)} disabled={isSaving}>
               Cancel
             </button>
 
-            <button type="submit" className={styles.gradientBtn}>
-              Update Product
+            <button type="submit" className={styles.gradientBtn} disabled={isSaving}>
+              {isSaving ? "Updating..." : "Update Product"}
             </button>
           </div>
       </form>

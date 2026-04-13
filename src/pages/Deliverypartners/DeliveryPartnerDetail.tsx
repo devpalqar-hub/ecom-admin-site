@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
 import { useToast } from "@/components/toast/ToastContext";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ---------------- TYPES ---------------- */
 interface DeliveryPartner {
@@ -174,6 +175,7 @@ export default function DeliveryPartnerDetail() {
     email: "",
     password: "",
   });
+  const { isRunning: isSavingChanges, runWithLock } = useAsyncActionLock();
 
   /* Delete confirmation */
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -231,17 +233,19 @@ export default function DeliveryPartnerDetail() {
   /* ---------------- HANDLERS ---------------- */
   const handleUpdate = async () => {
     if (!id) return;
-    try {
-      const payload: any = { name: editForm.name, email: editForm.email };
-      if (editForm.password) payload.password = editForm.password;
-      await api.patch(`/delivery-partners/${id}`, payload);
-      showToast("Delivery partner updated successfully", "success");
-      setIsEditing(false);
-      fetchPartnerDetails();
-    } catch (error) {
-      console.error("Failed to update partner", error);
-      showToast("Failed to update delivery partner", "error");
-    }
+    await runWithLock(async () => {
+      try {
+        const payload: any = { name: editForm.name, email: editForm.email };
+        if (editForm.password) payload.password = editForm.password;
+        await api.patch(`/delivery-partners/${id}`, payload);
+        showToast("Delivery partner updated successfully", "success");
+        setIsEditing(false);
+        await fetchPartnerDetails();
+      } catch (error) {
+        console.error("Failed to update partner", error);
+        showToast("Failed to update delivery partner", "error");
+      }
+    });
   };
 
   const handleDelete = async () => {
@@ -469,6 +473,7 @@ export default function DeliveryPartnerDetail() {
                   <input
                     type="text"
                     value={editForm.name}
+                    disabled={isSavingChanges}
                     onChange={(e) =>
                       setEditForm({ ...editForm, name: e.target.value })
                     }
@@ -479,6 +484,7 @@ export default function DeliveryPartnerDetail() {
                   <input
                     type="email"
                     value={editForm.email}
+                    disabled={isSavingChanges}
                     onChange={(e) =>
                       setEditForm({ ...editForm, email: e.target.value })
                     }
@@ -489,6 +495,7 @@ export default function DeliveryPartnerDetail() {
                   <input
                     type="password"
                     value={editForm.password}
+                    disabled={isSavingChanges}
                     onChange={(e) =>
                       setEditForm({ ...editForm, password: e.target.value })
                     }
@@ -496,11 +503,16 @@ export default function DeliveryPartnerDetail() {
                   />
                 </div>
                 <div className={styles.formActions}>
-                  <button className={styles.saveBtn} onClick={handleUpdate}>
-                    Save Changes
+                  <button
+                    className={styles.saveBtn}
+                    onClick={handleUpdate}
+                    disabled={isSavingChanges}
+                  >
+                    {isSavingChanges ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     className={styles.cancelBtn}
+                    disabled={isSavingChanges}
                     onClick={() => {
                       setIsEditing(false);
                       setEditForm({

@@ -4,6 +4,7 @@ import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ================= TYPES ================= */
 
@@ -23,8 +24,8 @@ export default function AddSubCategory() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { isRunning: isSubmitting, runWithLock } = useAsyncActionLock();
   /* ---------- slug helper ---------- */
   const generateSlug = (text: string) =>
     text
@@ -63,31 +64,29 @@ export default function AddSubCategory() {
       return;
     }
 
-    try {
-      setLoading(true);
+    await runWithLock(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", name.trim());
+        formData.append("slug", generateSlug(name));
+        formData.append("description", description.trim());
+        formData.append("categoryId", categoryId);
 
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("slug", generateSlug(name));
-      formData.append("description", description.trim());
-      formData.append("categoryId", categoryId);
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
 
-      if (imageFile) {
-        formData.append("image", imageFile);
+        await api.post("/subcategories", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        showToast("Subcategory created successfully", "success");
+        navigate("/subcategories");
+      } catch (err: any) {
+        console.error("Create subcategory failed", err?.response?.data || err);
+        showToast("Failed to create subcategory", "error");
       }
-
-      await api.post("/subcategories", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      showToast("Subcategory created successfully", "success");
-      navigate("/subcategories");
-    } catch (err: any) {
-      console.error("Create subcategory failed", err?.response?.data || err);
-      showToast("Failed to create subcategory", "error");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   /* ================= UI ================= */
@@ -119,6 +118,7 @@ export default function AddSubCategory() {
             type="file"
             hidden
             accept="image/*"
+            disabled={isSubmitting}
             onChange={handleImageChange}
           />
         </label>
@@ -133,6 +133,7 @@ export default function AddSubCategory() {
           <label>SubCategory Name *</label>
           <input
             value={name}
+            disabled={isSubmitting}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Shirts"
           />
@@ -142,6 +143,7 @@ export default function AddSubCategory() {
           <label>Category *</label>
           <select
             value={categoryId}
+            disabled={isSubmitting}
             onChange={(e) => setCategoryId(e.target.value)}
           >
             <option value="">Select category</option>
@@ -157,6 +159,7 @@ export default function AddSubCategory() {
           <label>Description</label>
           <textarea
             value={description}
+            disabled={isSubmitting}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional description"
           />
@@ -166,7 +169,7 @@ export default function AddSubCategory() {
           <button
             className={styles.cancel}
             onClick={() => navigate("/subcategories")}
-            disabled={loading}
+            disabled={isSubmitting}
           >
             Cancel
           </button>
@@ -174,9 +177,9 @@ export default function AddSubCategory() {
           <button
             className={styles.primary}
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={isSubmitting}
           >
-            {loading ? "Creating..." : "Create SubCategory"}
+            {isSubmitting ? "Creating..." : "Create SubCategory"}
           </button>
         </div>
       </div>

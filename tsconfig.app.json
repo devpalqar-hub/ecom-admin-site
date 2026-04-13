@@ -4,19 +4,20 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "composite": true,
+
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
-
     "moduleResolution": "node",
 
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "strict": true
+    "strict": true,
+
+    "noEmit": true 
   },
   "include": ["src"]
 }

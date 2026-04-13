@@ -4,6 +4,7 @@ import styles from "./Banner.module.css";
 import api from "../../services/api";
 import { useToast } from "../../components/toast/ToastContext";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 interface Banner {
   id: string;
@@ -23,9 +24,9 @@ const Banners = () => {
   const [createImage, setCreateImage] = useState<File | null>(null);
   const [createTitle, setCreateTitle] = useState("");
   const [createLink, setCreateLink] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
-  const createInFlightRef = useRef(false);
   const createFileInputRef = useRef<HTMLInputElement | null>(null);
+  const { isRunning: isCreating, runWithLock: runCreate } = useAsyncActionLock();
+  const { isRunning: isUpdating, runWithLock: runUpdate } = useAsyncActionLock();
 
   /* ================= EDIT STATE ================= */
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -51,38 +52,32 @@ const Banners = () => {
 
   /* ================= CREATE ================= */
   const handleCreate = async () => {
-    if (createInFlightRef.current) return;
-
     if (!createImage || !createTitle ) {
       showToast("All fields are required", "error");
       return;
     }
 
-    try {
-      createInFlightRef.current = true;
-      setIsCreating(true);
+    await runCreate(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("image", createImage);
+        formData.append("title", createTitle);
+        formData.append("link", createLink);
 
-      const formData = new FormData();
-      formData.append("image", createImage);
-      formData.append("title", createTitle);
-      formData.append("link", createLink);
+        await api.post("/banners/admin", formData);
 
-      await api.post("/banners/admin", formData);
-
-      showToast("Banner created successfully", "success");
-      setCreateImage(null);
-      setCreateTitle("");
-      setCreateLink("");
-      if (createFileInputRef.current) {
-        createFileInputRef.current.value = "";
+        showToast("Banner created successfully", "success");
+        setCreateImage(null);
+        setCreateTitle("");
+        setCreateLink("");
+        if (createFileInputRef.current) {
+          createFileInputRef.current.value = "";
+        }
+        await fetchBanners();
+      } catch {
+        showToast("Failed to create banner", "error");
       }
-      await fetchBanners();
-    } catch {
-      showToast("Failed to create banner", "error");
-    } finally {
-      createInFlightRef.current = false;
-      setIsCreating(false);
-    }
+    });
   };
 
   /* ================= OPEN EDIT ================= */
@@ -98,23 +93,25 @@ const Banners = () => {
   const handleUpdate = async () => {
     if (!editingBanner) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("title", editTitle);
-      formData.append("link", editLink);
+    await runUpdate(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("title", editTitle);
+        formData.append("link", editLink);
 
-      if (editImage) {
-        formData.append("image", editImage);
+        if (editImage) {
+          formData.append("image", editImage);
+        }
+
+        await api.patch(`/banners/admin/${editingBanner.id}`, formData);
+
+        showToast("Banner updated successfully", "success");
+        closeEditModal();
+        await fetchBanners();
+      } catch {
+        showToast("Failed to update banner", "error");
       }
-
-      await api.patch(`/banners/admin/${editingBanner.id}`, formData);
-
-      showToast("Banner updated successfully", "success");
-      closeEditModal();
-      fetchBanners();
-    } catch {
-      showToast("Failed to update banner", "error");
-    }
+    });
   };
 
   /* ================= DELETE ================= */
@@ -288,6 +285,7 @@ const Banners = () => {
             <input
               type="file"
               accept="image/*"
+              disabled={isUpdating}
               onChange={(e) => setEditImage(e.target.files?.[0] || null)}
             />
 
@@ -295,6 +293,7 @@ const Banners = () => {
               type="text"
               placeholder="Banner title"
               value={editTitle}
+              disabled={isUpdating}
               onChange={(e) => setEditTitle(e.target.value)}
             />
 
@@ -302,12 +301,15 @@ const Banners = () => {
               type="text"
               placeholder="Redirect link"
               value={editLink}
+              disabled={isUpdating}
               onChange={(e) => setEditLink(e.target.value)}
             />
 
             <div className={styles.modalActions}>
-              <button onClick={handleUpdate}>Update</button>
-              <button className={styles.cancelBtn} onClick={closeEditModal}>
+              <button onClick={handleUpdate} disabled={isUpdating}>
+                {isUpdating ? "Updating..." : "Update"}
+              </button>
+              <button className={styles.cancelBtn} onClick={closeEditModal} disabled={isUpdating}>
                 Cancel
               </button>
             </div>

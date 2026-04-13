@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ---------------- TYPES ---------------- */
 interface DeliveryPartner {
@@ -49,6 +50,7 @@ export default function DeliveryPartners() {
     phone: "",
     password: "",
   });
+  const { isRunning: isCreatingPartner, runWithLock } = useAsyncActionLock();
 
   /* Pagination */
   const [page, setPage] = useState(1);
@@ -179,17 +181,19 @@ export default function DeliveryPartners() {
     return;
   }
 
-  try {
-    await api.post("/delivery-partners", newPartner);
+  await runWithLock(async () => {
+    try {
+      await api.post("/delivery-partners", newPartner);
 
-    setShowCreate(false);
-    setNewPartner({ name: "", email: "", phone: "", password: "" });
-
-    fetchPartners(); 
-  } catch (err: any) {
-    console.error(err);
-    showToast(err?.response?.data?.message || "Failed to create partner", "error");
-  }
+      setShowCreate(false);
+      setNewPartner({ name: "", email: "", phone: "", password: "" });
+      showToast("Delivery partner created successfully", "success");
+      await fetchPartners(); 
+    } catch (err: any) {
+      console.error(err);
+      showToast(err?.response?.data?.message || "Failed to create partner", "error");
+    }
+  });
 };
     
   /* ---------------- UI ---------------- */
@@ -391,6 +395,7 @@ export default function DeliveryPartners() {
               <label>Name</label>
               <input
                 value={newPartner.name}
+                disabled={isCreatingPartner}
                 onChange={(e) =>
                   setNewPartner({ ...newPartner, name: e.target.value })
                 }
@@ -402,6 +407,7 @@ export default function DeliveryPartners() {
               <input
                 type="email"
                 value={newPartner.email}
+                disabled={isCreatingPartner}
                 onChange={(e) =>
                   setNewPartner({ ...newPartner, email: e.target.value })
                 }
@@ -413,6 +419,7 @@ export default function DeliveryPartners() {
               <input
                 type="tel"
                 value={newPartner.phone}
+                disabled={isCreatingPartner}
                 onChange={(e) =>
                   setNewPartner({ ...newPartner, phone: e.target.value })
                 }
@@ -424,6 +431,7 @@ export default function DeliveryPartners() {
               <input
                 type="password"
                 value={newPartner.password}
+                disabled={isCreatingPartner}
                 onChange={(e) =>
                   setNewPartner({ ...newPartner, password: e.target.value })
                 }
@@ -431,12 +439,20 @@ export default function DeliveryPartners() {
             </div>
 
             <div className={styles.modalActions}>
-              <button className={styles.cancelBtn} onClick={() => setShowCreate(false)}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setShowCreate(false)}
+                disabled={isCreatingPartner}
+              >
                 Cancel
               </button>
 
-              <button className={styles.saveBtn} onClick={handleCreatePartner}>
-                Create
+              <button
+                className={styles.saveBtn}
+                onClick={handleCreatePartner}
+                disabled={isCreatingPartner}
+              >
+                {isCreatingPartner ? "Creating..." : "Create"}
               </button>
             </div>
           </div>

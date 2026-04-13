@@ -6,6 +6,7 @@ import { useToast } from "../../components/toast/ToastContext";
 import { generateInvoice } from "../../utils/generateInvoice";
 import api from "../../services/api";
 import ConfirmModal from "@/components/confirmModal/ConfirmModal";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 interface TrackingHistory {
   status: string;
@@ -91,7 +92,7 @@ const ALL_STATUSES = [
   "out_for_delivery",
   "delivered",
   "failed_delivery",
-  "cancelled",
+  // "cancelled",
   "returned",
 ];
 
@@ -122,19 +123,20 @@ interface ReturnModalProps {
 
 function ReturnModal({ mode, item, onConfirm, onClose }: ReturnModalProps) {
   const [reason, setReason] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { isRunning: isSubmittingReturn, runWithLock: runReturnAction } =
+    useAsyncActionLock();
 
   const handleConfirm = async () => {
     if (!reason.trim()) { setError("Please provide a reason for the return."); return; }
-    setLoading(true);
     setError("");
-    try {
-      await onConfirm(reason.trim());
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to process return. Please try again.");
-      setLoading(false);
-    }
+    await runReturnAction(async () => {
+      try {
+        await onConfirm(reason.trim());
+      } catch (err: any) {
+        setError(err?.response?.data?.message || "Failed to process return. Please try again.");
+      }
+    });
   };
 
   const isOrder = mode === "order";
@@ -142,7 +144,7 @@ function ReturnModal({ mode, item, onConfirm, onClose }: ReturnModalProps) {
     ?? item?.product?.images?.[0]?.url;
 
   return (
-    <div className={styles.returnModalOverlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className={styles.returnModalOverlay} onClick={(e) => e.target === e.currentTarget && !isSubmittingReturn && onClose()}>
       <div className={styles.returnModal}>
         {/* Header */}
         <div className={styles.returnModalHeader}>
@@ -153,7 +155,7 @@ function ReturnModal({ mode, item, onConfirm, onClose }: ReturnModalProps) {
               <p>{isOrder ? "This will mark all items as returned" : item?.product?.name}</p>
             </div>
           </div>
-          <button className={styles.returnModalClose} onClick={onClose} disabled={loading}>
+          <button className={styles.returnModalClose} onClick={onClose} disabled={isSubmittingReturn}>
             <FiX size={18} />
           </button>
         </div>
@@ -190,16 +192,16 @@ function ReturnModal({ mode, item, onConfirm, onClose }: ReturnModalProps) {
             placeholder={isOrder ? "Describe why this order is being returned..." : "Describe why this item is being returned..."}
             value={reason}
             onChange={(e) => { setReason(e.target.value); setError(""); }}
-            disabled={loading}
+            disabled={isSubmittingReturn}
           />
           {error && <p className={styles.returnError}>{error}</p>}
         </div>
 
         {/* Actions */}
         <div className={styles.returnModalActions}>
-          <button className={styles.returnCancelBtn} onClick={onClose} disabled={loading}>Cancel</button>
-          <button className={styles.returnConfirmBtn} onClick={handleConfirm} disabled={loading}>
-            {loading ? "Processing..." : isOrder ? "Return Entire Order" : "Confirm Return"}
+          <button className={styles.returnCancelBtn} onClick={onClose} disabled={isSubmittingReturn}>Cancel</button>
+          <button className={styles.returnConfirmBtn} onClick={handleConfirm} disabled={isSubmittingReturn}>
+            {isSubmittingReturn ? "Processing..." : isOrder ? "Return Entire Order" : "Confirm Return"}
           </button>
         </div>
       </div>
@@ -215,9 +217,10 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [tracking, setTracking] = useState<TrackingDetails | null>(null);
-  const [trackingLoading, setTrackingLoading] = useState(false);
   const [showCreateTracking, setShowCreateTracking] = useState(false);
   const { showToast } = useToast();
+  const { isRunning: isCreatingTracking, runWithLock: runCreateTracking } =
+    useAsyncActionLock();
   const [trackingForm, setTrackingForm] = useState({
     carrier: "",
     trackingNumber: "",
@@ -229,12 +232,15 @@ export default function OrderDetails() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [deliveryPartners, setDeliveryPartners] = useState<DeliveryPartner[]>([]);
   const [selectedPartnerId, setSelectedPartnerId] = useState("");
-  const [assignLoading, setAssignLoading] = useState(false);
   const [partnersLoading, setPartnersLoading] = useState(false);
+  const { isRunning: isAssigningPartner, runWithLock: runAssignPartner } =
+    useAsyncActionLock();
 
   // Status change confirm
   const [showStatusChangeConfirm, setShowStatusChangeConfirm] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string>("");
+  const { isRunning: isUpdatingStatus, runWithLock: runStatusUpdate } =
+    useAsyncActionLock();
 
   // Return modal state
   const [returnModal, setReturnModal] = useState<{ mode: "item" | "order"; item?: any } | null>(null);
@@ -318,18 +324,17 @@ export default function OrderDetails() {
 
   const handleAssignPartner = async () => {
     if (!selectedPartnerId) { showToast("Please select a delivery partner", "error"); return; }
-    setAssignLoading(true);
-    try {
-      const updated = await assignDeliveryPartner(order.id, selectedPartnerId);
-      setDeliveryPartner(updated.deliveryPartner ?? null);
-      setOrder((prev: any) => ({ ...prev, deliveryPartner: updated.deliveryPartner }));
-      showToast("Delivery partner assigned successfully", "success");
-      setShowAssignModal(false);
-    } catch (err: any) {
-      showToast(err.response?.data?.message || "Failed to assign delivery partner", "error");
-    } finally {
-      setAssignLoading(false);
-    }
+    await runAssignPartner(async () => {
+      try {
+        const updated = await assignDeliveryPartner(order.id, selectedPartnerId);
+        setDeliveryPartner(updated.deliveryPartner ?? null);
+        setOrder((prev: any) => ({ ...prev, deliveryPartner: updated.deliveryPartner }));
+        showToast("Delivery partner assigned successfully", "success");
+        setShowAssignModal(false);
+      } catch (err: any) {
+        showToast(err.response?.data?.message || "Failed to assign delivery partner", "error");
+      }
+    });
   };
 
   /* ================= STATUS CHANGE HANDLERS ================= */
@@ -344,17 +349,19 @@ export default function OrderDetails() {
   };
 
   const executeStatusChange = async (newStatus: string) => {
-    try {
-      const notes = `Status changed to ${formatStatus(newStatus)} by admin`;
-      const updated = await updateTrackingStatus(order.id, newStatus, notes);
-      setTracking(updated);
-      showToast(`Order status updated to ${formatStatus(newStatus)}`, "success");
-    } catch (err: any) {
-      showToast(err.response?.data?.message || "Failed to update order status", "error");
-    } finally {
-      setShowStatusChangeConfirm(false);
-      setPendingStatus("");
-    }
+    await runStatusUpdate(async () => {
+      try {
+        const notes = `Status changed to ${formatStatus(newStatus)} by admin`;
+        const updated = await updateTrackingStatus(order.id, newStatus, notes);
+        setTracking(updated);
+        showToast(`Order status updated to ${formatStatus(newStatus)}`, "success");
+      } catch (err: any) {
+        showToast(err.response?.data?.message || "Failed to update order status", "error");
+      } finally {
+        setShowStatusChangeConfirm(false);
+        setPendingStatus("");
+      }
+    });
   };
 
   const handleCreateTracking = async () => {
@@ -362,23 +369,22 @@ export default function OrderDetails() {
       showToast("Carrier and tracking number are required", "error");
       return;
     }
-    try {
-      setTrackingLoading(true);
-      const created = await createTracking({
-        orderId: order.id,
-        carrier: trackingForm.carrier,
-        trackingNumber: trackingForm.trackingNumber,
-        trackingUrl: trackingForm.trackingUrl || undefined,
-      });
-      setTracking(created);
-      setShowCreateTracking(false);
-      setTrackingForm({ carrier: "", trackingNumber: "", trackingUrl: "" });
-      showToast("Tracking information created successfully", "success");
-    } catch (err: any) {
-      showToast(err.response?.data?.message || "Failed to create tracking", "error");
-    } finally {
-      setTrackingLoading(false);
-    }
+    await runCreateTracking(async () => {
+      try {
+        const created = await createTracking({
+          orderId: order.id,
+          carrier: trackingForm.carrier,
+          trackingNumber: trackingForm.trackingNumber,
+          trackingUrl: trackingForm.trackingUrl || undefined,
+        });
+        setTracking(created);
+        setShowCreateTracking(false);
+        setTrackingForm({ carrier: "", trackingNumber: "", trackingUrl: "" });
+        showToast("Tracking information created successfully", "success");
+      } catch (err: any) {
+        showToast(err.response?.data?.message || "Failed to create tracking", "error");
+      }
+    });
   };
 
   /* ================= RENDER HELPERS ================= */
@@ -546,20 +552,23 @@ export default function OrderDetails() {
               <>
                 <div className={styles.noTracking}>
                   <p>Tracking not created for this order</p>
-                  <button className={styles.createBtn} onClick={() => setShowCreateTracking(!showCreateTracking)}>
+                  <button className={styles.createBtn} onClick={() => setShowCreateTracking(!showCreateTracking)} disabled={isCreatingTracking}>
                     {showCreateTracking ? "Cancel" : "Create Tracking"}
                   </button>
                 </div>
                 {showCreateTracking && (
                   <div className={styles.trackingForm}>
                     <input placeholder="Carrier (e.g. FedEx)" value={trackingForm.carrier}
+                      disabled={isCreatingTracking}
                       onChange={(e) => setTrackingForm({ ...trackingForm, carrier: e.target.value })} />
                     <input placeholder="Tracking Number" value={trackingForm.trackingNumber}
+                      disabled={isCreatingTracking}
                       onChange={(e) => setTrackingForm({ ...trackingForm, trackingNumber: e.target.value })} />
                     <input placeholder="Tracking URL (optional)" value={trackingForm.trackingUrl}
+                      disabled={isCreatingTracking}
                       onChange={(e) => setTrackingForm({ ...trackingForm, trackingUrl: e.target.value })} />
-                    <button className={styles.saveBtn} onClick={handleCreateTracking} disabled={trackingLoading}>
-                      {trackingLoading ? "Creating..." : "Save Tracking"}
+                    <button className={styles.saveBtn} onClick={handleCreateTracking} disabled={isCreatingTracking}>
+                      {isCreatingTracking ? "Creating..." : "Save Tracking"}
                     </button>
                   </div>
                 )}
@@ -666,11 +675,11 @@ export default function OrderDetails() {
 
       {/* ===== ASSIGN DELIVERY PARTNER MODAL ===== */}
       {showAssignModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowAssignModal(false)}>
+        <div className={styles.modalOverlay} onClick={() => !isAssigningPartner && setShowAssignModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>{deliveryPartner ? "Reassign Delivery Partner" : "Assign Delivery Partner"}</h3>
-              <button className={styles.modalClose} onClick={() => setShowAssignModal(false)}><FiX size={18} /></button>
+              <button className={styles.modalClose} onClick={() => setShowAssignModal(false)} disabled={isAssigningPartner}><FiX size={18} /></button>
             </div>
             <div className={styles.modalBody}>
               {partnersLoading ? (
@@ -688,7 +697,11 @@ export default function OrderDetails() {
                           <div
                             key={partner.id}
                             className={`${styles.partnerItem} ${isSelected ? styles.partnerItemSelected : ""}`}
-                            onClick={() => setSelectedPartnerId(partner.id)}
+                            onClick={() => {
+                              if (!isAssigningPartner) {
+                                setSelectedPartnerId(partner.id);
+                              }
+                            }}
                           >
                             <div className={styles.partnerAvatar}><FiUser size={18} /></div>
                             <div className={styles.partnerItemDetails}>
@@ -711,9 +724,9 @@ export default function OrderDetails() {
               )}
             </div>
             <div className={styles.modalFooter}>
-              <button className={styles.modalCancelBtn} onClick={() => setShowAssignModal(false)} disabled={assignLoading}>Cancel</button>
-              <button className={styles.modalConfirmBtn} onClick={handleAssignPartner} disabled={assignLoading || !selectedPartnerId || partnersLoading}>
-                {assignLoading ? "Assigning…" : "Confirm Assignment"}
+              <button className={styles.modalCancelBtn} onClick={() => setShowAssignModal(false)} disabled={isAssigningPartner}>Cancel</button>
+              <button className={styles.modalConfirmBtn} onClick={handleAssignPartner} disabled={isAssigningPartner || !selectedPartnerId || partnersLoading}>
+                {isAssigningPartner ? "Assigning…" : "Confirm Assignment"}
               </button>
             </div>
           </div>
@@ -726,6 +739,7 @@ export default function OrderDetails() {
         title="Confirm Status Change"
         message={`Change order status to "${formatStatus(pendingStatus)}"?`}
         onCancel={() => { setShowStatusChangeConfirm(false); setPendingStatus(""); }}
+        loading={isUpdatingStatus}
         onConfirm={() => executeStatusChange(pendingStatus)}
       />
 

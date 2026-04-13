@@ -2,6 +2,7 @@ import styles from "./CouponFormModal.module.css";
 import { useEffect, useState } from "react";
 import api from "../../../services/api";
 import { useToast } from "../../../components/toast/ToastContext";
+import useAsyncActionLock from "../../../hooks/useAsyncActionLock";
 
 interface CouponFormData {
   couponName: string;
@@ -36,8 +37,8 @@ export default function CouponFormModal({
     ValidTill: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { isRunning: isSaving, runWithLock } = useAsyncActionLock();
   
   useEffect(() => {
     if (!couponId) return;
@@ -68,32 +69,37 @@ export default function CouponFormModal({
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        couponName: form.couponName,
-        ValueType: form.ValueType,
-        Value: form.Value,
-        minimumSpent: Number(form.minimumSpent),
-        usageLimitPerPerson: Number(form.usageLimitPerPerson),
-        validFrom: form.validFrom,
-        ValidTill: form.ValidTill,
-      };
+    await runWithLock(async () => {
+      try {
+        const payload = {
+          couponName: form.couponName,
+          ValueType: form.ValueType,
+          Value: form.Value,
+          minimumSpent: Number(form.minimumSpent),
+          usageLimitPerPerson: Number(form.usageLimitPerPerson),
+          validFrom: form.validFrom,
+          ValidTill: form.ValidTill,
+        };
 
-      if (couponId) {
-        await api.patch(`/coupons/${couponId}`, payload);
-      } else {
-        await api.post("/coupons", payload);
+        if (couponId) {
+          await api.patch(`/coupons/${couponId}`, payload);
+        } else {
+          await api.post("/coupons", payload);
+        }
+
+        onSuccess();
+        showToast(
+          couponId ? "Coupon updated successfully" : "Coupon created successfully",
+          "success"
+        );
+        onClose();
+      } catch (err) {
+        showToast(
+          couponId ? "Failed to update coupon" : "Failed to create coupon",
+          "error"
+        );
       }
-
-      onSuccess();
-      showToast("Coupon created successfully", "success");
-      onClose();
-    } catch (err) {
-      showToast("Failed to create coupon", "error");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -107,6 +113,7 @@ export default function CouponFormModal({
             <input
               value={form.couponName}
               placeholder="SUMMER2026"
+              disabled={isSaving}
               onChange={(e) =>
                 setForm({ ...form, couponName: e.target.value })
               }
@@ -117,6 +124,7 @@ export default function CouponFormModal({
             <label>Discount Type</label>
             <select
               value={form.ValueType}
+              disabled={isSaving}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -135,6 +143,7 @@ export default function CouponFormModal({
               type="number"
               placeholder="20"
               value={form.Value}
+              disabled={isSaving}
               onChange={(e) =>
                 setForm({ ...form, Value: e.target.value })
               }
@@ -147,6 +156,7 @@ export default function CouponFormModal({
               type="number"
               placeholder="100"
               value={form.minimumSpent}
+              disabled={isSaving}
               onChange={(e) =>
                 setForm({ ...form, minimumSpent: e.target.value })
               }
@@ -159,6 +169,7 @@ export default function CouponFormModal({
               type="number"
               placeholder="1"
               value={form.usageLimitPerPerson}
+              disabled={isSaving}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -174,6 +185,7 @@ export default function CouponFormModal({
               <input
                 type="date"
                 value={form.validFrom}
+                disabled={isSaving}
                 onChange={(e) =>
                   setForm({ ...form, validFrom: e.target.value })
                 }
@@ -181,6 +193,7 @@ export default function CouponFormModal({
               <input
                 type="date"
                 value={form.ValidTill}
+                disabled={isSaving}
                 onChange={(e) =>
                   setForm({ ...form, ValidTill: e.target.value })
                 }
@@ -191,15 +204,19 @@ export default function CouponFormModal({
 
 
         <div className={styles.actions}>
-          <button onClick={onClose} className={styles.cancel}>
+          <button onClick={onClose} className={styles.cancel} disabled={isSaving}>
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={isSaving}
             className={styles.save}
           >
-            {loading ? "Saving..." : "Save Coupon"}
+            {isSaving
+              ? couponId
+                ? "Updating..."
+                : "Saving..."
+              : "Save Coupon"}
           </button>
         </div>
       </div>
