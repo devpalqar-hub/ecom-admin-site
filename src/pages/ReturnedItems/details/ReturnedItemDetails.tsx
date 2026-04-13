@@ -528,7 +528,7 @@ export default function ReturnedItemDetails() {
               </span>
               <div className={styles.statusMeta}>
                 <p>
-                  Return ID:{" "}
+                  Return Id:{" "}
                   <code>{returnData.id.slice(0, 8).toUpperCase()}…</code>
                 </p>
                 <p>
