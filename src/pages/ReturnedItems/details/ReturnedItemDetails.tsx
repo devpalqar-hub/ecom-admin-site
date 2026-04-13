@@ -372,10 +372,10 @@ export default function ReturnedItemDetails() {
                 <span>Return Fee</span>
                 <span>− QAR {returnFee.toFixed(2)}</span>
               </div>
-              <div className={styles.totalRow}>
+              {/* <div className={styles.totalRow}>
                 <span>Refund Amount</span>
                 <span>QAR {refundAmount.toFixed(2)}</span>
-              </div>
+              </div> */}
 
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Net Refund</span>
