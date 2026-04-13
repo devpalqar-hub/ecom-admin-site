@@ -4,10 +4,11 @@ import api from "../../services/api";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 export default function CreateProduct() {
- 
   const navigate = useNavigate();
+  const { isRunning: isCreating, runWithLock } = useAsyncActionLock();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -259,74 +260,76 @@ const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
 const handleCreateProduct = async () => {
   if(!validateForm()) return;
 
-  try {
-    const formData = new FormData();
+  await runWithLock(async () => {
+    try {
+      const formData = new FormData();
 
-    /* ---------------- TEXT FIELDS ---------------- */
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("stockCount", String(stockCount));
-    formData.append("actualPrice", actualPrice);
-    const finalDiscount =
-      discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
-      ? actualPrice 
-      : discountedPrice
-    formData.append("discountedPrice", finalDiscount);
-    formData.append("subCategoryId", selectedSubCategory);
-    formData.append("isFeatured", String(isFeatured));
-    formData.append("isStock", String(isStock));
-    formData.append("variationTitle", variationTitle);
+      /* ---------------- TEXT FIELDS ---------------- */
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("stockCount", String(stockCount));
+      formData.append("actualPrice", actualPrice);
+      const finalDiscount =
+        discountedPrice === "" || discountedPrice === null || discountedPrice === " " || discountedPrice === "0"
+        ? actualPrice 
+        : discountedPrice
+      formData.append("discountedPrice", finalDiscount);
+      formData.append("subCategoryId", selectedSubCategory);
+      formData.append("isFeatured", String(isFeatured));
+      formData.append("isStock", String(isStock));
+      formData.append("variationTitle", variationTitle);
 
 
-    /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
-    if (variationsEnabled) {
-      const payloadVariations = variations.map((v) => {
-        const price = Number(v.price);
-        const discounted =
-          v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
-            ? price
-            : Number(v.discountedPrice);
+      /* ---------------- VARIATIONS (ADD HERE ) ---------------- */
+      if (variationsEnabled) {
+        const payloadVariations = variations.map((v) => {
+          const price = Number(v.price);
+          const discounted =
+            v.discountedPrice === "" || v.discountedPrice === null || v.discountedPrice === "0"
+              ? price
+              : Number(v.discountedPrice);
 
-        return {
-          variationName: v.variationName,
-          actualPrice: price,
-          discountedPrice: discounted,
-          stockCount: Number(v.stockCount),
-          isAvailable: v.isAvailable,
-        };
+          return {
+            variationName: v.variationName,
+            actualPrice: price,
+            discountedPrice: discounted,
+            stockCount: Number(v.stockCount),
+            isAvailable: v.isAvailable,
+          };
+        });
+
+        formData.append("variations", JSON.stringify(payloadVariations));
+      }
+
+      /* ---------------- IMAGES ---------------- */
+      if (!mainImage) {
+        showToast("Main image is required", "error");
+          return;
+      }
+      formData.append("images", mainImage); 
+      images.forEach((img) => {
+        formData.append("images", img);
       });
 
-      formData.append("variations", JSON.stringify(payloadVariations));
+      /* ---------------- API CALL ---------------- */
+      const res = await api.post("/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Product created:", res.data);
+      
+      showToast("Product created successfully", "success")
+      navigate("/products");
+    } catch (error: any) {
+      console.error("Create product failed", error?.response?.data || error);
+     showToast(
+    error?.response?.data?.message || "Failed to create product",
+    "error"
+  );
     }
-
-    /* ---------------- IMAGES ---------------- */
-    if (!mainImage) {
-      showToast("Main image is required", "error");
-        return;
-    }
-    formData.append("images", mainImage); 
-    images.forEach((img) => {
-      formData.append("images", img);
-    });
-
-    /* ---------------- API CALL ---------------- */
-    const res = await api.post("/products", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    console.log("Product created:", res.data);
-    
-    showToast("Product created successfully", "success")
-    navigate("/products");
-  } catch (error: any) {
-    console.error("Create product failed", error?.response?.data || error);
-   showToast(
-  error?.response?.data?.message || "Failed to create product",
-  "error"
-);
-  }
+  });
 };
 
 const selectedCategoryObj = categories.find(
@@ -348,6 +351,7 @@ const hasNoSubCategories =
         <button
           type="button"
           className={styles.backBtn}
+          disabled={isCreating}
           onClick={() => navigate("/products")}
         >
           <FiArrowLeft />
@@ -666,6 +670,7 @@ const hasNoSubCategories =
     <div className={styles.actions}>
       <button
         className={styles.cancel}
+        disabled={isCreating}
         onClick={() => navigate("/products")}
       >
         Cancel
@@ -673,9 +678,9 @@ const hasNoSubCategories =
       <button
         className={styles.primary}
         onClick={handleCreateProduct}
-        disabled={!name || !selectedSubCategory}
+        disabled={isCreating || !name || !selectedSubCategory}
       >
-        Create Product
+        {isCreating ? "Creating..." : "Create Product"}
       </button>
     </div>
   </div>

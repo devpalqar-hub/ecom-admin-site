@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./ProductDetails.module.css";
 import { FiArrowLeft, FiEdit2, FiTrash2 } from "react-icons/fi";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ================= TYPES ================= */
 
@@ -61,7 +62,7 @@ export default function ProductDetails() {
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [editRating, setEditRating] = useState(0);
   const [editComment, setEditComment] = useState("");
-  const [saving, setSaving] = useState(false);
+  const { isRunning: isSavingReview, runWithLock } = useAsyncActionLock();
 
   /* ================= FETCH PRODUCT ================= */
 
@@ -97,34 +98,32 @@ export default function ProductDetails() {
   const handleUpdateReview = async () => {
     if (!editingReview) return;
 
-    try {
-      setSaving(true);
+    await runWithLock(async () => {
+      try {
+        await api.patch(`/reviews/${editingReview.id}`, {
+          rating: editRating,
+          comment: editComment,
+        });
 
-      await api.patch(`/reviews/${editingReview.id}`, {
-        rating: editRating,
-        comment: editComment,
-      });
+        setProduct((prev) =>
+          prev
+            ? {
+                ...prev,
+                reviews: prev.reviews?.map((r) =>
+                  r.id === editingReview.id
+                    ? { ...r, rating: editRating, comment: editComment }
+                    : r
+                ),
+              }
+            : prev
+        );
 
-      setProduct((prev) =>
-        prev
-          ? {
-              ...prev,
-              reviews: prev.reviews?.map((r) =>
-                r.id === editingReview.id
-                  ? { ...r, rating: editRating, comment: editComment }
-                  : r
-              ),
-            }
-          : prev
-      );
-
-      setEditingReview(null);
-    } catch (error) {
-      console.error("Failed to update review", error);
-      alert("Failed to update review");
-    } finally {
-      setSaving(false);
-    }
+        setEditingReview(null);
+      } catch (error) {
+        console.error("Failed to update review", error);
+        alert("Failed to update review");
+      }
+    });
   };
 
   /* ================= REVIEW DELETE ================= */
@@ -314,6 +313,7 @@ export default function ProductDetails() {
             <label>Rating</label>
             <select
               value={editRating}
+              disabled={isSavingReview}
               onChange={(e) => setEditRating(Number(e.target.value))}
             >
               {[1, 2, 3, 4, 5].map((n) => (
@@ -326,6 +326,7 @@ export default function ProductDetails() {
             <label>Comment</label>
             <textarea
               value={editComment}
+              disabled={isSavingReview}
               onChange={(e) => setEditComment(e.target.value)}
               rows={4}
             />
@@ -333,6 +334,7 @@ export default function ProductDetails() {
             <div className={styles.modalActions}>
               <button
                 className={styles.cancelBtn}
+                disabled={isSavingReview}
                 onClick={() => setEditingReview(null)}
               >
                 Cancel
@@ -341,9 +343,9 @@ export default function ProductDetails() {
               <button
                 className={styles.saveBtn}
                 onClick={handleUpdateReview}
-                disabled={saving}
+                disabled={isSavingReview}
               >
-                {saving ? "Saving..." : "Update"}
+                {isSavingReview ? "Updating..." : "Update"}
               </button>
             </div>
           </div>

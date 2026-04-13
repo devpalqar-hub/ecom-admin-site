@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import ConfirmModal from "../../components/confirmModal/ConfirmModal";
 import { useToast } from "../../components/toast/ToastContext";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 /* ================= TYPES ================= */
 interface DeliveryCharge {
@@ -49,6 +50,7 @@ export default function DeliveryCharges() {
   const [postalInput, setPostalInput] = useState("");
   const [charge, setCharge] = useState("");
   const [isFreeDeliveryEligible, setIsFreeDeliveryEligible] = useState(false);
+  const { isRunning: isSavingCharge, runWithLock } = useAsyncActionLock();
 
   /* ================= FETCH ================= */
   const fetchCharges = async () => {
@@ -100,40 +102,44 @@ export default function DeliveryCharges() {
       return;
     }
 
-    try {
-      await api.post("/delivery-charges", {
-        postalCodes: finalCodes,
-        deliveryCharge: Number(charge),
-        isFreeDeliveryEligible,
-      });
+    await runWithLock(async () => {
+      try {
+        await api.post("/delivery-charges", {
+          postalCodes: finalCodes,
+          deliveryCharge: Number(charge),
+          isFreeDeliveryEligible,
+        });
 
-      showToast("Delivery charges added successfully", "success");
-      setPostalCodes([]);
-      setPostalInput("");
-      setCharge("");
-      setShowCreate(false);
-      fetchCharges();
-    } catch {
-      showToast("Failed to create delivery charges", "error");
-    }
+        showToast("Delivery charges added successfully", "success");
+        setPostalCodes([]);
+        setPostalInput("");
+        setCharge("");
+        setShowCreate(false);
+        await fetchCharges();
+      } catch {
+        showToast("Failed to create delivery charges", "error");
+      }
+    });
   };
 
   /* ================= UPDATE ================= */
   const handleUpdate = async () => {
     if (!editCode) return;
-    try {
-      await api.patch(`/delivery-charges/${editCode}`, {
-        deliveryCharge: Number(charge),
-        isFreeDeliveryEligible,
-      });
+    await runWithLock(async () => {
+      try {
+        await api.patch(`/delivery-charges/${editCode}`, {
+          deliveryCharge: Number(charge),
+          isFreeDeliveryEligible,
+        });
 
-      showToast("Delivery charge updated", "success");
-      setEditCode(null);
-      setCharge("");
-      fetchCharges();
-    } catch {
-      showToast("Failed to update delivery charge", "error");
-    }
+        showToast("Delivery charge updated", "success");
+        setEditCode(null);
+        setCharge("");
+        await fetchCharges();
+      } catch {
+        showToast("Failed to update delivery charge", "error");
+      }
+    });
   };
 
   /* ================= DELETE ================= */
@@ -313,6 +319,7 @@ export default function DeliveryCharges() {
                 <input
                   value={postalInput}
                   placeholder="Enter zone number"
+                  disabled={isSavingCharge}
                   onChange={(e) => setPostalInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -329,6 +336,7 @@ export default function DeliveryCharges() {
               placeholder="Delivery Charge (QAR)"
               className={styles.modalInput}
               value={charge}
+              disabled={isSavingCharge}
               onChange={(e) => setCharge(e.target.value)}
             />
 
@@ -336,6 +344,7 @@ export default function DeliveryCharges() {
               <input
                 type="checkbox"
                 checked={isFreeDeliveryEligible}
+                disabled={isSavingCharge}
                 onChange={(e) => setIsFreeDeliveryEligible(e.target.checked)}
               />
               Free Delivery Eligible
@@ -351,14 +360,20 @@ export default function DeliveryCharges() {
                   setCharge("");
                   setIsFreeDeliveryEligible(false);
                 }}
+                disabled={isSavingCharge}
               >
                 Cancel
               </button>
               <button
                 className={styles.saveBtn}
                 onClick={editCode ? handleUpdate : handleCreate}
+                disabled={isSavingCharge}
               >
-                Save
+                {isSavingCharge
+                  ? editCode
+                    ? "Updating..."
+                    : "Creating..."
+                  : "Save"}
               </button>
             </div>
           </div>

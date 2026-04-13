@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styles from "./ConfirmModal.module.css";
 
 interface ConfirmModalProps {
@@ -6,7 +7,7 @@ interface ConfirmModalProps {
     message: string;
     confirmText?: string;
     cancelText?: string;
-    onConfirm: () => void;
+    onConfirm: () => void | Promise<void>;
     onCancel: () => void;
     loading?: boolean;
 }
@@ -21,7 +22,28 @@ export default function ConfirmModal({
     onCancel,
     loading = false,
 }: ConfirmModalProps) {
+    const [internalLoading, setInternalLoading] = useState(false);
+
+    useEffect(() => {
+        if (!open) {
+            setInternalLoading(false);
+        }
+    }, [open]);
+
     if(!open) return null;
+
+    const isBusy = loading || internalLoading;
+
+    const handleConfirmClick = async () => {
+        if (isBusy) return;
+
+        try {
+            setInternalLoading(true);
+            await onConfirm();
+        } finally {
+            setInternalLoading(false);
+        }
+    };
 
     return (
         <div className={styles.overlay}>
@@ -33,17 +55,17 @@ export default function ConfirmModal({
                     <button
                         className={styles.cancelBtn}
                         onClick={onCancel}
-                        disabled={loading}
+                        disabled={isBusy}
                     >
                         {cancelText}
                     </button>
 
                     <button
                         className={styles.confirmBtn}
-                        onClick={onConfirm}
-                        disabled={loading}
+                        onClick={handleConfirmClick}
+                        disabled={isBusy}
                     >
-                        {loading ? "Please wait..." : confirmText}
+                        {isBusy ? "Please wait..." : confirmText}
                     </button>
                 </div>
             </div>

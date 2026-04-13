@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import styles from "./EditSubCategory.module.css";
 import { useToast } from "../../components/toast/ToastContext";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 /* ================= TYPES ================= */
 
 interface Category {
@@ -22,7 +23,7 @@ export default function EditSubCategory() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { isRunning: isSaving, runWithLock } = useAsyncActionLock();
 
   /* ================= FETCH DATA ================= */
   useEffect(() => {
@@ -67,30 +68,28 @@ export default function EditSubCategory() {
     e.preventDefault();
     if (!id || !name.trim()) return;
 
-    try {
-      setSaving(true);
+    await runWithLock(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", name.trim());
+        formData.append("description", description.trim());
+        formData.append("categoryId", categoryId);
 
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("description", description.trim());
-      formData.append("categoryId", categoryId);
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
 
-      if (imageFile) {
-        formData.append("image", imageFile);
+        await api.patch(`/subcategories/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        showToast("Subcategory updated successfully", "success");
+        navigate(-1);
+      } catch (error: any) {
+        console.error("Update failed", error?.response?.data || error);
+        showToast("Failed to update subcategory", "error");
       }
-
-      await api.patch(`/subcategories/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      showToast("Subcategory updated successfully", "success");
-      navigate(-1);
-    } catch (error: any) {
-      console.error("Update failed", error?.response?.data || error);
-      showToast("Failed to update subcategory", "error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   if (loading) {
@@ -121,6 +120,7 @@ export default function EditSubCategory() {
               type="file"
               hidden
               accept="image/*"
+              disabled={isSaving}
               onChange={handleImageChange}
             />
           </label>
@@ -136,6 +136,7 @@ export default function EditSubCategory() {
             <label>Subcategory Name *</label>
             <input
               value={name}
+              disabled={isSaving}
               onChange={(e) => setName(e.target.value)}
               required
             />
@@ -146,6 +147,7 @@ export default function EditSubCategory() {
             <label>Description</label>
             <textarea
               value={description}
+              disabled={isSaving}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
@@ -155,6 +157,7 @@ export default function EditSubCategory() {
             <label>Category *</label>
             <select
               value={categoryId}
+              disabled={isSaving}
               onChange={(e) => setCategoryId(e.target.value)}
               required
             >
@@ -173,12 +176,12 @@ export default function EditSubCategory() {
               type="button"
               className={styles.cancel}
               onClick={() => navigate(-1)}
-              disabled={saving}
+              disabled={isSaving}
             >
               Cancel
             </button>
-            <button type="submit" className={styles.save} disabled={saving}>
-              {saving ? "Updating..." : "Update Subcategory"}
+            <button type="submit" className={styles.save} disabled={isSaving}>
+              {isSaving ? "Updating..." : "Update Subcategory"}
             </button>
           </div>
         </form>

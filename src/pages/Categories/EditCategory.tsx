@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { useToast } from "../../components/toast/ToastContext";
 import styles from "./EditCategory.module.css";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 export default function EditCategory() {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ export default function EditCategory() {
   const [removeImage, setRemoveImage] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
+  const { isRunning: isSaving, runWithLock } = useAsyncActionLock();
   /* ================= FETCH CATEGORY ================= */
 
   useEffect(() => {
@@ -73,33 +74,31 @@ export default function EditCategory() {
     e.preventDefault();
     if (!id || !name.trim()) return;
 
-    try {
-      setSaving(true);
+    await runWithLock(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", name.trim());
+        formData.append("description", description.trim());
 
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("description", description.trim());
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
 
-      if (imageFile) {
-        formData.append("image", imageFile);
+        if (removeImage) {
+          formData.append("removeImage", "true");
+        }
+
+        await api.patch(`/categories/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        showToast("Category updated successfully", "success");
+        navigate(-1);
+      } catch (error) {
+        console.error("Update failed", error);
+        showToast("Failed to update category", "error");
       }
-
-      if (removeImage) {
-        formData.append("removeImage", "true");
-      }
-
-      await api.patch(`/categories/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      showToast("Category updated successfully", "success");
-      navigate(-1);
-    } catch (error) {
-      console.error("Update failed", error);
-      showToast("Failed to update category", "error");
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   if (loading) {
@@ -138,6 +137,7 @@ export default function EditCategory() {
               type="file"
               accept="image/*"
               hidden
+              disabled={isSaving}
               onChange={handleImageChange}
             />
           </label>
@@ -151,6 +151,7 @@ export default function EditCategory() {
       type="button"
       className={styles.imageRemove}
       onClick={handleRemoveImage}
+      disabled={isSaving}
       title="Remove image"
     >
       ×
@@ -164,6 +165,7 @@ export default function EditCategory() {
             <input
               type="text"
               value={name}
+              disabled={isSaving}
               onChange={(e) => setName(e.target.value)}
               required
             />
@@ -174,6 +176,7 @@ export default function EditCategory() {
             <label>Description</label>
             <textarea
               value={description}
+              disabled={isSaving}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
@@ -184,7 +187,7 @@ export default function EditCategory() {
               type="button"
               className={styles.cancel}
               onClick={() => navigate(-1)}
-              disabled={saving}
+              disabled={isSaving}
             >
               Cancel
             </button>
@@ -192,9 +195,9 @@ export default function EditCategory() {
             <button
               type="submit"
               className={styles.save}
-              disabled={saving}
+              disabled={isSaving}
             >
-              {saving ? "Updating..." : "Update Category"}
+              {isSaving ? "Updating..." : "Update Category"}
             </button>
           </div>
         </form>

@@ -4,6 +4,7 @@ import { FiArrowLeft, FiUpload, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/toast/ToastContext";
 import api from "../../services/api";
+import useAsyncActionLock from "../../hooks/useAsyncActionLock";
 
 export default function AddCategory() {
   const navigate = useNavigate();
@@ -12,8 +13,8 @@ export default function AddCategory() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { isRunning: isSubmitting, runWithLock } = useAsyncActionLock();
   const generateSlug = (text: string) =>
     text
       .toLowerCase()
@@ -32,31 +33,29 @@ export default function AddCategory() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("slug", generateSlug(name));
-    formData.append("description", description);
+    await runWithLock(async () => {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("slug", generateSlug(name));
+      formData.append("description", description);
 
-    if (image) {
-      formData.append("image", image);
-    }
+      if (image) {
+        formData.append("image", image);
+      }
 
-    try {
-      setLoading(true);
+      try {
+        await api.post("/categories", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
-      await api.post("/categories", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      showToast("Category created successfully", "success");
-      navigate("/categories");
-    } catch (err: any) {
-      showToast("Failed to create category", "error");
-    } finally {
-      setLoading(false);
-    }
+        showToast("Category created successfully", "success");
+        navigate("/categories");
+      } catch (err: any) {
+        showToast("Failed to create category", "error");
+      }
+    });
   };
 
   return (
@@ -88,6 +87,7 @@ export default function AddCategory() {
                 type="file"
                 accept="image/*"
                 hidden
+                disabled={isSubmitting}
                 onChange={(e) =>
                   e.target.files && handleImageChange(e.target.files[0])
                 }
@@ -98,6 +98,8 @@ export default function AddCategory() {
               <img src={preview} alt="Preview" />
               <button
                 className={styles.removeImage}
+                type="button"
+                disabled={isSubmitting}
                 onClick={() => {
                   setImage(null);
                   setPreview(null);
@@ -114,6 +116,7 @@ export default function AddCategory() {
           <label>Category Name *</label>
           <input
             value={name}
+            disabled={isSubmitting}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Accessories"
           />
@@ -124,6 +127,7 @@ export default function AddCategory() {
           <label>Description</label>
           <textarea
             value={description}
+            disabled={isSubmitting}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional description"
           />
@@ -134,6 +138,7 @@ export default function AddCategory() {
           <button
             className={styles.cancel}
             onClick={() => navigate("/categories")}
+            disabled={isSubmitting}
           >
             Cancel
           </button>
@@ -141,9 +146,9 @@ export default function AddCategory() {
           <button
             className={styles.primary}
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={isSubmitting}
           >
-            {loading ? "Creating..." : "Create Category"}
+            {isSubmitting ? "Creating..." : "Create Category"}
           </button>
         </div>
       </div>
