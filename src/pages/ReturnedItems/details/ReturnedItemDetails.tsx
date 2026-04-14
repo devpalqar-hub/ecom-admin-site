@@ -376,7 +376,6 @@ export default function ReturnedItemDetails() {
                 <span>Refund Amount</span>
                 <span>QAR {refundAmount.toFixed(2)}</span>
               </div> */}
-
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Net Refund</span>
                 <span>QAR {refundAmount.toFixed(2)}</span>
