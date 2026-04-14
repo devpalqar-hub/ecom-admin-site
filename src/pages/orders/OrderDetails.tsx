@@ -571,7 +571,7 @@ export default function OrderDetails() {
                   className={styles.returnOrderBtn}
                   onClick={() => setReturnModal({ mode: "order" })}
                 >
-                  Return Entire Order
+                  Return Full Order
                 </button>
               )}
             </div>
